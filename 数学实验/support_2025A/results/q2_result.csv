@@ -1,0 +1,2 @@
+﻿question,drone,missile,angle_deg,speed_mps,drop_t_s,fuse_t_s,burst_t_s,duration_s,intervals,drop_point,burst_point,runtime_s
+Q2,FY1,M1,178.00,105.00,0.00,3.00,3.00,4.470,"[(np.float64(3.0), np.float64(7.47))]","(17800.00, 0.00, 1800.00)","(17485.19, 10.99, 1755.90)",9.295

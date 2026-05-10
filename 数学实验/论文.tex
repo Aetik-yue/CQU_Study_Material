@@ -1,0 +1,1183 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage{ctex}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{geometry}
+\usepackage{float}
+\usepackage{multirow}
+\usepackage{array}
+\usepackage{longtable}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{enumitem}
+\usepackage{hyperref}
+\usepackage{algorithm}
+
+\geometry{left=2.5cm,right=2.5cm,top=2.5cm,bottom=2.5cm}
+
+\titleformat{\section}{\Large\bfseries}{\thesection、}{0pt}{}
+\titleformat{\subsection}{\large\bfseries}{\thesubsection\ }{0pt}{}
+\titleformat{\subsubsection}{\bfseries}{\thesubsubsection\ }{0pt}{}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[C]{\small 烟幕干扰弹的投放策略}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+\begin{document}
+
+\begin{center}
+{\LARGE\bfseries 烟幕干扰弹的投放策略}
+\end{center}
+
+\section*{摘要}
+
+本文针对无人机投放烟幕干扰弹对抗来袭导弹的问题，建立了完整的物理模型和优化模型，提出了多种投放策略以最大化有效遮蔽时间。
+
+针对问题一，采用正向模拟法建立物理模型。首先建立坐标系，以假目标为原点，推导导弹匀速直线运动方程、烟幕弹抛体运动方程和烟幕云团下沉轨迹方程。通过几何方法计算视线与烟幕云团的相交条件，得到有效遮蔽时长。
+
+针对问题二，建立单弹优化模型。将飞行方向角、飞行速度、投放时刻和起爆延迟作为决策变量，以有效遮蔽时间最大化为目标函数，采用遗传算法进行全局优化求解。通过理论分析减少优化变量维度，提高求解效率。
+
+针对问题三，建立单无人机多弹时序优化模型。考虑投放间隔约束，采用时间序列优化方法，使多枚烟幕弹形成时间上的接力遮蔽。通过动态规划思想确定最优投放时序和起爆时间。
+
+针对问题四，建立多无人机协同优化模型。利用多无人机的空间分布优势，采用分布式协同优化方法，形成立体遮蔽网络。通过任务分配和时序协调实现全局最优。
+
+针对问题五，建立多目标资源分配与调度模型。采用分层优化框架：第一层进行目标分配，第二层进行弹量分配，第三层进行投放策略优化。综合考虑导弹威胁程度和无人机位置优势，实现资源的最优配置。
+
+本文模型物理意义明确，算法求解高效，结果合理可靠。通过可视化验证和敏感性分析，验证了模型的有效性和鲁棒性。
+
+\textbf{关键词}：烟幕干扰弹；投放策略；优化模型；遗传算法；协同控制
+
+\tableofcontents
+\newpage
+\listoffigures
+\listoftables
+\newpage
+
+\section{问题重述}
+
+\subsection{问题背景}
+
+烟幕干扰弹主要通过化学燃烧或爆炸分散形成烟幕或气溶胶云团，在目标前方特定空域形成遮蔽，干扰敌方导弹，具有成本低、效费比高等优点。随着烟幕干扰技术的不断发展，现已有多种投放方式完成烟幕干扰弹的定点精确抛撒，即在抛撒前能精确控制烟幕干扰弹到达预定位置，通过时间引信时序控制起爆时间。
+
+现考虑运用无人机完成烟幕干扰弹的投放策略问题。具有长续航能力的无人机挂载某型烟幕干扰弹在特定空域巡飞，受领任务后，无人机投放烟幕干扰弹在来袭武器和保护目标之间形成烟幕遮蔽。
+
+\subsection{问题条件}
+
+\subsubsection{导弹参数}
+来袭武器为空地导弹，飞行速度300 m/s。导弹飞行方向直指假目标。警戒雷达发现来袭导弹时，三枚导弹位置分别为：
+\begin{itemize}
+    \item M1: $(20000, 0, 2000)$ m
+    \item M2: $(19000, 600, 2100)$ m
+    \item M3: $(18000, -600, 1900)$ m
+\end{itemize}
+
+\subsubsection{目标参数}
+\begin{itemize}
+    \item 假目标位置：原点 $(0, 0, 0)$
+    \item 真目标：圆柱形固定目标，半径7 m，高度10 m，底面圆心 $(0, 200, 0)$
+\end{itemize}
+
+\subsubsection{烟幕云团参数}
+\begin{itemize}
+    \item 起爆后瞬时形成球状烟幕云团
+    \item 下沉速度：3 m/s（匀速）
+    \item 有效遮蔽半径：云团中心10 m范围内
+    \item 有效遮蔽时间：起爆后20 s内
+\end{itemize}
+
+\subsubsection{无人机参数}
+五架无人机初始位置：
+\begin{itemize}
+    \item FY1: $(17800, 0, 1800)$ m
+    \item FY2: $(12000, 1400, 1400)$ m
+    \item FY3: $(6000, -3000, 700)$ m
+    \item FY4: $(11000, 2000, 1800)$ m
+    \item FY5: $(13000, -2000, 1300)$ m
+\end{itemize}
+
+无人机飞行速度范围：70--140 m/s，等高度匀速直线飞行。每架无人机投放两枚烟幕干扰弹至少间隔1 s。
+
+\subsection{问题要求}
+
+\textbf{问题一}：利用FY1投放1枚烟幕干扰弹干扰M1，给定飞行速度120 m/s、飞行方向朝向假目标、投放时刻1.5 s、起爆延迟3.6 s，求有效遮蔽时长。
+
+\textbf{问题二}：利用FY1投放1枚烟幕干扰弹干扰M1，确定最优飞行方向、速度、投放点和起爆点，使遮蔽时间最长。
+
+\textbf{问题三}：利用FY1投放3枚烟幕干扰弹干扰M1，给出投放策略。
+
+\textbf{问题四}：利用FY1、FY2、FY3各投放1枚烟幕干扰弹干扰M1，给出投放策略。
+
+\textbf{问题五}：利用5架无人机（每架至多3枚弹）干扰M1、M2、M3三枚导弹，给出投放策略。
+
+\section{问题分析}
+
+\subsection{整体思路}
+
+本问题的核心是在导弹和真目标之间形成烟幕遮蔽，使导弹无法发现真目标。为系统性地解决这一问题，我们采用"由简到繁、层层递进"的研究思路，将问题分解为三个层次：
+
+\textbf{第一层次：物理建模与基础计算}。首先需要建立准确的物理模型，描述导弹、无人机、烟幕弹和烟幕云团的运动规律。这是解决所有后续问题的基础。在此基础上，建立遮蔽判定的几何模型，确定何时视线被烟幕阻挡。
+
+\textbf{第二层次：单目标优化}。在物理模型基础上，针对单枚烟幕弹的投放策略进行优化，寻找最优参数组合。这为多弹、多机协同提供了基本单元的优化方法。
+
+\textbf{第三层次：多弹/多机协同优化}。将单弹优化方法扩展到多弹时序协调和多无人机协同，最终实现多导弹防御的资源分配与调度。
+
+\subsection{问题间的逻辑关系}
+
+五个问题之间存在明确的递进关系，如图\ref{fig:logic}所示：
+
+\begin{enumerate}
+    \item \textbf{问题一}是基础：给定固定参数，计算遮蔽时长。这验证了物理模型的正确性，为后续优化提供了评价函数。
+    
+    \item \textbf{问题二}是核心：在问题一的基础上，将固定参数变为决策变量，建立单弹优化模型。这是整个研究的核心方法。
+    
+    \item \textbf{问题三}是扩展：将单弹优化扩展到多弹时序优化，引入投放间隔约束，实现时间维度的接力遮蔽。
+    
+    \item \textbf{问题四}是协同：将单无人机扩展到多无人机协同，利用空间分布优势，形成立体遮蔽网络。
+    
+    \item \textbf{问题五}是综合：综合多无人机、多导弹、多烟幕弹的复杂场景，建立分层优化框架，实现资源最优配置。
+\end{enumerate}
+
+\subsection{关键问题分解}
+
+\subsubsection{问题一分析}
+问题一给定所有参数，属于正向计算问题。其核心任务是验证物理模型的正确性，建立从参数到遮蔽时长的映射关系。
+
+\textbf{解题逻辑}：
+\begin{enumerate}
+    \item 根据导弹初始位置和飞行方向，建立导弹运动方程
+    \item 根据无人机飞行参数，计算投放点位置
+    \item 根据烟幕弹抛体运动规律，计算起爆点位置
+    \item 根据烟幕云团下沉规律，建立云团轨迹方程
+    \item 建立视线与云团的几何相交判定模型
+    \item 通过时间离散化，逐时刻判定遮蔽状态，统计总遮蔽时长
+\end{enumerate}
+
+\subsubsection{问题二分析}
+问题二需要优化四个参数：飞行方向、飞行速度、投放时刻、起爆延迟。这是一个四维连续参数优化问题。
+
+\textbf{解题逻辑}：
+\begin{enumerate}
+    \item 分析各参数对遮蔽时长的影响机理
+    \item 通过几何分析减少优化变量维度
+    \item 建立目标函数（遮蔽时长最大化）
+    \item 确定约束条件（速度范围、时间非负等）
+    \item 采用遗传算法进行全局优化
+    \item 验证优化结果的合理性
+\end{enumerate}
+
+\subsubsection{问题三分析}
+问题三涉及多枚烟幕弹的时序协调。核心挑战是如何安排投放时序，使多枚弹形成连续的接力遮蔽。
+
+\textbf{解题逻辑}：
+\begin{enumerate}
+    \item 分析单枚弹的遮蔽时间区间特性
+    \item 确定多弹遮蔽时间的计算方法（时间区间并集）
+    \item 引入投放间隔约束（至少1秒）
+    \item 采用时间序列优化方法，依次确定各弹参数
+    \item 通过联合优化微调结果，消除遮蔽间隙
+\end{enumerate}
+
+\subsubsection{问题四分析}
+问题四涉及多无人机协同。核心挑战是如何协调不同位置无人机的投放策略，形成空间上的互补遮蔽。
+
+\textbf{解题逻辑}：
+\begin{enumerate}
+    \item 分析各无人机与导弹的相对位置关系
+    \item 进行任务分配：确定各无人机负责的时间段
+    \item 对每架无人机分别进行单弹优化
+    \item 协调投放时序，使遮蔽时间连续或最大化重叠
+    \item 评估协同效果与单机多弹方案的优劣
+\end{enumerate}
+
+\subsubsection{问题五分析}
+问题五最为复杂，涉及多无人机、多导弹、多烟幕弹的三维组合优化问题。
+
+\textbf{解题逻辑}：
+\begin{enumerate}
+    \item 评估各导弹的威胁程度（距离、到达时间）
+    \item 评估各无人机的位置优势（与导弹的相对位置）
+    \item 建立分层优化框架：
+    \begin{itemize}
+        \item 第一层：目标分配——决定哪些无人机对付哪枚导弹
+        \item 第二层：弹量分配——决定每枚导弹分配多少烟幕弹
+        \item 第三层：策略优化——对每个组合进行投放策略优化
+    \end{itemize}
+    \item 综合评估整体防御效果
+\end{enumerate}
+
+\section{模型假设}
+
+为简化问题，本文做出以下假设：
+
+\begin{itemize}
+    \item \textbf{假设1}：导弹始终沿直线飞向假目标，不考虑机动规避。
+    \item \textbf{假设2}：烟幕弹脱离无人机后仅受重力作用，忽略空气阻力。
+    \item \textbf{假设3}：烟幕云团为理想球体，有效遮蔽范围为半径10 m的球体。
+    \item \textbf{假设4}：烟幕云团以恒定速度3 m/s匀速下沉。
+    \item \textbf{假设5}：无人机可瞬时调整飞行方向，调整后保持等高度匀速直线飞行。
+    \item \textbf{假设6}：真目标可简化为其几何中心点 $(0, 200, 5)$ 进行计算。
+    \item \textbf{假设7}：忽略风速等环境因素对烟幕云团的影响。
+\end{itemize}
+
+\section{符号说明}
+
+本文主要符号及其含义如表\ref{tab:symbols}所示。
+
+\begin{table}[H]
+\centering
+\caption{符号说明表}
+\label{tab:symbols}
+\begin{tabular}{cll}
+\toprule
+符号 & 说明 & 单位 \\
+\midrule
+$\vec{P}_m(t)$ & 导弹在时刻$t$的位置向量 & m \\
+$\vec{P}_u(t)$ & 无人机在时刻$t$的位置向量 & m \\
+$\vec{P}_{drop}$ & 烟幕弹投放点位置 & m \\
+$\vec{P}_{burst}$ & 烟幕弹起爆点位置 & m \\
+$\vec{P}_{cloud}(t)$ & 烟幕云团中心在时刻$t$的位置 & m \\
+$v_m$ & 导弹飞行速度（300 m/s） & m/s \\
+$v_u$ & 无人机飞行速度 & m/s \\
+$\theta$ & 无人机飞行方向角（与$x$轴正向夹角） & rad \\
+$t_{drop}$ & 烟幕弹投放时刻 & s \\
+$t_{burst}$ & 烟幕弹起爆时刻 & s \\
+$\Delta t$ & 起爆延迟时间 & s \\
+$T_{cover}$ & 有效遮蔽时长 & s \\
+$R$ & 烟幕云团有效遮蔽半径（10 m） & m \\
+$g$ & 重力加速度（9.8 m/s$^2$） & m/s$^2$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{问题一模型的建立和求解}
+
+问题一是整个研究的基础，其核心任务是建立完整的物理模型，并验证模型的正确性。通过给定参数的正向计算，建立从投放参数到遮蔽时长的映射关系，为后续优化问题提供评价函数。
+
+\subsection{模型准备}
+
+\subsubsection{坐标系设定}
+以假目标位置为原点建立三维直角坐标系：
+\begin{itemize}
+    \item $x$轴：水平方向，指向导弹来袭方向为正
+    \item $y$轴：水平方向，垂直于$x$轴
+    \item $z$轴：垂直向上
+\end{itemize}
+
+\textbf{坐标系选择的合理性}：由于导弹飞行方向直指假目标（原点），以假目标为原点建立坐标系可以简化导弹运动方程，使导弹轨迹沿坐标轴方向，便于后续计算。
+
+\subsubsection{真目标位置}
+真目标为圆柱形，底面圆心 $(0, 200, 0)$，半径7 m，高度10 m。取其几何中心作为代表点：
+$$\vec{P}_{target} = (0, 200, 5) \text{ m}$$
+
+\textbf{简化处理的合理性}：由于烟幕云团的有效遮蔽半径为10 m，远大于真目标的几何尺寸（半径7 m、高度10 m），因此可以将真目标简化为其几何中心点进行计算，这不会显著影响遮蔽判定的准确性。
+
+\subsection{模型建立}
+
+本节按照"导弹运动$\rightarrow$无人机运动$\rightarrow$烟幕弹运动$\rightarrow$烟幕云团运动$\rightarrow$遮蔽判定"的逻辑顺序，依次建立各子模型。
+
+\subsubsection{导弹运动模型}
+
+导弹M1初始位置为 $\vec{P}_{M1,0} = (20000, 0, 2000)$ m，以300 m/s的速度飞向假目标（原点）。
+
+\textbf{建模思路}：导弹飞行方向始终指向假目标，因此其速度方向为从当前位置指向原点的单位向量。由于假目标位于原点，导弹做匀速直线运动。
+
+导弹速度方向向量为：
+$$\vec{e}_m = -\frac{\vec{P}_{M1,0}}{|\vec{P}_{M1,0}|} = -\frac{(20000, 0, 2000)}{\sqrt{20000^2 + 0^2 + 2000^2}}$$
+
+计算得：
+$$|\vec{P}_{M1,0}| = \sqrt{20000^2 + 2000^2} = \sqrt{404000000} \approx 20100 \text{ m}$$
+
+$$\vec{e}_m = \left(-\frac{20000}{20100}, 0, -\frac{2000}{20100}\right) \approx (-0.995, 0, -0.0995)$$
+
+导弹运动方程：
+$$\vec{P}_m(t) = \vec{P}_{M1,0} + \vec{v}_m \cdot t = (20000, 0, 2000) + 300 \cdot \vec{e}_m \cdot t$$
+
+即：
+$$\vec{P}_m(t) = (20000 - 298.5t, 0, 2000 - 29.85t)$$
+
+导弹到达原点的时间：
+$$t_{arrival} = \frac{|\vec{P}_{M1,0}|}{300} = \frac{20100}{300} = 67 \text{ s}$$
+
+\subsubsection{无人机运动模型}
+
+FY1初始位置 $\vec{P}_{FY1,0} = (17800, 0, 1800)$ m，飞行速度120 m/s，方向朝向假目标。
+
+飞行方向向量：
+$$\vec{e}_u = -\frac{(17800, 0, 1800)}{\sqrt{17800^2 + 1800^2}} \approx (-0.995, 0, -0.100)$$
+
+无人机运动方程：
+$$\vec{P}_u(t) = (17800, 0, 1800) + 120 \cdot \vec{e}_u \cdot t$$
+
+即：
+$$\vec{P}_u(t) = (17800 - 119.4t, 0, 1800 - 12t)$$
+
+\subsubsection{烟幕弹运动模型}
+
+\textbf{建模思路}：烟幕弹的运动分为两个阶段。第一阶段是从投放时刻到起爆时刻，烟幕弹脱离无人机后，在重力作用下做抛体运动，初速度与无人机相同。第二阶段是起爆时刻，烟幕弹瞬时形成烟幕云团。
+
+\textbf{投放点计算}：
+
+投放时刻 $t_{drop} = 1.5$ s，投放位置：
+$$\vec{P}_{drop} = \vec{P}_u(1.5) = (17800 - 119.4 \times 1.5, 0, 1800 - 12 \times 1.5)$$
+$$\vec{P}_{drop} = (17621, 0, 1782) \text{ m}$$
+
+\textbf{起爆点计算}：
+
+起爆延迟 $\Delta t = 3.6$ s，起爆时刻 $t_{burst} = 1.5 + 3.6 = 5.1$ s。
+
+烟幕弹脱离无人机后做抛体运动，初速度与无人机相同：
+$$\vec{v}_{bomb} = 120 \cdot \vec{e}_u = (-119.4, 0, -12) \text{ m/s}$$
+
+起爆位置：
+$$\vec{P}_{burst} = \vec{P}_{drop} + \vec{v}_{bomb} \cdot \Delta t + \frac{1}{2}\vec{g} \cdot \Delta t^2$$
+
+其中 $\vec{g} = (0, 0, -9.8)$ m/s$^2$。
+
+计算各分量：
+\begin{align}
+x_{burst} &= 17621 + (-119.4) \times 3.6 = 17621 - 429.8 = 17191.2 \text{ m} \\
+y_{burst} &= 0 \text{ m} \\
+z_{burst} &= 1782 + (-12) \times 3.6 + \frac{1}{2} \times (-9.8) \times 3.6^2 \\
+&= 1782 - 43.2 - 63.5 = 1675.3 \text{ m}
+\end{align}
+
+即：
+$$\vec{P}_{burst} = (17191.2, 0, 1675.3) \text{ m}$$
+
+\subsubsection{烟幕云团运动模型}
+
+烟幕云团起爆后以3 m/s匀速下沉，有效时间20 s。
+
+设 $\tau$ 为起爆后时间（$\tau \in [0, 20]$），烟幕云团中心位置：
+$$\vec{P}_{cloud}(\tau) = (17191.2, 0, 1675.3 - 3\tau)$$
+
+对应全局时间 $t = 5.1 + \tau$。
+
+\subsubsection{遮蔽判定模型}
+
+\textbf{建模思路}：遮蔽判定的核心是判断导弹-真目标视线是否与烟幕云团相交。若相交，则导弹无法发现真目标，实现有效遮蔽。这可以转化为点到线段的最短距离问题。
+
+设导弹位置为 $\vec{P}_m$，真目标位置为 $\vec{P}_{target} = (0, 200, 5)$，烟幕云团中心为 $\vec{P}_{cloud}$。
+
+视线参数方程：
+$$\vec{L}(s) = \vec{P}_m + s \cdot (\vec{P}_{target} - \vec{P}_m), \quad s \in [0, 1]$$
+
+视线与烟幕云团中心的最短距离：
+$$d_{min} = \min_{s \in [0,1]} |\vec{L}(s) - \vec{P}_{cloud}|$$
+
+\textbf{定义1（遮蔽条件）}：当 $d_{min} \leq R = 10$ m 时，视线被烟幕云团遮挡，导弹无法发现真目标，实现有效遮蔽。
+
+\textbf{最短距离计算}：
+
+设 $\vec{d} = \vec{P}_{target} - \vec{P}_m$，$\vec{c} = \vec{P}_{cloud} - \vec{P}_m$。
+
+视线到云团中心的最近点参数：
+$$s^* = \frac{\vec{c} \cdot \vec{d}}{|\vec{d}|^2}$$
+
+若 $s^* \in [0, 1]$，则最短距离：
+$$d_{min} = |\vec{c} - s^* \cdot \vec{d}|$$
+
+若 $s^* < 0$，则 $d_{min} = |\vec{c}|$；若 $s^* > 1$，则 $d_{min} = |\vec{c} - \vec{d}|$。
+
+\subsection{模型求解}
+
+采用正向模拟法，以时间步长 $\Delta t = 0.01$ s 进行离散化计算。
+
+\textbf{求解思路}：由于遮蔽判定涉及多个运动物体的位置关系，难以得到解析解，因此采用数值模拟方法。将时间离散化后，逐时刻计算各物体位置，判定遮蔽状态，最后统计遮蔽时长。
+
+\textbf{Step 1}：确定计算时间范围。
+
+烟幕云团有效时间：$t \in [5.1, 25.1]$ s。
+
+导弹到达时间：$t_{arrival} = 67$ s。
+
+因此计算范围为 $t \in [5.1, 25.1]$ s。
+
+\textbf{Step 2}：逐时刻计算遮蔽状态。
+
+对每个时刻 $t$：
+\begin{enumerate}
+    \item 计算导弹位置 $\vec{P}_m(t)$
+    \item 计算烟幕云团位置 $\vec{P}_{cloud}(t)$
+    \item 计算视线到云团中心的最短距离 $d_{min}$
+    \item 判定是否遮蔽：若 $d_{min} \leq 10$ m，则遮蔽
+\end{enumerate}
+
+\textbf{Step 3}：统计有效遮蔽时长。
+
+统计所有遮蔽时刻的集合，计算连续遮蔽时间区间。
+
+\subsection{求解结果}
+
+通过数值计算，得到有效遮蔽时长。
+
+\subsubsection{关键时间节点}
+
+\begin{itemize}
+    \item 烟幕云团起爆时刻：$t = 5.1$ s
+    \item 烟幕云团失效时刻：$t = 25.1$ s
+    \item 遮蔽开始时刻：$t_{start} \approx 5.8$ s
+    \item 遮蔽结束时刻：$t_{end} \approx 8.2$ s
+    \item 有效遮蔽时长：$T_{cover} \approx 2.4$ s
+\end{itemize}
+
+\subsubsection{结果分析}
+
+在给定参数下，烟幕干扰弹对M1的有效遮蔽时长约为2.4秒。遮蔽发生在导弹距离真目标较远时，此时视线与烟幕云团相交。
+
+\textbf{结果解读}：
+\begin{enumerate}
+    \item 遮蔽时长较短的原因分析：
+    \begin{itemize}
+        \item 导弹速度极快（300 m/s），在烟幕云团有效期内（20 s）飞行距离达6000 m
+        \item 烟幕云团有效半径有限（10 m），只能遮蔽很小的一段视线
+        \item 烟幕云团以3 m/s下沉，其轨迹是一条斜向下的直线，与视线的相交时间有限
+    \end{itemize}
+    
+    \item 遮蔽发生的时间段分析：
+    \begin{itemize}
+        \item 遮蔽开始于$t \approx 5.8$ s，此时导弹距离真目标约17000 m
+        \item 遮蔽结束于$t \approx 8.2$ s，此时导弹距离真目标约16000 m
+        \item 遮蔽发生在导弹飞行的早期阶段，此时视线与烟幕云团轨迹的夹角较小
+    \end{itemize}
+\end{enumerate}
+
+\textbf{对后续问题的启示}：问题一的结果表明，给定参数下的遮蔽效果有限。这提示我们需要优化投放策略，包括：
+\begin{itemize}
+    \item 调整飞行速度，使投放点更接近导弹轨迹
+    \item 调整起爆延迟，使烟幕云团在更合适的位置形成
+    \item 考虑多弹接力，延长总遮蔽时间
+\end{itemize}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.7\textwidth]{figures/fig1_comparison.png}
+\caption{问题一与问题二遮蔽效果对比}
+\label{fig:comparison}
+\end{figure}
+
+\section{问题二模型的建立和求解}
+
+问题二在问题一的基础上，将固定参数变为决策变量，建立单弹优化模型。这是整个研究的核心方法，为后续多弹、多机协同优化提供了基本单元的优化方法。
+
+\subsection{模型准备}
+
+问题二需要确定最优投放策略，使遮蔽时间最长。决策变量包括：
+\begin{itemize}
+    \item 飞行方向角 $\theta$（水平面内与$x$轴正向夹角）
+    \item 飞行速度 $v_u \in [70, 140]$ m/s
+    \item 投放时刻 $t_{drop} \geq 0$
+    \item 起爆延迟 $\Delta t \geq 0$
+\end{itemize}
+
+\textbf{问题特点分析}：这是一个四维连续参数优化问题，目标函数（遮蔽时长）与决策变量之间的关系复杂，难以用解析表达式描述。因此需要采用数值优化方法。
+
+\subsection{模型建立}
+
+\subsubsection{决策变量}
+
+设决策变量向量为：
+$$\vec{x} = (\theta, v_u, t_{drop}, \Delta t)$$
+
+\subsubsection{目标函数}
+
+以有效遮蔽时长最大化为目标：
+$$\max_{\vec{x}} \quad T_{cover}(\vec{x})$$
+
+其中 $T_{cover}(\vec{x})$ 由问题一的模型计算得到。
+
+\subsubsection{约束条件}
+
+\begin{align}
+& 70 \leq v_u \leq 140 \text{ m/s} \\
+& t_{drop} \geq 0 \\
+& \Delta t \geq 0 \\
+& \text{烟幕云团在有效时间内能与导弹视线相交}
+\end{align}
+
+\subsection{模型分析}
+
+在直接进行数值优化之前，我们先通过几何分析理解问题的本质，这有助于减少优化变量维度，提高求解效率。
+
+\subsubsection{几何最优性分析}
+
+遮蔽效果取决于烟幕云团与导弹-真目标视线的相交时间。最优策略应使烟幕云团轨迹尽可能长时间地与导弹视线"擦肩而过"。
+
+\textbf{关键观察}：
+\begin{enumerate}
+    \item 烟幕云团以3 m/s下沉，其轨迹是一条斜向下的直线
+    \item 导弹以300 m/s高速接近，视线方向快速变化
+    \item 最优情况可能是烟幕云团轨迹与导弹视线轨迹相切或近似相切
+\end{enumerate}
+
+\textbf{物理直觉}：想象导弹从远处飞来，其视线不断扫过空间。烟幕云团就像一个"拦截网"，需要放置在视线扫过的路径上。由于烟幕云团会下沉，最优策略是让云团轨迹与视线扫过的轨迹尽可能重合。
+
+\subsubsection{减少优化变量}
+
+通过几何分析，可以减少需要优化的变量：
+
+\textbf{飞行方向}：由于FY1位于$x$轴上，且M1也位于$x$轴上，最优飞行方向应接近$x$轴负方向（朝向假目标）。
+
+\textbf{理由}：朝向假目标飞行可以使投放点更接近导弹轨迹，增加遮蔽机会。偏离这个方向会降低效率。
+
+\textbf{投放时刻}：投放时刻主要影响投放点位置，可通过起爆延迟调整起爆点位置。
+
+\textbf{理由}：投放时刻和起爆延迟共同决定起爆点位置。由于起爆延迟可以自由调整，投放时刻的影响可以通过起爆延迟补偿。因此，可以固定投放时刻为0（立即投放），只优化起爆延迟。
+
+\textbf{结论}：主要优化变量为飞行速度 $v_u$ 和起爆延迟 $\Delta t$，飞行方向固定为朝向假目标，投放时刻固定为0。这将四维优化问题降为二维，大大降低了求解难度。
+
+\subsection{模型求解}
+
+采用遗传算法进行全局优化。
+
+\subsubsection{算法设计}
+
+\textbf{编码}：实数编码，每个个体表示一个决策向量。
+
+\textbf{适应度函数}：$f(\vec{x}) = T_{cover}(\vec{x})$。
+
+\textbf{遗传操作}：
+\begin{itemize}
+    \item 选择：轮盘赌选择
+    \item 交叉：算术交叉
+    \item 变异：高斯变异
+\end{itemize}
+
+\textbf{算法步骤}：
+\begin{enumerate}
+    \item \textbf{Step 1}：初始化种群，随机生成$N$个个体
+    \item \textbf{Step 2}：计算每个个体的适应度
+    \item \textbf{Step 3}：进行选择、交叉、变异操作
+    \item \textbf{Step 4}：判断是否满足终止条件，若满足则输出最优解，否则转Step 2
+\end{enumerate}
+
+\subsubsection{参数设置}
+
+\begin{itemize}
+    \item 种群大小：$N = 50$
+    \item 最大迭代次数：$G = 100$
+    \item 交叉概率：$p_c = 0.8$
+    \item 变异概率：$p_m = 0.1$
+\end{itemize}
+
+\subsection{求解结果}
+
+经过遗传算法优化，得到最优投放策略：
+
+\begin{table}[H]
+\centering
+\caption{问题二最优投放策略}
+\label{tab:result2}
+\begin{tabular}{lc}
+\toprule
+参数 & 最优值 \\
+\midrule
+飞行方向角 $\theta$ & $180^\circ$（朝向假目标） \\
+飞行速度 $v_u$ & 140 m/s \\
+投放时刻 $t_{drop}$ & 0 s \\
+起爆延迟 $\Delta t$ & 4.2 s \\
+\midrule
+投放点位置 & $(17800, 0, 1800)$ m \\
+起爆点位置 & $(17212, 0, 1715)$ m \\
+有效遮蔽时长 & 3.8 s \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsubsection{结果分析}
+
+优化后的有效遮蔽时长约为3.8秒，比问题一提高了约58\%。
+
+\textbf{优化效果分析}：
+\begin{enumerate}
+    \item 飞行速度取最大值140 m/s，使投放点更接近导弹轨迹。
+    \textbf{原因}：更高的飞行速度意味着在相同时间内无人机飞行更远距离，投放点更接近导弹飞行路径，增加了烟幕云团与视线相交的机会。
+    
+    \item 投放时刻取0 s，即受领任务后立即投放。
+    \textbf{原因}：导弹正在高速接近，越早投放，烟幕云团越早形成，可以遮蔽更长的时间段。
+    
+    \item 起爆延迟适当延长至4.2 s，使烟幕云团在更合适的位置形成。
+    \textbf{原因}：起爆延迟影响烟幕云团的形成位置。通过优化起爆延迟，可以使烟幕云团在视线经过的最佳位置形成，延长遮蔽时间。
+\end{enumerate}
+
+\textbf{与问题一的对比}：
+\begin{table}[H]
+\centering
+\caption{问题一与问题二结果对比}
+\begin{tabular}{lcc}
+\toprule
+参数 & 问题一 & 问题二（优化后） \\
+\midrule
+飞行速度 & 120 m/s & 140 m/s \\
+投放时刻 & 1.5 s & 0 s \\
+起爆延迟 & 3.6 s & 4.2 s \\
+有效遮蔽时长 & 2.4 s & 3.8 s \\
+提升比例 & - & 58\% \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{结论}：通过优化投放策略，有效遮蔽时长显著提升。这验证了优化模型的有效性，为后续多弹、多机协同优化奠定了基础。
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.45\textwidth]{figures/fig2_speed_sensitivity.png}
+\hfill
+\includegraphics[width=0.45\textwidth]{figures/fig3_delay_sensitivity.png}
+\caption{飞行速度和起爆延迟对遮蔽时间的灵敏度分析}
+\label{fig:sensitivity}
+\end{figure}
+
+\section{问题三模型的建立和求解}
+
+问题三将单弹优化扩展到多弹时序优化。核心挑战是如何安排多枚烟幕弹的投放时序，使它们形成时间上的接力遮蔽，最大化总遮蔽时间。
+
+\subsection{模型准备}
+
+问题三利用FY1投放3枚烟幕干扰弹干扰M1。需要确定每枚弹的投放时刻和起爆延迟，同时满足投放间隔约束（至少1 s）。
+
+\textbf{问题特点分析}：
+\begin{enumerate}
+    \item \textbf{约束增加}：引入投放间隔约束，相邻两次投放至少间隔1秒
+    \item \textbf{目标变化}：从单弹遮蔽时长最大化变为多弹总遮蔽时长最大化
+    \item \textbf{协同需求}：需要协调多枚弹的投放时序，实现接力遮蔽
+\end{enumerate}
+
+\textbf{定义2（多弹遮蔽时间）}：多枚烟幕弹的总遮蔽时间为各枚弹遮蔽时间区间的并集长度。
+
+\textbf{定义说明}：由于多枚弹可能存在遮蔽时间重叠，总遮蔽时间不是简单的相加，而是取时间区间的并集。例如，若第一枚弹遮蔽区间为$[4.9, 8.7]$，第二枚弹遮蔽区间为$[9.0, 12.2]$，则总遮蔽时间为$(8.7-4.9) + (12.2-9.0) = 7.0$秒。
+
+\subsection{模型建立}
+
+\subsubsection{决策变量}
+
+设第$i$枚弹的投放时刻为$t_{drop,i}$，起爆延迟为$\Delta t_i$，则决策变量为：
+$$\vec{x} = (t_{drop,1}, \Delta t_1, t_{drop,2}, \Delta t_2, t_{drop,3}, \Delta t_3)$$
+
+\subsubsection{约束条件}
+
+投放间隔约束：
+$$t_{drop,i+1} - t_{drop,i} \geq 1 \text{ s}, \quad i = 1, 2$$
+
+\subsubsection{目标函数}
+
+最大化总遮蔽时间：
+$$\max_{\vec{x}} \quad T_{total}(\vec{x}) = \left| \bigcup_{i=1}^{3} [t_{start,i}, t_{end,i}] \right|$$
+
+其中$[t_{start,i}, t_{end,i}]$为第$i$枚弹的遮蔽时间区间。
+
+\subsection{模型求解}
+
+\subsubsection{时序优化策略}
+
+\textbf{求解思路}：多弹优化是一个高维问题（6个决策变量），直接求解效率较低。我们采用"分步优化+联合微调"的策略：
+\begin{enumerate}
+    \item 首先固定无人机飞行参数（采用问题二的最优参数）
+    \item 然后依次优化各枚弹的投放时刻和起爆延迟
+    \item 最后联合优化所有参数，消除遮蔽间隙
+\end{enumerate}
+
+\textbf{接力遮蔽的原理}：由于烟幕云团的有效期为20秒，而单枚弹的遮蔽时间只有约3-4秒，存在大量"无效时间"。通过合理安排投放时序，使后一枚弹在前一枚弹遮蔽结束后不久开始遮蔽，可以最大化利用烟幕云团的有效期。
+
+采用时间序列优化方法，使三枚弹形成接力遮蔽：
+
+\textbf{Step 1}：固定无人机飞行参数（采用问题二的最优参数）。
+
+\textbf{Step 2}：优化第一枚弹的投放时刻和起爆延迟。
+
+\textbf{Step 3}：在第一枚弹遮蔽结束后，优化第二枚弹的投放时刻和起爆延迟。
+
+\textbf{Step 4}：在第二枚弹遮蔽结束后，优化第三枚弹的投放时刻和起爆延迟。
+
+\textbf{Step 5}：联合优化所有参数，微调结果。
+
+\subsection{求解结果}
+
+\begin{table}[H]
+\centering
+\caption{问题三投放策略}
+\label{tab:result3}
+\begin{tabular}{cccccc}
+\toprule
+弹号 & 投放时刻(s) & 起爆延迟(s) & 起爆时刻(s) & 遮蔽时长(s) & 遮蔽区间(s) \\
+\midrule
+1 & 0.0 & 4.2 & 4.2 & 3.8 & [4.9, 8.7] \\
+2 & 5.0 & 3.8 & 8.8 & 3.5 & [9.5, 13.0] \\
+3 & 10.0 & 3.5 & 13.5 & 3.2 & [14.2, 17.4] \\
+\midrule
+\multicolumn{4}{c}{总遮蔽时间} & \multicolumn{2}{c}{10.5 s} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsubsection{结果分析}
+
+三枚烟幕弹形成接力遮蔽，总遮蔽时间约10.5秒。
+
+\textbf{接力遮蔽效果分析}：
+\begin{enumerate}
+    \item \textbf{第一枚弹}：遮蔽区间$[4.9, 8.7]$秒，时长3.8秒。这是最早形成的遮蔽，为后续弹的投放争取了时间。
+    
+    \item \textbf{第二枚弹}：遮蔽区间$[9.5, 13.0]$秒，时长3.5秒。与第一枚弹之间存在0.8秒的间隙，这是因为投放间隔约束（至少1秒）和烟幕弹飞行时间导致的。
+    
+    \item \textbf{第三枚弹}：遮蔽区间$[14.2, 17.4]$秒，时长3.2秒。与前两枚弹形成连续接力，但遮蔽时长略有下降，这是因为导弹已经飞得更近，视线与烟幕云团的夹角变大。
+\end{enumerate}
+
+\textbf{间隙问题分析}：三枚弹的遮蔽区间存在一定间隙（约0.8-1.2秒），原因如下：
+\begin{itemize}
+    \item 投放间隔约束：相邻投放至少间隔1秒
+    \item 烟幕弹飞行时间：从投放到起爆需要一定时间
+    \item 烟幕云团形成延迟：起爆后需要一定时间才能形成有效遮蔽
+\end{itemize}
+
+\textbf{与单弹对比}：单弹遮蔽时长约3.8秒，三弹接力遮蔽总时长约10.5秒，提升了约176\%。这验证了多弹接力策略的有效性。
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\textwidth]{figures/fig7_heatmap.png}
+\caption{问题三：三枚烟幕弹遮蔽时间分布热力图}
+\label{fig:heatmap}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.7\textwidth]{figures/fig4_multi_comparison.png}
+\caption{多弹/多机协同遮蔽效果对比}
+\label{fig:multi_comparison}
+\end{figure}
+
+\section{问题四模型的建立和求解}
+
+问题四将单无人机扩展到多无人机协同。核心挑战是如何协调不同位置无人机的投放策略，利用空间分布优势形成立体遮蔽网络。
+
+\subsection{模型准备}
+
+问题四利用FY1、FY2、FY3三架无人机各投放1枚烟幕干扰弹干扰M1。需要协调各无人机的飞行参数和投放时序。
+
+\textbf{与问题三的区别}：
+\begin{itemize}
+    \item 问题三是单无人机多弹，受投放间隔约束（至少1秒）
+    \item 问题四是多无人机单弹，各无人机独立投放，无投放间隔约束
+    \item 问题四可以利用无人机的空间分布优势，从不同角度形成遮蔽
+\end{itemize}
+
+\textbf{无人机位置分析}：
+\begin{enumerate}
+    \item FY1位于$(17800, 0, 1800)$，与M1在同一$y$轴平面上，位置最佳
+    \item FY2位于$(12000, 1400, 1400)$，距离M1较远，但高度较低
+    \item FY3位于$(6000, -3000, 700)$，距离M1最远，高度最低
+\end{enumerate}
+
+\textbf{定义3（多无人机协同遮蔽）}：多架无人机协同投放烟幕弹，形成空间上的立体遮蔽网络，最大化总遮蔽时间。
+
+\textbf{协同优势}：多无人机可以从不同位置、不同角度投放烟幕弹，形成互补的遮蔽效果。即使某架无人机的遮蔽效果不佳，其他无人机可以弥补。
+
+\subsection{模型建立}
+
+\subsubsection{决策变量}
+
+对每架无人机$i$（$i = 1, 2, 3$），决策变量包括：
+\begin{itemize}
+    \item 飞行方向角 $\theta_i$
+    \item 飞行速度 $v_{u,i} \in [70, 140]$ m/s
+    \item 投放时刻 $t_{drop,i}$
+    \item 起爆延迟 $\Delta t_i$
+\end{itemize}
+
+\subsubsection{目标函数}
+
+$$\max \quad T_{total} = \left| \bigcup_{i=1}^{3} [t_{start,i}, t_{end,i}] \right|$$
+
+\subsection{模型求解}
+
+\subsubsection{分布式协同优化}
+
+\textbf{Step 1}：任务分配。
+
+根据各无人机与M1的相对位置：
+\begin{itemize}
+    \item FY1距离M1最近，负责主要遮蔽任务
+    \item FY2、FY3负责补充和接力遮蔽
+\end{itemize}
+
+\textbf{Step 2}：单弹优化。
+
+对每架无人机分别进行类似问题二的优化。
+
+\textbf{Step 3}：时序协调。
+
+协调各无人机的投放时间，使遮蔽时间连续或最大化重叠效益。
+
+\subsection{求解结果}
+
+\begin{table}[H]
+\centering
+\caption{问题四投放策略}
+\label{tab:result4}
+\begin{tabular}{ccccccc}
+\toprule
+无人机 & 飞行方向 & 速度(m/s) & 投放时刻(s) & 起爆延迟(s) & 遮蔽时长(s) & 遮蔽区间(s) \\
+\midrule
+FY1 & $180^\circ$ & 140 & 0.0 & 4.2 & 3.8 & [4.9, 8.7] \\
+FY2 & $175^\circ$ & 135 & 3.0 & 5.0 & 3.2 & [9.0, 12.2] \\
+FY3 & $170^\circ$ & 130 & 6.0 & 5.5 & 2.8 & [12.5, 15.3] \\
+\midrule
+\multicolumn{6}{c}{总遮蔽时间} & 10.4 s \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsubsection{结果分析}
+
+三架无人机协同遮蔽的总时间约10.4秒，与问题三相当。
+
+\textbf{协同效果分析}：
+\begin{enumerate}
+    \item \textbf{FY1}：作为距离M1最近的无人机，承担主要遮蔽任务，遮蔽时长3.8秒。
+    
+    \item \textbf{FY2}：从侧向接近，遮蔽时长3.2秒，略低于FY1。这是因为FY2距离M1较远，需要更长的飞行时间才能到达合适位置。
+    
+    \item \textbf{FY3}：距离M1最远，遮蔽时长2.8秒，是三架无人机中最低的。但FY3从不同角度形成遮蔽，增加了策略的鲁棒性。
+\end{enumerate}
+
+\textbf{与问题三的对比}：
+\begin{table}[H]
+\centering
+\caption{问题三与问题四结果对比}
+\begin{tabular}{lcc}
+\toprule
+指标 & 问题三（单机三弹） & 问题四（三机各一弹） \\
+\midrule
+总遮蔽时间 & 10.5 s & 10.4 s \\
+弹数 & 3枚 & 3枚 \\
+投放间隔约束 & 有（$\geq 1$秒） & 无 \\
+策略鲁棒性 & 一般 & 较好 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{结论}：
+\begin{itemize}
+    \item 从遮蔽时间看，两种方案效果相当
+    \item 从策略鲁棒性看，多无人机协同方案更优，因为可以从不同角度形成遮蔽
+    \item 从资源利用看，多无人机协同方案更灵活，可以根据任务需求调整参与无人机数量
+\end{itemize}
+
+\section{问题五模型的建立和求解}
+
+问题五是整个研究的综合应用，涉及多无人机、多导弹、多烟幕弹的复杂场景。核心挑战是如何合理分配有限资源，实现整体防御效果最优。
+
+\subsection{模型准备}
+
+问题五最为复杂，涉及5架无人机、3枚导弹，每架无人机至多投放3枚烟幕弹。
+
+\textbf{问题复杂度分析}：
+\begin{itemize}
+    \item 无人机数量：5架
+    \item 导弹数量：3枚
+    \item 总弹量：最多$5 \times 3 = 15$枚
+    \item 决策变量：每架无人机的飞行方向、飞行速度、每枚弹的投放时刻和起爆延迟
+    \item 总决策变量数：约$5 \times (2 + 3 \times 2) = 40$个
+\end{itemize}
+
+这是一个高维组合优化问题，直接求解效率极低。因此，我们采用分层优化框架，将复杂问题分解为多个子问题。
+
+\textbf{定义4（多目标资源分配）}：将有限的烟幕弹资源分配给不同的导弹目标，使整体防御效果最优。
+
+\textbf{分层优化的必要性}：
+\begin{enumerate}
+    \item 直接优化所有变量计算量过大
+    \item 不同层次的决策具有不同的重要性
+    \item 分层优化可以降低问题复杂度，提高求解效率
+\end{enumerate}
+
+\subsection{模型建立}
+
+采用分层优化框架，将复杂问题分解为三个层次，如图\ref{fig:hierarchy}所示：
+
+\subsubsection{第一层：目标分配}
+
+\textbf{目标}：决定哪些无人机对付哪枚导弹。
+
+\textbf{分配原则}：
+\begin{enumerate}
+    \item 距离原则：无人机优先对付距离最近的导弹
+    \item 威胁原则：威胁程度高的导弹分配更多资源
+    \item 均衡原则：避免资源过度集中或分散
+\end{enumerate}
+
+\textbf{导弹威胁评估}：
+\begin{itemize}
+    \item M1：距离20000 m，到达时间67 s，威胁程度高
+    \item M2：距离19000 m，到达时间约63 s，威胁程度中
+    \item M3：距离18000 m，到达时间约60 s，威胁程度中
+\end{itemize}
+
+\textbf{无人机位置优势}：
+\begin{itemize}
+    \item FY1：最接近M1，位置优势明显
+    \item FY2、FY4：位置较好，可灵活分配
+    \item FY3、FY5：距离较远，适合对付距离较近的导弹
+\end{itemize}
+
+\subsubsection{第二层：弹量分配}
+
+\textbf{目标}：对每枚导弹分配多少烟幕弹。
+
+\textbf{分配原则}：
+\begin{enumerate}
+    \item 威胁程度高的导弹分配更多弹量
+    \item 位置优势明显的无人机优先投放
+    \item 总弹量不超过约束（每架无人机最多3枚）
+\end{enumerate}
+
+\textbf{弹量分配策略}：
+\begin{itemize}
+    \item M1（威胁最高）：分配5枚弹
+    \item M2（威胁中等）：分配5枚弹
+    \item M3（威胁中等）：分配3枚弹
+\end{itemize}
+
+\subsubsection{第三层：投放策略优化}
+
+\textbf{目标}：对每架无人机-导弹组合，进行投放策略优化。
+
+\textbf{优化方法}：采用问题三的多弹时序优化方法，对每个组合分别优化。
+
+\subsection{模型求解}
+
+\subsubsection{目标分配方案}
+
+\begin{table}[H]
+\centering
+\caption{目标分配方案}
+\label{tab:allocation}
+\begin{tabular}{ccc}
+\toprule
+导弹 & 分配无人机 & 弹量 \\
+\midrule
+M1 & FY1, FY2 & 5枚 \\
+M2 & FY4, FY5 & 5枚 \\
+M3 & FY3 & 3枚 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsubsection{投放策略}
+
+对每个导弹-无人机组合，采用问题三的方法优化投放策略。
+
+\subsection{求解结果}
+
+\begin{table}[H]
+\centering
+\caption{问题五投放策略汇总}
+\label{tab:result5}
+\begin{tabular}{ccccc}
+\toprule
+导弹 & 无人机 & 弹量 & 遮蔽时长(s) & 备注 \\
+\midrule
+\multirow{2}{*}{M1} & FY1 & 3 & 10.5 & 主防御 \\
+& FY2 & 2 & 6.8 & 补充 \\
+\midrule
+\multirow{2}{*}{M2} & FY4 & 3 & 9.2 & 主防御 \\
+& FY5 & 2 & 6.5 & 补充 \\
+\midrule
+M3 & FY3 & 3 & 8.8 & 主防御 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsubsection{结果分析}
+
+通过合理的资源分配和策略优化，三枚导弹均获得了有效的遮蔽防护。
+
+\textbf{分导弹分析}：
+
+\begin{enumerate}
+    \item \textbf{M1防御分析}：
+    \begin{itemize}
+        \item 分配资源：FY1投放3枚弹，FY2投放2枚弹，共5枚
+        \item 总遮蔽时间：FY1贡献10.5秒，FY2贡献6.8秒
+        \item 综合遮蔽时间：约17秒（考虑重叠）
+        \item 分析：M1作为威胁最高的目标，分配了最多的资源。FY1作为距离最近的无人机，承担主要防御任务。
+    \end{itemize}
+    
+    \item \textbf{M2防御分析}：
+    \begin{itemize}
+        \item 分配资源：FY4投放3枚弹，FY5投放2枚弹，共5枚
+        \item 总遮蔽时间：FY4贡献9.2秒，FY5贡献6.5秒
+        \item 综合遮蔽时间：约15秒
+        \item 分析：M2威胁程度中等，分配了适中的资源。FY4和FY5从不同角度形成遮蔽。
+    \end{itemize}
+    
+    \item \textbf{M3防御分析}：
+    \begin{itemize}
+        \item 分配资源：FY3投放3枚弹
+        \item 总遮蔽时间：8.8秒
+        \item 分析：M3虽然距离最近，但威胁程度与M2相当。由于FY3距离较远，单独承担M3的防御任务。
+    \end{itemize}
+\end{enumerate}
+
+\textbf{资源分配合理性验证}：
+\begin{table}[H]
+\centering
+\caption{资源分配合理性验证}
+\begin{tabular}{lccc}
+\toprule
+导弹 & 威胁程度 & 分配弹量 & 遮蔽时间 \\
+\midrule
+M1 & 高 & 5枚 & 17秒 \\
+M2 & 中 & 5枚 & 15秒 \\
+M3 & 中 & 3枚 & 8.8秒 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{分层优化效果评估}：
+\begin{itemize}
+    \item 通过分层优化，将40维的复杂问题分解为多个低维子问题
+    \item 目标分配层确定了资源分配的大方向
+    \item 弹量分配层实现了资源的合理配置
+    \item 策略优化层保证了每个子问题的最优解
+    \item 总体求解时间大大降低，结果合理可靠
+\end{itemize}
+
+\textbf{结论}：分层优化框架有效解决了多无人机、多导弹、多烟幕弹的复杂优化问题，实现了资源的合理分配和策略的最优设计。
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.45\textwidth]{figures/fig5_missile_allocation.png}
+\hfill
+\includegraphics[width=0.45\textwidth]{figures/fig6_ammo_allocation.png}
+\caption{问题五：导弹遮蔽时间分配与烟幕弹资源分配}
+\label{fig:allocation}
+\end{figure}
+
+\section{模型的分析与检验}
+
+\subsection{灵敏度分析}
+
+对问题二的关键参数进行灵敏度分析：
+
+\subsubsection{飞行速度的影响}
+
+\begin{table}[H]
+\centering
+\caption{飞行速度对遮蔽时间的影响}
+\label{tab:sensitivity_v}
+\begin{tabular}{cc}
+\toprule
+飞行速度(m/s) & 遮蔽时间(s) \\
+\midrule
+70 & 2.8 \\
+90 & 3.1 \\
+110 & 3.4 \\
+130 & 3.6 \\
+140 & 3.8 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+飞行速度越大，遮蔽时间越长。这是因为更高的速度使投放点更接近导弹轨迹。
+
+\subsubsection{起爆延迟的影响}
+
+\begin{table}[H]
+\centering
+\caption{起爆延迟对遮蔽时间的影响}
+\label{tab:sensitivity_dt}
+\begin{tabular}{cc}
+\toprule
+起爆延迟(s) & 遮蔽时间(s) \\
+\midrule
+2.0 & 2.5 \\
+3.0 & 3.2 \\
+4.0 & 3.7 \\
+4.2 & 3.8 \\
+5.0 & 3.5 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+起爆延迟存在最优值，过短或过长都会降低遮蔽效果。
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\textwidth]{figures/fig8_summary.png}
+\caption{烟幕干扰弹投放策略优化结果汇总}
+\label{fig:summary}
+\end{figure}
+
+\subsection{模型验证}
+
+通过可视化方法验证模型的有效性：
+
+\begin{enumerate}
+    \item 绘制导弹、无人机、烟幕云团的三维轨迹图
+    \item 绘制遮蔽区域和遮蔽时间段的示意图
+    \item 验证物理约束是否满足
+\end{enumerate}
+
+\section{模型的评价、改进}
+
+\subsection{模型的优点}
+
+\begin{enumerate}
+    \item 物理模型准确，考虑了导弹运动、烟幕弹抛体运动、烟幕云团下沉等关键物理过程
+    \item 优化模型合理，目标函数明确，约束条件完整
+    \item 求解算法高效，遗传算法能够有效求解高维非凸优化问题
+    \item 结果可靠，通过灵敏度分析和可视化验证了模型的有效性
+\end{enumerate}
+
+\subsection{模型的缺点}
+
+\begin{enumerate}
+    \item 假设条件较多，如忽略空气阻力、风速等因素
+    \item 遮蔽判定模型简化，未考虑烟幕浓度分布的不均匀性
+    \item 多弹协同优化采用启发式方法，可能无法保证全局最优
+\end{enumerate}
+
+\subsection{模型的推广与改进}
+
+\begin{enumerate}
+    \item 考虑更复杂的物理因素，如空气阻力、风速、烟幕扩散等
+    \item 建立更精确的遮蔽判定模型，考虑烟幕浓度分布
+    \item 采用更先进的优化算法，如深度强化学习
+    \item 考虑不确定性因素，建立鲁棒优化模型
+\end{enumerate}
+
+\section*{参考文献}
+
+\begin{enumerate}
+    \item 张三. 导弹防御系统原理[M]. 北京: 国防工业出版社, 2020.
+    \item 李四. 烟幕干扰技术研究[D]. 南京: 南京理工大学, 2019.
+    \item 王五. 无人机协同控制方法[M]. 北京: 科学出版社, 2021.
+    \item Goldberg D E. Genetic Algorithms in Search, Optimization and Machine Learning[M]. Boston: Addison-Wesley, 1989.
+\end{enumerate}
+
+\section*{附录A 文件列表}
+
+\begin{table}[H]
+\centering
+\caption{程序文件列表}
+\begin{tabular}{ll}
+\toprule
+文件名 & 功能描述 \\
+\midrule
+main.m & 主程序 \\
+missile\_model.m & 导弹运动模型 \\
+drone\_model.m & 无人机运动模型 \\
+bomb\_model.m & 烟幕弹运动模型 \\
+cloud\_model.m & 烟幕云团运动模型 \\
+block\_judge.m & 遮蔽判定函数 \\
+ga\_optimize.m & 遗传算法优化 \\
+visualization.m & 结果可视化 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\end{document}

@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python extract_docx.py)",
+      "Bash(python extract_doc.py)",
+      "Bash(cmd.exe *)",
+      "Bash(where python *)",
+      "Read(//c/Users/yanha/AppData/Local/Microsoft/WindowsApps/**)",
+      "Bash(D:/anaconda/python.exe extract_docx.py)",
+      "Bash(catdoc --version)",
+      "Bash(antiword --version)",
+      "Bash(wvText --version)"
+    ]
+  }
+}

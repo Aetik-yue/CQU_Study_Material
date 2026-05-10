@@ -1,0 +1,18 @@
+{
+  "name": "doc-reader",
+  "version": "1.0.0",
+  "description": "A simple CLI tool to extract text from .doc files",
+  "main": "bin/doc-reader.js",
+  "bin": {
+    "doc-reader": "./bin/doc-reader.js"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": ["doc", "word", "reader", "extract", "text"],
+  "author": "",
+  "license": "MIT",
+  "engines": {
+    "node": ">=12.0.0"
+  }
+}

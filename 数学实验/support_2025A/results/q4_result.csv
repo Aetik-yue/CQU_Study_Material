@@ -1,0 +1,4 @@
+﻿question,shot_no,drone,missile,angle_deg,speed_mps,drop_t_s,fuse_t_s,burst_t_s,single_duration_s,drop_point,burst_point,union_duration_s,union_intervals,runtime_s
+Q4,1,FY1,M1,177.00,75.00,0.00,2.50,2.50,4.560,"(17800.00, 0.00, 1800.00)","(17612.76, 9.81, 1769.38)",10.780,"[(np.float64(2.8), np.float64(7.34)), (np.float64(16.12), np.float64(19.98)), (np.float64(40.74), np.float64(43.12))]",53.348
+Q4,2,FY2,M1,290.00,105.00,8.60,5.30,13.90,3.900,"(12308.84, 551.46, 1400.00)","(12499.18, 28.52, 1262.36)",10.780,"[(np.float64(2.8), np.float64(7.34)), (np.float64(16.12), np.float64(19.98)), (np.float64(40.74), np.float64(43.12))]",53.348
+Q4,3,FY3,M1,78.00,100.00,30.20,0.70,30.90,2.400,"(6627.89, -45.99, 700.00)","(6642.45, 22.48, 697.60)",10.780,"[(np.float64(2.8), np.float64(7.34)), (np.float64(16.12), np.float64(19.98)), (np.float64(40.74), np.float64(43.12))]",53.348

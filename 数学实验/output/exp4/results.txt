@@ -1,0 +1,128 @@
+Experiment 4 numerical results
+
+[Basic 1]
+trapz = 4.466983186238, integral = 4.466985531899, exact = 4.466985531899
+trapz error = 2.346e-06, integral error = 8.882e-16
+
+[Basic 2]
+Equation 1: y(x)=3 exp(x)-2x-2; y(1)=4.154845485377
+Equation 2: ode45 y(20)=140.721484831374, y'(20)=2257.157747371447
+
+[Basic 5 - Apollo]
+solver                      steps     time_sec   period_error
+ode78 (used for ode87)       1096       0.0679      3.605e-10
+ode23                       14577       0.1373      5.608e-08
+ode45                        2536       0.0321      1.113e-08
+ode113                        690       0.1171      1.272e-07
+ode15s                       1945       0.2211      3.828e-07
+
+[Basic 5 - coupled pendulum]
+u(10) = [0.7777753991 0.5317968490 0.0715062859 -0.2069777450]
+{错误使用 decic (第 44 行)
+指定的 y0 和 yp0 的分量不能超过 4 个。
+
+出错 exp4_compute (第 101 行)
+[y0c, yp0c] = decic(@implicitResidual, 0, y0, [1;1;1;1], ypGuess, [1;0;1;0]);
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+} 
+Experiment 4 numerical results
+
+[Basic 1]
+trapz = 4.466983186238, integral = 4.466985531899, exact = 4.466985531899
+trapz error = 2.346e-06, integral error = 8.882e-16
+
+[Basic 2]
+Equation 1: y(x)=3 exp(x)-2x-2; y(1)=4.154845485377
+Equation 2: ode45 y(20)=140.721484831374, y'(20)=2257.157747371447
+
+[Basic 5 - Apollo]
+solver                      steps     time_sec   period_error
+ode78 (used for ode87)       1096       0.0747      3.605e-10
+ode23                       14577       0.0529      5.608e-08
+ode45                        2536       0.0161      1.113e-08
+ode113                        690       0.0664      1.272e-07
+ode15s                       1945       0.0827      3.828e-07
+
+[Basic 5 - coupled pendulum]
+u(10) = [0.7777753991 0.5317968490 0.0715062859 -0.2069777450]
+{错误使用 decic (第 109 行)
+DECIC 中出现收敛错误。
+
+出错 exp4_compute (第 101 行)
+[y0c, yp0c] = decic(@implicitResidual, 0, y0, [1;1;1;1], ypGuess, [0;0;0;0]);
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+} 
+Experiment 4 numerical results
+
+[Basic 1]
+trapz = 4.466983186238, integral = 4.466985531899, exact = 4.466985531899
+trapz error = 2.346e-06, integral error = 8.882e-16
+
+[Basic 2]
+Equation 1: y(x)=3 exp(x)-2x-2; y(1)=4.154845485377
+Equation 2: ode45 y(20)=140.721484831374, y'(20)=2257.157747371447
+
+[Basic 5 - Apollo]
+solver                      steps     time_sec   period_error
+ode78 (used for ode87)       1096       0.0904      3.605e-10
+ode23                       14577       0.0709      5.608e-08
+ode45                        2536       0.0201      1.113e-08
+ode113                        690       0.0817      1.272e-07
+ode15s                       1945       0.1228      3.828e-07
+
+[Basic 5 - coupled pendulum]
+u(10) = [0.7777753991 0.5317968490 0.0715062859 -0.2069777450]
+[警告: 在 t=2.681048e-01 处失败。在时间 t 处，步长必须降至所允许的最小值(9.524996e-16)以下，才能达到积分容差要求。] 
+[> 位置：ode15i (第 379 行)
+位置: exp4_compute (第 107 行)] 
+
+[Basic 5 - implicit ODE]
+consistent yp(0) = [1.0000000000 -0.1778394749 2.0000000000 1.0768604350]
+state at t=2 = [1.2604749426 0.8432489608 2.5708420140 2.5073379856]
+
+[Basic 6]
+y(1) = [4.8962591094 5.1375167357 3.8991638852 5.9127441691 4.4365590471]
+{错误使用 bvp4c (第 196 行)
+无法求解配置方程 - 遇到了奇异的雅可比矩阵。
+
+出错 exp4_compute (第 137 行)
+solBvp = bvp4c(@bvpRhs, @bvpBc, solinit, bvpset('RelTol', 1e-6, 'AbsTol', 1e-8));
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+} 
+Experiment 4 numerical results
+
+[Basic 1]
+trapz = 4.466983186238, integral = 4.466985531899, exact = 4.466985531899
+trapz error = 2.346e-06, integral error = 8.882e-16
+
+[Basic 2]
+Equation 1: y(x)=3 exp(x)-2x-2; y(1)=4.154845485377
+Equation 2: ode45 y(20)=140.721484831374, y'(20)=2257.157747371447
+
+[Basic 5 - Apollo]
+solver                      steps     time_sec   period_error
+ode78 (used for ode87)       1096       0.0912      3.605e-10
+ode23                       14577       0.0693      5.608e-08
+ode45                        2536       0.0243      1.113e-08
+ode113                        690       0.0857      1.272e-07
+ode15s                       1945       0.1132      3.828e-07
+
+[Basic 5 - coupled pendulum]
+u(10) = [0.7777753991 0.5317968490 0.0715062859 -0.2069777450]
+
+[Basic 5 - implicit ODE]
+consistent yp(0) = [1.0000000000 -0.1778394749 2.0000000000 1.0768604350]
+state at t=0.250000 = [1.2441831408 0.9276664427 2.5285328820 2.2573336548]
+
+[Basic 6]
+y(1) = [4.8962591094 5.1375167357 3.8991638852 5.9127441691 4.4365590471]
+
+[Basic 7]
+No feasible c: x(0)=y(0)=0 is an equilibrium for every c, so y(5)=1 cannot be satisfied.
+bvp4c diagnostic: 无法求解配置方程 - 遇到了奇异的雅可比矩阵。
+
+[Exploratory 1 - Hodgkin-Huxley]
+ySS = [0.3163951419 0.0560654568 0.6025789231 -59.5089754717]
+peak voltages for delta=1..10 mV:
+-58.50897547 -57.50897547 -56.50897547 -55.50897547 -54.50897547 41.81334984 43.46610717 44.13651668 44.56013699 44.86606098 
+first delta with peak > 0 mV = 6
