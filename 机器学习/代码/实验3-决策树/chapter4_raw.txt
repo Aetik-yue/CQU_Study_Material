@@ -1,0 +1,210 @@
+
+============================================================
+Page 60
+============================================================
+44 YD Y. 2.5 EFÉfJM5X%f91J, TF = 24.429, 2.6 alfa, a 0.05 F 5.143, 2.7 k = = 2.344, CD 1.657, 2.5 (Fifi], A B MJ%EE, B C 16], nun* B 5 c 2.5 2.8, *YJIJ, 2.8 A B 1.0 2.0 3.0 2.5 2.8 hiedman "hfl- " (bias-variance läJ—+hfi. x, 4 YD y D) hiJll
+
+============================================================
+Page 61
+============================================================
+2.5 var(æ) = ED (c; D) — €2 = ED [(YD — y)2] bias2(æ) = (j (x) — y) 2 ft, = ED [(f (x; D) — YD)2] = ED [(f (x; D) — j(æ) + j(æ) - YD)2] = ED [(f (x; D) — -i- ED (x) — YD)2] to R(2.37), + 2ED + ED (x) — YD)2] — + ED [(j(æ) — y + y — YD) 2] _ + (f(æ) — + ED [(YD — y)2] E(f; D) = bias2 (x) + var (x) 4-€2 , 45 (2.37) (2.38) (2.39) (2.40) (2.41) (2.42) U*tZi$i,
+
+============================================================
+Page 62
+============================================================
+46 1+(2.39) *211-4, dilemma). æ 2.9 2.6 [Efron and Tibshirani, 1993] ROC [Spackman, 1989], AUC [Bradley, 19971,
+
+============================================================
+Page 63
+============================================================
+2.6 23.4 47 ROC [Hanley and McNeil, 1983). [Hand and Till, 2001] ROC [Fawcett, 2006] ROC [Drummond and Holte, 2006] learning) [Elkan, 2001; Zhou and Liu, 2006) [Dietterich, 1998] k 5 x 2 [Demsar, 2006] [Geman et al., 1992] -r variance-covariance decomposition), Efi+ 0/1 [Kong and Dietterich, 1995; Kohavi and Wolpert, 1996; Breiman, 1996; friedman, 1997; Domingos, 20001.
+
+============================================================
+Page 64
+============================================================
+48 2.1 2.2 2.3 2.4 2.5 2.6 2.7 2.8 2.9 2.10* 1000 500 4iEflJ, 500 A NJ Fl rTJ, A MJ BEP B VJ. ROC 4 ROC Min-max z-score min-max — Xmin Friedman (2.43) (2.44)
+
+============================================================
+Page 65
+============================================================
+49 Bradley, A. P. (1997). "The use of the area under the ROC curve in the evalua- tion of machine learning algorithms." Pattern Recognition, Breiman, L. (1996). "Bias, variance, and arcing classifiers." Technical Report 460, Statistics Department, University of California, Berkeley, CA. Demsar, J. (2006). "Statistical comparison of classifiers over multiple data sets." Journal of Machine Learning Research, Dietterich, T. G. (1998). "Approximate statistical tests for comparing super- vised classification learning algorithms." Neurul Computation, 1923. Domingos, P. (2000). "A unified bias-variance decomposition." In Proceedings of the 17th International Conference on Machine Learning (ICML), 231—238, Stanford, CA. Drummond, C. and R. C. Holte. (2006). "Cost curves: An improved method for visualizing classifier performance." Machine Leaming, 65(1):95—130. Efron, B. and R. Tibshirani. (1993). An Introduction to the Bootstrap. Chap- man & Hall, New York, NY. Elkan, C. (2001). "The foundations of cost-senstive learning." In Proceedings of the 17th International Joint Conference on Artificial Intelligence (IJCAI), 973-978, Seattle, WA. Fawcett, T. (2006). "An introduction to ROC analysis." Pattern Recognition Letters, friedman, J. H. (1997). "On bias, variance, 0/1-loss, and the curse-of- dimensionality." Data Mining and Knowledge Discovery, 1(1):55—77. Geman, S., E. Bienenstock, and R. Doursat. (1992). "Neural networks and the bias/variance dilemma." Neuml Computation, 4(1):1—58. Hand, D. J. and R. J. Till. (2001). "A simple generalisation of the area under the ROC curve for multiple class classification problems." Machine Learning, Hanley, J. A. and B. J. McNeil. (1983). "A method of comparing the areas under receiver operating characteristic curves derived from the same cases." Radiology,
+
+============================================================
+Page 66
+============================================================
+50 Kohavi, R. and D. H. Wolpert. (1996). "Bias plus variance decomposition for zero-one loss functions." In Proceeding of the 13th International Conference on Machine Learning (ICML), 275—283, Bari, Italy. Kong, E. B. and T. G. Dieterich. (1995). "Error-correcting output coding cor- rects bias and variance." In Proceedings of the 12th International Conference on Machine Learning (ICML), 313-321, Tahoe City, CA. Mitchell, T. (1997). Machine Learning. McGraw Hill, New York, NY. Spackman, K. A. (1989). "Signal detection theory: Valuable tools for evaluating inductive learning." In Proceedings of the 6th International Workshop on Machine Learning (IWML), 160-163, Ithaca, NY. Van Rijsbergen, C. J. (1979). Inforrnation Retrieval, 2nd edition. Butterworths, London, I-JK. Wellek, S. (2010). Testing Statistical Hypotheses of Equivalence and Noninfe- riority, 2nd edition. Chapman & Hall/CRC, Boca Raton, FL. Zhou, Z.-H. and X.-Y. Liu. (2006). "On multi-class cost-sensitive learning." In Proceeding of the 21st National Conference on Artificial Intelligence (AAAI), 567-572, Boston, WA.
+
+============================================================
+Page 67
+============================================================
+1954 51 18994, (William Gosset, 1876—1937) fiN*, t 1908 Biometrika k t (Student's t-test). , 1906—1907 if*2R" • (Karl Pearson, 1857—1936) (University College London, UCL) . t UCL Biometrika
+
+============================================================
+Page 68
+============================================================
+
+
+============================================================
+Page 69
+============================================================
+(3.1) (3.2) (un- derstandability). 3 3.1 f (c) = + -F + U,'d$d + b , Jth, u, 0.2 • 0.5 • 0.3 • 1 , 3.2 xn; ; Xid), Yi e R. (linear
+
+============================================================
+Page 70
+============================================================
+54 93 F. (square loss). [a,bl ) LÉ.ü.$L@a2, Alt. "AG" "Æ" "h" {1.0,0.0}, "Æ'E" L" "ML" "WII" f@i) = f@i) æ-Yi • (3.3) f(r) y 2.3*5 , ) = argminE (f (Ti) — Yi)2 (u,b) = argminE(Yi — u.'$i — . (w,b) (3.4) (Euclidean distance). (least square method). " (parameter estimation). fr%lJ 2 mb — (Yi — u,'$i) E Yi@i — i) EX?-L (3.5) (3.6) (3.7)
+
+============================================================
+Page 71
+============================================================
+3.2 55 (3.8) b = ¯ E(Yi — u.'$i) , MJäfÄ. f(æi) = wTæi + b, f@i) Yi , (multivariate linear regression). *Mff, u, b w b ti, = (w; b), *fiJüMJ, D m x (d + 1) Aff±fH, 1, up $11 :r21 :crnl $12 X22 Xm2 Cld 1 1 1 Y = (Yl;ys. • • ; ym), qi'* = argmin(y — XtD)T (y — XtD) . — Xtb), tb (3.9) (3.10) XTX definite ma- = (xTx) (xTX)-1 (xTx) 1 xTy , (3.11)
+
+============================================================
+Page 72
+============================================================
+56 tart, 1.4 35; N'ldZ4L6.4. 11.4 f@i) = (xTx) lxTy Y YUflih, (3.12) (regularization)Jji. (3.13) (3.14) (log-linear regression), ewTX+b 3.1 y 30 20 10 b 3.1 = wTx + b
+
+============================================================
+Page 73
+============================================================
+3.3 Heaviside 3.3 Y —g I(wTæ+b) , " (generalized linear model), (link function). (unit-step function) O, 0.5, 1, 57 (3.15) (3.16) -10 3.2 PG. 1 -5 3.2 5 1, 0.5, o, 10 z
+
+============================================================
+Page 74
+============================================================
+58 Sigmoid S åå&'k. Sig- moid P" , "iZ4*" logistic logit 3.2 (surrogate function), 1 3.2 "Sigmoid , z O 1 fifi y {n, z = O g-(•) ftAit(3.15), 1 In (3.17) (3.18) (3.19) (3.20) WJ "JL*" (odds), (log odds, logit) In (3.21) fiLEt, (logistic regression, logit regression). , Jith,
+
+============================================================
+Page 75
+============================================================
+3.3 8.4. In p(y = o x) p(y = 1 | x) = 1 + ewTx+b 1 p(y = o I c) = 1 + etDTæ+b 59 (3.22) (3.23) (3.24) Y Z, (maximum likelihood • • w*ßb. (log- likelihood) (w, b) = Elnp(Yi I Zi; w,b) , (3.25) = (c; 1), + b = p(y = I I i; P), po@; P) = p(y = O I = I — P), YllJit(3.25) p(Yi I {Di; w, b) = YiP1(it•; 13) + (1 — . = + In (I + (3.26) (3.27) ø [Boyd and Vandenberghe, 2004], MJ descent method), = argminC(ß) . ( 02C(ß) -1 DC(ß) ßt+l ßt — (3.28) (3.29)
+
+============================================================
+Page 76
+============================================================
+60 LDA h Fisher [3 fifi D2c (0) DßDßT ¯ (3.30) (3.31) 3.4 Discriminant Analysis, [Fisher, 19361 nyH, "Fisher YJ'Jfrffi" . LDA 3.3 O 3.3 LDA + u,TElW.
+
+============================================================
+Page 77
+============================================================
+3.4 wTEow Sbto = - RüJßE-k. æexo wTEow + WTEIW + El)u, (within-class scatter matrix) — m) (X — + @ ¯ ILI) (X — æEX1 (between-class scatter matrix) Sb = (ILO — '11) — WTSbW wTSu,w 61 (3.32) (3.33) (3.34) (3.35) LDA up sw "r-N%FJT' (generalized Rayleigh quotient). w ffJkE-E*, 4 u,Tsww = 1, min —WTSbW s.t. W Stow = 1 . ±jt$ffrY (3.36) (3.37)
+
+============================================================
+Page 78
+============================================================
+62 A.3. a•7.5. SbW = — 1.11) , (3.38) (3.39) UEVT, E sw = VE-IUT Sal. LDA FIFA, LDA LDA N i mi. — Ili)T æexi 4dPüJ. (3.40) (3.41) (3.42) (3.43)
+
+============================================================
+Page 79
+============================================================
+3.5 10 LDA (classifier). ovR OVA (One vs. All). ÆgOvA 63 tr (wTSbW) (3.44) w tr(WTSwW) ' W e RdX(N-1), tr(.) SbW (3.45) W LDA N - 1 N - 1 -FL, 3.5 "—xt—" (One vs. one, OVO), "—xt (One vs. Rest, (Many vs. Many, MvM). { (XI' YI)' • • • ' Yi {CI' C2' • • • ' c N} • OVO N - 1)/2 OVO E, cj -T--za 3.4 r—oaæ. 3.4
+
+============================================================
+Page 80
+============================================================
+64 ovo/ 3.4 Ovo 5 OvRö*N *YAH', OvR N OVO - 1)/2 +h t*lJt, OvR OVO u, OVO 4-Yfi Xf±fiE, MvM kin, OVO OvR MvM MvM (Error Correcting Output Codes, ECOC). ECOC [Dietterich and Bakiri, 1995] ECOC 64.
+
+============================================================
+Page 81
+============================================================
+3.5 65 (coding matrix)fiZ. [Dietterich and Bakiri, 1995] [Allwein et al., 2000]. 'i*Zh, . 3.5 f2*$CI 3.56) +, f1 h f3 f4 .f5 +1 32v'ä 41 -+1 2 (a) ECOC 3.5 ECOC +1 C2 h f3 f4 fs h (b) —a ECOC 5 2vG aø,J; "0" fi ECOC Q. —R*ih, ECOC dj, it-m 53— fifi, nx. t*lJt, mild,
+
+============================================================
+Page 82
+============================================================
+66 ovR. MVM *-1, "*YJlJ-fW' , -FL, 553— 3.6 (NX, 998 +üfiJ, 2 0, 99.8% hdOvRs y > 0.5 0.5 fiMJiEflJ. (3.46) miff, 4m+ m- up * —L > fiMJiEV1. I—y (3.47)
+
+============================================================
+Page 83
+============================================================
+3.7 ance). (downsampling), pling)• 2.3.4 11 $. 1*lILt, 67 (3.48) (rebal- (upsam- (rescaling). (undersampling), "MR-W' (oversampling), (threshold-moving). a-R#, SMOTE [Chawla etal., 53—-hfi, EasyEnsemble [Liu et al., 2009] (cost-sensitive learn- m-/m+ cost+/cost- ur, cost+ cost- 3.7 (sparse "ÆEY±" Lo üWJVtft, NP LASSO [Tibshirani, 1996] LI EM,
+
+============================================================
+Page 84
+============================================================
+68 üJPÅiiEN", OVO OvR ECOC [Allwein et al., 2000]. [Crammer and Singer, 2002] {68k, NP Jit!ä, ECOC [Pujol et al., 2006, 2008]. [Escalera et al., 20101 ECOC MvM ECOC DAG (Directed Acyclic Graph) [Platt et al., 2000] [Crammer and Singer, 2001; Lee et al., 2004]. (misclassification cost), 2.2 eGiFÆ, [Elkan, 2001], [Zhou and Liu, 20068]. [Zhou and Liu, 2006b]. xnn, "fi-R" "fiä" "*W' "fiRYJW' , (multi-label learning), [Zhang and Zhou, 2014].
+
+============================================================
+Page 85
+============================================================
+69 3.00 Z p.89 4.5. UCI http://archive.ics.uci.edu/ml/. 6.3 $. 3.1 3.2 3.3 3.4 3.5 3.6 3.7 3.8* 3.9 3.10* b. 3.00 -EYJ%R. UCI Mn, 10 3.00 'jiz, 9, 4, ECOC ECOC ECOC OvR MvM
+
+============================================================
+Page 86
+============================================================
+70 Allwein, E. L., R. E. Schapire, and Y. Singer. (2000). "Reducing multiclass to binary: A unifying approach for margin classifiers." Journal of Machine Learning Research, Boyd, S. and L. Vandenberghe. (2004). Convec Optimization. Cambridge Uni- versity Press, Cambridge, I-TK. Chawla, N. V., K. W. Bowyer, L. O. Hall, and W. P. Kegelmeyer. (2002). "SMOTE: Synthetic minority over-sampling technique." Journal of Artificial Intelligence Research, 16:321—357. Crammer, K. and Y. Singer. (2001). "On the algorithmic implementation of multiclass kernel-based vector machines." Journal of Machine Learning Re- search, 2:265-292. Crammer, K. and Y. Singer. (2002). "On the learnability and design of output codes for multiclass problems." Machine Learning, 47(2-3):201—233. Dietterich, T. G. and G. Bakiri. (1995). "Solving multiclass learning problems via error-correcting output codes." Journal of Artificial Intelligence Re- search, 2:263-286. Elkan, C. (2001). "The foundations of cost-sensitive learning." In Proceedings of the 17th International Joint Conference on Artificial Intelligence (IJCAI), 973-978, Seattle, WA. Escalera, S., O. Pujol, and P. Radeva. (2010). "Error-correcting ouput codes library." Journal of Machine Learning Research, 11:661—664. Fisher, R. A. (1936). "The use of multiple measurements in taxonomic prob- lerns." Annals of Eugenics, Lee, Y. , Y. Lin, and G. Wahba. (2004). "Multicategory support vector ma- chines, theory, and application to the classification of microarray data and satellite radiance data." Journal of the American Statistical Association, 99 Liu, X.-Y., J. Wu, and Z.-H. Zhou. (2009). "Exploratory undersamping for class-imbalance learning." IEEE Transactions on Systems, Man, and Cyber- netics - Part B: Cybernetics, 39(2):539—550. Platt, J. C., N. Cristianini, and J. Shawe-Taylor. (2000). "Large margin DAGs
+
+============================================================
+Page 87
+============================================================
+71 for multiclass classification." In Advances in Neural Information Processing Systems 12 (MPS) (S. A. Soila, T. K. Leen, and K.-R. Müller, eds.), MIT Press, Cambridge, MA. Pujol, O. , S. Escalera, and P. Radeva. (2008). "An incremental node embedding technique for error correcting output codes." Pattern Recognition, 41(2):713— 725. Pujol, 0., P. Radeva, and J. Vitriå. (2006). "Discriminant ECOC: A heuristic method for application dependent design of error correcting output codes." IEEE Transactions on Pattern Analysis and Machine Intelligence, 28(6): 1007-1012. Tibshirani, R. (1996). "Regression shrinkage and selection via the LASSO." Journal of the Royal Statistical Society: Series B, 58(1):267—288. Zhang, M.-L. and Z.-H. Zhou. (2014). "A review on multi-label learning al- gorithms." IEEE Transactions on Knowledge and Data Engineering, 26(8): 1819-1837. Zhou, Z.-H. and X.-Y. Liu. (2006a). "On multi-class cost-sensitive learning." In Proceeding of the 21st National Conference on Artificial Intelligence (AAAI), 567-572, Boston, WA. Zhou, Z.-H. and X.-Y. Liu. (2006b). "Training cost-sensitive neural networks with methods addressing the class imbalance problem." IEEE Transactions on Knowledge and Data Engineering,
+
+============================================================
+Page 88
+============================================================
+72 1801 4, 1 -V'MtÆ 40 (1993 10 ff'6t%Xik. (1777 1855) —#frh-, 1809 4, 18054, (1752—1833) , ±. 1809
+
+============================================================
+Page 89
+============================================================
+4 4.1 tree) VEh*ff4-YJfiJ, hNJff%, ME. MEBI, BJün, "iXZ#fJLA4?" "-fVkR" : E?" , "IWE" , "ÜJ*QÆÆffßVG?" , A1-JL. 4.1 Fris. 4.1 "€F=TQ" "RÆ=?" ,
+
+============================================================
+Page 90
+============================================================
+74 4.2 D — {(XI,YI), (æm,ym)}; {al,a2,..., a d}. TreeGenerate(D, A) k node; 1: 2: if D then node C return 3: end if 4: 5: if A = Ø ORD A then node fiidNt%k, D return end if 7: for a. a: do 9: node 4 Dv D a. a: if Dv then 11: D return else 13: TreeGenerate(Dv, A \ 14: end if 15: end for 16: 4.2
+
+============================================================
+Page 91
+============================================================
+4.2 p = O, plog2p Ent(D) O, IYI. ID3 ID lt- erative Dichotomiser 4.2 4.2 8 ti, ft. —A2fiä, "4LL" 4.2.1 "GA*" (information Ent(D) = -E Pk10g2Pk . Ent(D) D 75 (4.1) V {al,a2,. id*J m. m IDVI/IDI, (information gain) IDVI Ent(D) - —Ent(DV) . IDI (4.2) —Rfiü, a "9E 4.2 8 = 11)3 ii- [Quinlan, 1986] 4.1 2.0 n, 17 2 Ent(D) = - Pk10g2Pk = — 197) -0998 — log€2 — + — log2 — 17 17
+
+============================================================
+Page 92
+============================================================
+76 4.1 2.0 1 2 3 4 5 6 7 8 9 11 12 14 15 16 17 RJä, {€i*, RYE, B, U} m, Nfi}. D 3 on, DI (€ DI {1, 4, 6, 10, 13, 17} = t, = t; {2, 3, 7, 8, 9, 15} ffJ6+#FJ, Pl = t, P2 = t; {5, 11, 12, 14, 16} MJ 5 +#9J, G 63) Ent(D1) = — log2 — + — log2 ¯ Ent(D2) = - — log2 — + — log2 ¯ (15 Ent(D3) — — — log2 ¯ 0.918 , 0.722 ,
+
+============================================================
+Page 93
+============================================================
+4.2 -NlhLb. Gain(D, 77 3 IDVI = Ent(D) - E IDfEnt(DV) — x 1.000+ — x 0.918+ — x 0.722 17 = 0.109 . *Mff, = 0.143; = 0.141; = 0.381; = 0289 Gain(D, U) = 0.006. 17 HR, 4.3 10, 15} {7, 9, 13, 14, 17) {11, 12, 16} 4.3 "k*" 'RJä, 4.3 "äN=iM" )WJ, DI {1, 2, 3, 4, 5, 6, 8, 10, 15} fifi 9 Off", {€i*, E, Gain(D1, Ei*) = 0.043; = 0.458; = 0.331; = 0.458; Gain(D1, U) 0 458 *Mff, 4.4 4.1 "*-4" iX—51J. "R
+
+============================================================
+Page 94
+============================================================
+78 ifr AÅB=? 4.4 2.0 Y" 0.998, "G*" 17 Ritij, C4.5 [Quinlan, 1993] (gain ratio) R-ff5 Gain(D , a) Gain-ratio(D, a) IV(a) v IDVI IDVI IV(a) - log2 (4.3) (4.4) a MJ (intrinsic value) [Quinlan, 1993]. a ft{JiiJfiÉ HE$(UIJ v NX), IV(a) fiJün, 4.1 2.0, IV(U) = 0.874 (V = 2), = 1.580 (V = 3), = 4.088 (V = 17). l*lJEt, C4.5
+
+============================================================
+Page 95
+============================================================
+4.3 CART Classification and Regression Tree kfii$1+,4Z2.1fi. [Quinlan, 1993]: 4.23 CART [Breiman et al., 1984] (Gini Gini(D) = E E nn-*ih, Gini(D) D 1811, Gini(D) D v' IDVI Gini-index(D, a) = Gini(DV) . IDI 79 (4.5) (4.6) up a. = argmin Gini-index(D, a). 4.3 SJCF, "fiJYh" "JäJYE" (post- pruning) [Quinlan, 1993].
+
+============================================================
+Page 96
+============================================================
+80 2.2 Tjik. "44ü1-W' fiEiYf&. 4.1 2.0, 4.2 {1,2,3,6, 7, 10, 14, 15, 16, 17} {4, 5, 8, 9, 11, 12, 13} 4.2 1 2 3 6 7 10 14 15 16 17 4 5 8 9 11 12 13 42.1 4.2 4.5 4.3.1 4.6 Rifj, 4.2 6
+
+============================================================
+Page 97
+============================================================
+4.3 1 2 3 EfJ11 5 6 81 4 i'J'hiifr: 42.9% 2 El 4.5 4.2 3 71.4% 57. 71.4% 4 71.4% 71.4% 4.6 "EJL" . hi-*4.2 fifi, T-z, x 100% = 42.9%. a 4.6 {6, 7, 15, 17}. {10, 16} "EJL" . IEtFf, {4, 5,8, 11, 12} x 100% 71.4% > 42.9%.
+
+============================================================
+Page 98
+============================================================
+82 Rfä, "€i*" . miff, ufrE, {5} 57.1%. YZ, Xi%kO, "*NG" , 71.4%. Yk, 4.2 4.6 FJi>jk, 71.4%. (decision stump). 4.6 4.5 "E "fid}" 'XiU+fi{JBW$. 4.3.2 4.2 4.5 Jill, 42.9%. 4.5 cFßJ%kO. {7, 15} YZ, -iZ "9:fÆ" , 57.1%. YZ, 4.7 {6, 7, 15} "L}JL" , 57.1%. YZ, 14} MJVIIÆ#VIJ, "4fJL" . 71.4%. -YZ, 71.4%5 42.9%,
+
+============================================================
+Page 99
+============================================================
+4.4 LYJ 3 2 5 57. 71.4% 83 4 42.9% 57. 4.7 4.2 4.7 Ffi, 71.4%. 4.7 4.6 4.4 4.4.1 C4.5 [Quinlan, 19931. {al,a2, t am, 01+1 *i", t
+
+============================================================
+Page 100
+============================================================
+84 [Quinlan, 1993]. [ai,ai+l) u, a, l} [ai,ai+l) 'Riä, Gain(D, a) = max Gain(D, a, t) tera IDAI t Ent(Dt) , = max Ent (D) ¯ (4.7) (4.8) Gain(D, a, t) Nk%fiiJhk. 4.1 2.0 "æ , 3.0. —nug. 4.3 3.0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 -y-±fl 0.697 0.774 0.634 0.608 0.556 0.403 0.481 0.437 0.666 0.243 0.245 0.343 0.639 0.657 0.360 0.593 0.719 0.460 0.376 0.264 0.318 0.215 0.237 0.149 0.211 0.091 0.267 0.057 0.099 0.161 0.198 0.370 0.042 0.103
+
+============================================================
+Page 101
+============================================================
+4.4 1<0.294" 85 , 17 16 TME = {0.244, 0.294, 0.351, 0.381, 0.420, 0.459, 0.518, 0.574, 0.600, 0.621, 0.636, 0.648, 0.661, 0.681, 0.708, 0.746}. Ehit(4.8) "ÆfE" 0.262, Xdßi-Y±lJfrk 0.381. , 16 = {0.049, 0.074, 0.095, 0.101, 0.126, 0.155, 0.179, 0.204, 0.213, 0.226, 0.250, 0.265, 0.292, 0.344, 0.373, 0.418}. *MM], 0.349, 0.126. 42.1 4.3 Gain(D, = 0.109; = 0.143; = 0.141; = 0.381; Gain(D, = 0.289; = 0.006; Gain(D, 0.262; Gain(D, = 0.349. 4.8 4.8 4.4.2 HIV

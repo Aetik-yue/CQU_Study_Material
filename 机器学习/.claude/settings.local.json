@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mv logistic_regression_result.png 输出结果/)",
+      "Bash(mv \"代码/实验1-对率回归/logistic_regression_python/outputs\"/* 输出结果/实验1-outputs/)",
+      "Bash(mv \"代码/实验1-对率回归/logistic_regression_python/iris_outputs\"/* 输出结果/实验1-iris_outputs/)",
+      "Bash(mv \"实验一/iris_multiclass_outputs\"/* 输出结果/实验1-iris_multiclass_outputs/)",
+      "Bash(mv \"实验二/bp_outputs\"/* 输出结果/实验2-bp_outputs/)",
+      "Bash(mv \"机器学习教材.pdf\" 参考资料/)",
+      "Bash(mv \"机器学习复习笔记 25届试题回忆 \\(1\\).zip\" 参考资料/)"
+    ]
+  }
+}
