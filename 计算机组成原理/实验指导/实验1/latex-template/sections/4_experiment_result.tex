@@ -1,0 +1,63 @@
+\section{实验结果及分析}
+
+\subsection{ALU验证实验结果}
+
+ALU验证实验将B端口固定为32'h01，A端口依次输入不同的测试值，验证6种运算功能的正确性。实验结果如表~\ref{tab:alu_result}所示。
+
+\begin{table}[htbp]
+    \centering
+    \begin{tabular}{c|c|c|c}
+        操作 & F[2:0] & Num1 (A) & Result \\
+        \hline
+        A + B (Unsigned) & 000 & 32'h00000002 & 32'h00000003 \\
+        A - B            & 001 & 32'h000000FF & 32'h000000FE \\
+        A AND B          & 010 & 32'h000000FE & 32'h00000000 \\
+        A OR B           & 011 & 32'h000000AA & 32'h000000AB \\
+        $\overline{A}$   & 100 & 32'h000000F0 & 32'hFFFFFF0F \\
+        SLT              & 101 & 32'h00000081 & 32'h00000000 \\
+        \hline
+    \end{tabular}
+    \caption{ALU验证结果表}
+    \label{tab:alu_result}
+\end{table}
+
+\textbf{结果分析：}
+\begin{enumerate}
+    \item \textbf{A+B (Unsigned)}：2 + 1 = 3，结果正确
+    \item \textbf{A - B}：0xFF - 0x01 = 0xFE，结果正确
+    \item \textbf{A AND B}：0xFE \& 0x01 = 0x00，结果正确
+    \item \textbf{A OR B}：0xAA $\vert$ 0x01 = 0xAB，结果正确
+    \item \textbf{NOT A}：\textasciitilde 0x000000F0 = 0xFFFFFF0F，结果正确
+    \item \textbf{SLT}：\$signed(0x00000081) = 129，\$signed(0x00000001) = 1，129 < 1 为假，输出0，结果正确
+\end{enumerate}
+
+\subsection{ALU仿真波形图}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.95\textwidth]{image/place_holder.png}
+    \caption{ALU行为仿真波形图}
+    \label{fig:alu_wave}
+\end{figure}
+
+\subsection{流水线阻塞仿真图}
+
+在仿真中控制第10个时钟周期后，stall信号有效2个周期，模拟第2级流水线暂停。暂停期间，流水线各寄存器保持原值不变。2个周期后stall信号无效，流水线恢复正常流动。
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.95\textwidth]{image/place_holder.png}
+    \caption{流水线暂停仿真波形图}
+    \label{fig:pipe_stall}
+\end{figure}
+
+\subsection{流水线刷新仿真图}
+
+在仿真中控制第15个时钟周期时，flush信号有效1个周期，模拟第3级流水线刷新。刷新期间，流水线各级寄存器被清零，之后流水线重新开始流动。
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.95\textwidth]{image/place_holder.png}
+    \caption{流水线刷新仿真波形图}
+    \label{fig:pipe_flush}
+\end{figure}

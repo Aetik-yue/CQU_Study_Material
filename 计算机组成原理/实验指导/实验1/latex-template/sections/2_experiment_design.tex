@@ -1,0 +1,120 @@
+\section{实验设计}
+
+\subsection{ALU}\label{sub:alu}
+
+\subsubsection{功能描述}
+ALU模块实现32位数据的算术和逻辑运算。模块接收两个32位操作数A和B，以及3位控制码F[2:0]，输出32位运算结果Result。支持6种运算：无符号加法、减法、按位与、按位或、按位取反和小于置位（SLT）。
+
+根据指导书，ALU有两种实现方式：
+\begin{itemize}
+    \item \textbf{assign实现}：使用连续赋值语句和三目运算符，适合纯组合逻辑的简单运算
+    \item \textbf{always实现}：使用always@(*)块和case语句，结构更清晰，便于扩展\end{itemize}
+
+本实验采用always实现方式，扩展支持SLT运算。
+
+\subsubsection{接口定义}
+
+\begin{table}[htp]
+\caption{ALU模块接口定义}\label{tab:alu_signal}
+\begin{center}
+    \begin{tabular}{|l|l|l|p{6cm}|}
+    \hline
+    \textbf{信号名} & \textbf{方向} & \textbf{位宽} & \textbf{功能描述}\\ \hline \hline
+    A      & Input  & 32-bit & 操作数A \\
+    B      & Input  & 32-bit & 操作数B \\
+    F      & Input  & 3-bit  & 运算控制码，选择ALU执行的运算类型 \\
+    Result & Output & 32-bit & 运算结果，输出至七段数码管显示 \\
+    \hline
+    \end{tabular}
+\end{center}
+\end{table}
+
+\subsubsection{逻辑控制}
+ALU采用纯组合逻辑实现，通过case语句根据控制码F[2:0]选择对应运算：
+
+\begin{table}[htp]
+    \centering
+    \begin{tabular}{ccc}
+        \hline
+        F[2:0] & 功能 & 说明 \\
+        \hline
+        000 & A + B (Unsigned) & 无符号加法 \\
+        001 & A - B & 减法 \\
+        010 & A AND B & 按位与 \\
+        011 & A OR B & 按位或 \\
+        100 & $\overline{A}$ & 按位取反 \\
+        101 & SLT & 有符号比较，A < B 时输出1，否则输出0 \\
+        110 & 未使用 & 输出0 \\
+        111 & 未使用 & 输出0 \\
+        \hline
+    \end{tabular}
+    \caption{ALU运算控制码及功能}
+    \label{tab:alu_opcode}
+\end{table}
+
+SLT运算使用Verilog内置函数\texttt{\$signed()}将操作数转换为有符号数后进行比较，按照补码规则判断大小。
+
+\subsection{4级流水线8bit全加器}\label{sub:ctl}
+
+\subsubsection{功能描述}
+实现4级流水线8位全加器，参考指导书Listing 5的\texttt{adder\_8bits\_4steps}模块。将8位加法运算拆分为4个流水阶段，每级处理2位数据的加法及进位传递。支持流水线暂停和刷新控制，用于模拟流水线冲突和异常处理。
+
+流水线各级功能划分：
+\begin{itemize}
+    \item \textbf{第1级}：输入寄存，计算低2位（bit[1:0]）的加法结果及进位
+    \item \textbf{第2级}：计算次低2位（bit[3:2]）的加法，拼接第1级的部分和
+    \item \textbf{第3级}：计算次高2位（bit[5:4]）的加法，拼接前两级的部分和
+    \item \textbf{第4级}：计算最高2位（bit[7:6]）的加法，输出最终8位和与进位
+\end{itemize}
+
+\subsubsection{接口定义}
+
+\begin{table}[htp]
+\caption{流水线全加器接口定义}\label{tab:pipe_signal}
+\begin{center}
+    \begin{tabular}{|l|l|l|p{5cm}|}
+    \hline
+    \textbf{信号名} & \textbf{方向} & \textbf{位宽} & \textbf{功能描述}\\ \hline \hline
+    clk    & Input  & 1-bit  & 时钟信号 \\
+    rst\_n & Input  & 1-bit  & 异步复位信号，低有效 \\
+    cin\_a & Input  & 8-bit  & 操作数A \\
+    cin\_b & Input  & 8-bit  & 操作数B \\
+    c\_in  & Input  & 1-bit  & 进位输入 \\
+    stall  & Input  & 1-bit  & 流水线暂停信号，高有效 \\
+    flush  & Input  & 1-bit  & 流水线刷新信号，高有效 \\
+    c\_out & Output & 1-bit  & 进位输出 \\
+    sum\_out & Output & 8-bit & 加法结果和 \\
+    \hline
+    \end{tabular}
+\end{center}
+\end{table}
+
+\subsubsection{逻辑控制}
+
+\textbf{流水线控制机制：}
+
+指导书介绍了流水线的控制逻辑设计方法——基于valid/ready的握手协议：
+\begin{itemize}
+    \item \verb|pipeX_valid|：流水级X中是否有有效数据
+    \item \verb|pipeX_allowin|：流水级X是否允许数据进入
+    \item \verb|pipeX_ready_go|：流水级X是否完成当前数据处理
+    \item \verb|pipeX_to_pipeY_valid|：从X级传递到Y级的数据是否有效
+\end{itemize}
+
+其核心思想是将流水线的\textbf{控制逻辑}与\textbf{数据通路}分离。pipeX\_data属于数据通路，pipeX\_valid/allowin属于控制逻辑。
+
+\textbf{本实验的简化控制：}
+\begin{enumerate}
+    \item \textbf{正常流动}：stall=0且flush=0时，每个时钟周期数据向下一级推进
+    \item \textbf{暂停}：stall=1时，所有流水线级寄存器保持当前值不变。用于模拟数据相关或外部等待场景
+    \item \textbf{刷新}：flush=1时，所有流水线寄存器清零。flush优先级高于stall
+\end{enumerate}
+
+\textbf{仿真控制时序：}
+\begin{itemize}
+    \item 第10个时钟周期后，stall信号有效2个周期，模拟第2级流水线暂停，观察流水线各级寄存器保持情况
+    \item 第15个时钟周期时，flush信号有效1个周期，模拟第3级流水线刷新，观察流水线寄存器清零和重新流动
+\end{itemize}
+
+\textbf{进位传递机制：}
+每级流水线使用\{进位, 部分和\}的拼接方式传递数据。c\_out\_t1从第1级产生，传递至第2级；c\_out\_t2传递至第3级；c\_out\_t3传递至第4级。最终进位c\_out由第4级产生，最终和sum\_out由4级的部分和拼接而成。

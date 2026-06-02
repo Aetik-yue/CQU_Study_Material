@@ -1,0 +1,45 @@
+\section{实验过程记录}
+
+\subsection{ALU模块设计与仿真}
+
+\textbf{工作内容：}
+\begin{enumerate}
+    \item 根据实验要求，使用Verilog语言编写32位ALU模块，支持加法、减法、与、或、非、SLT共6种运算
+    \item 编写ALU测试激励，将B端口固定为32'h01，A端口依次输入表~\ref{tab:alu_result} 中的Num1值
+    \item 在Vivado中进行行为仿真，验证6种运算功能的正确性
+    \item 整理仿真波形，记录验证结果
+\end{enumerate}
+
+\subsection{流水线全加器设计与仿真}
+
+\textbf{工作内容：}
+\begin{enumerate}
+    \item 设计4级流水线8位全加器，将8位加法划分为4个流水阶段，每级处理2位
+    \item 实现stall和flush控制信号，支持流水线暂停和刷新功能
+    \item 编写测试激励，验证正常加法功能、流水线暂停功能和流水线刷新功能
+    \item 在仿真中控制第10周期后暂停2周期，第15周期时刷新
+    \item 在Vivado中进行行为仿真，整理仿真波形
+\end{enumerate}
+
+\subsection{问题与解决方案}
+
+\subsection{问题1：SLT运算的符号位处理}
+\textbf{问题描述：}
+SLT指令需要将有符号数进行比较，但ALU输入为32位无符号类型。直接比较会将所有输入视为无符号数，导致比较结果错误。
+
+\textbf{解决方案：}
+使用Verilog内置函数\texttt{\$signed()}将操作数A和B转换为有符号数后再进行比较，确保SLT按照补码规则正确比较大小。当A < B时输出1，否则输出0。
+
+\subsection{问题2：流水线暂停时数据保持}
+\textbf{问题描述：}
+当流水线暂停信号stall有效时，需要保持所有流水线级寄存器的值不变。如果在stall期间仍有新数据到达输入端，可能导致数据丢失或覆盖。
+
+\textbf{解决方案：}
+在所有流水线寄存器的always块中加入stall判断条件。当stall有效时，寄存器保持原值不更新；只有stall无效时才正常推进数据。
+
+\subsection{问题3：flush与stall的优先级}
+\textbf{问题描述：}
+当flush和stall同时有效时，需要确定哪个信号优先级更高。
+
+\textbf{解决方案：}
+flush信号用于处理分支预测失败等异常情况，需要立即清空流水线，因此flush优先级高于stall。在Verilog代码中，优先判断flush信号。
