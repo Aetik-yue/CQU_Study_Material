@@ -1,7 +1,5 @@
 \appendix
-\section{ALU代码 (alu.v) —— always实现}
-
-参考指导书Listing 7的always实现方式，32位ALU模块支持6种运算（含SLT）：
+\section{ALU代码 (alu.v)}
 
 \begin{lstlisting}[language=Verilog]
 module alu (
@@ -26,169 +24,131 @@ module alu (
 endmodule
 \end{lstlisting}
 
-\section{ALU代码 (alu\_assign.v) —— assign实现}
-
-参考指导书Listing 6的assign实现方式（不含SLT，仅5种基本运算）：
+\section{4级流水线32bit全加器代码 (liushuixian\_4ji.v)}
 
 \begin{lstlisting}[language=Verilog]
-module alu_assign (
-    input  wire [7:0]  num1,
-    input  wire [2:0]  op,
-    output wire [31:0] result
+module liushuixian_4ji (
+    input [31:0] cin_a, cin_b,
+    input cin, clk,
+    input stall, flush,
+    output reg cout,
+    output reg [31:0] sum
 );
+    reg [7:0] sum_s1, sum_s2, sum_s3, sum_s4;
+    reg [23:0] rem_a1, rem_b1;
+    reg [15:0] rem_a2, rem_b2;
+    reg [7:0]  rem_a3, rem_b3;
+    reg cout_s1, cout_s2, cout_s3, cout_s4;
 
-    wire [31:0] num2;
-    wire [31:0] Sign_extend;
+    reg [7:0] sum1_d2, sum1_d3, sum1_d4;
+    reg [7:0] sum2_d3, sum2_d4;
+    reg [7:0] sum3_d4;
 
-    assign num2 = 32'h00000001;
-    assign Sign_extend = {24'b0, num1[7:0]};
+    always @(posedge clk) begin
+        if (flush) begin
+            sum_s1 <= 8'd0; cout_s1 <= 1'b0;
+            rem_a1 <= 24'd0; rem_b1 <= 24'd0;
 
-    assign result = (op == 3'b000) ? Sign_extend + num2 :
-                    (op == 3'b001) ? Sign_extend - num2 :
-                    (op == 3'b010) ? Sign_extend & num2 :
-                    (op == 3'b011) ? Sign_extend | num2 :
-                    (op == 3'b100) ? ~Sign_extend :
-                    32'h00000000;
+            sum_s2 <= 8'd0; cout_s2 <= 1'b0;
+            rem_a2 <= 16'd0; rem_b2 <= 16'd0;
 
+            sum_s3 <= 8'd0; cout_s3 <= 1'b0;
+            rem_a3 <= 8'd0; rem_b3 <= 8'd0;
+
+            sum_s4 <= 8'd0; cout_s4 <= 1'b0;
+
+            sum1_d2 <= 8'd0; sum1_d3 <= 8'd0; sum1_d4 <= 8'd0;
+            sum2_d3 <= 8'd0; sum2_d4 <= 8'd0;
+            sum3_d4 <= 8'd0;
+
+            sum <= 32'd0;
+            cout <= 1'b0;
+        end
+        else begin
+            if (!stall) begin
+                // stage 1: bit[7:0]
+                {cout_s1, sum_s1} <= {1'b0, cin_a[7:0]} + {1'b0, cin_b[7:0]} + cin;
+                rem_a1 <= cin_a[31:8];
+                rem_b1 <= cin_b[31:8];
+
+                // stage 2: bit[15:8]
+                {cout_s2, sum_s2} <= {1'b0, rem_a1[7:0]} + {1'b0, rem_b1[7:0]} + cout_s1;
+                rem_a2 <= rem_a1[23:8];
+                rem_b2 <= rem_b1[23:8];
+
+                // stage 3: bit[23:16]
+                {cout_s3, sum_s3} <= {1'b0, rem_a2[7:0]} + {1'b0, rem_b2[7:0]} + cout_s2;
+                rem_a3 <= rem_a2[15:8];
+                rem_b3 <= rem_b2[15:8];
+
+                // stage 4: bit[31:24]
+                {cout_s4, sum_s4} <= {1'b0, rem_a3} + {1'b0, rem_b3} + cout_s3;
+
+                // shift register alignment
+                sum1_d2 <= sum_s1;  sum1_d3 <= sum1_d2;  sum1_d4 <= sum1_d3;
+                sum2_d3 <= sum_s2;  sum2_d4 <= sum2_d3;
+                sum3_d4 <= sum_s3;
+
+                // output assembly
+                sum[7:0]   <= sum1_d4;
+                sum[15:8]  <= sum2_d4;
+                sum[23:16] <= sum3_d4;
+                sum[31:24] <= sum_s4;
+                cout <= cout_s4;
+            end
+        end
+    end
 endmodule
 \end{lstlisting}
 
-\section{4级流水线8bit全加器代码 (adder\_8bits\_4steps.v)}
-
-参考指导书Listing 5的4级流水线8位加法器，增加stall和flush控制：
+\section{流水线全加器测试激励代码 (liushuixian\_4ji\_sim2.v)}
 
 \begin{lstlisting}[language=Verilog]
-module adder_8bits_4steps (
-    input         clk,
-    input         rst_n,
-    input  [7:0]  cin_a,
-    input  [7:0]  cin_b,
-    input         c_in,
-    input         stall,
-    input         flush,
-    output        c_out,
-    output [7:0]  sum_out
-);
+module liushuixian_4ji_sim2();
+    reg [31:0] cin_a, cin_b;
+    reg cin, clk, stall, flush;
+    wire cout;
+    wire [31:0] sum;
 
-    reg        c_out;
-    reg        c_out_t1, c_out_t2, c_out_t3;
-    reg [7:0]  sum_out;
-    reg [1:0]  sum_out_t1;
-    reg [3:0]  sum_out_t2;
-    reg [5:0]  sum_out_t3;
-
-    // Stage 1: bits[1:0]
-    always @(posedge clk or negedge rst_n) begin
-        if (!rst_n) begin
-            {c_out_t1, sum_out_t1} <= 3'd0;
-        end else if (flush) begin
-            {c_out_t1, sum_out_t1} <= 3'd0;
-        end else if (!stall) begin
-            {c_out_t1, sum_out_t1} <= {1'b0, cin_a[1:0]} + {1'b0, cin_b[1:0]} + c_in;
-        end
-    end
-
-    // Stage 2: bits[3:2]
-    always @(posedge clk or negedge rst_n) begin
-        if (!rst_n) begin
-            {c_out_t2, sum_out_t2} <= 5'd0;
-        end else if (flush) begin
-            {c_out_t2, sum_out_t2} <= 5'd0;
-        end else if (!stall) begin
-            {c_out_t2, sum_out_t2} <= {{1'b0, cin_a[3:2]} + {1'b0, cin_b[3:2]} + c_out_t1, sum_out_t1};
-        end
-    end
-
-    // Stage 3: bits[5:4]
-    always @(posedge clk or negedge rst_n) begin
-        if (!rst_n) begin
-            {c_out_t3, sum_out_t3} <= 7'd0;
-        end else if (flush) begin
-            {c_out_t3, sum_out_t3} <= 7'd0;
-        end else if (!stall) begin
-            {c_out_t3, sum_out_t3} <= {{1'b0, cin_a[5:4]} + {1'b0, cin_b[5:4]} + c_out_t2, sum_out_t2};
-        end
-    end
-
-    // Stage 4: bits[7:6], final output
-    always @(posedge clk or negedge rst_n) begin
-        if (!rst_n) begin
-            {c_out, sum_out} <= 9'd0;
-        end else if (!stall) begin
-            {c_out, sum_out} <= {{1'b0, cin_a[7:6]} + {1'b0, cin_b[7:6]} + c_out_t3, sum_out_t3};
-        end
-    end
-
-endmodule
-\end{lstlisting}
-
-\section{流水线全加器测试激励代码 (tb\_pipeline\_adder.v)}
-
-\begin{lstlisting}[language=Verilog]
-module tb_pipeline_adder;
-    reg        clk;
-    reg        rst_n;
-    reg  [7:0] cin_a;
-    reg  [7:0] cin_b;
-    reg        c_in;
-    reg        stall;
-    reg        flush;
-    wire       c_out;
-    wire [7:0] sum_out;
-
-    integer cycle_count;
-
-    adder_8bits_4steps uut (
-        .clk(clk),
-        .rst_n(rst_n),
-        .cin_a(cin_a),
-        .cin_b(cin_b),
-        .c_in(c_in),
-        .stall(stall),
-        .flush(flush),
-        .c_out(c_out),
-        .sum_out(sum_out)
+    liushuixian_4ji uut (
+        .cin_a(cin_a), .cin_b(cin_b), .cin(cin), .clk(clk),
+        .stall(stall), .flush(flush), .cout(cout), .sum(sum)
     );
 
-    // 100MHz clock: T = 10ns
     always #5 clk = ~clk;
 
-    always @(posedge clk or negedge rst_n) begin
-        if (!rst_n)
-            cycle_count <= 0;
-        else
-            cycle_count <= cycle_count + 1;
-    end
-
     initial begin
-        clk   = 0;
-        rst_n = 0;
-        cin_a = 8'd0;
-        cin_b = 8'd0;
-        c_in  = 1'b0;
-        stall = 1'b0;
-        flush = 1'b0;
+        clk = 0; stall = 0; flush = 0; cin = 0;
 
-        #20 rst_n = 1;
+        // 1-5 cycles
+        cin_a = 32'h11110000; cin_b = 32'h22220000;  #10;
+        cin_a = 32'h22220000; cin_b = 32'h33330000;  #10;
+        cin_a = 32'h33330000; cin_b = 32'h44440000;  #10;
+        cin_a = 32'h44440000; cin_b = 32'h55550000;  #10;
+        cin_a = 32'h55550000; cin_b = 32'h66660000;  #10;
+
+        // 6-10 cycles
+        cin_a = 32'h01110000; cin_b = 32'h02220000;  #10;
+        cin_a = 32'h02220000; cin_b = 32'h03330000;  #10;
+        cin_a = 32'h03330000; cin_b = 32'h04440000;  #10;
+        cin_a = 32'h04440000; cin_b = 32'h05550000;  #10;
+        cin_a = 32'h05550000; cin_b = 32'h06660000;  #10;
+
+        // stall at cycle 10 for 2 cycles
+        stall = 1;
+        #20;
+        stall = 0;
+        #30;
+
+        // flush at cycle 15
+        flush = 1;
         #10;
+        flush = 0;
 
-        // Normal operation: 0x12 + 0x34 = 0x46
-        cin_a = 8'h12;
-        cin_b = 8'h34;
+        cin_a = 32'd100;
+        cin_b = 32'd200;
 
-        // Cycle 10: stall for 2 cycles (stage 2)
-        wait(cycle_count >= 10);
-        stall = 1'b1;
-        repeat(2) @(posedge clk);
-        stall = 1'b0;
-
-        // Cycle 15: flush (stage 3)
-        wait(cycle_count >= 15);
-        flush = 1'b1;
-        @(posedge clk);
-        flush = 1'b0;
-
-        #100;
+        #60;
         $finish;
     end
 endmodule

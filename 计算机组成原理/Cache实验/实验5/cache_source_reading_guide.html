@@ -1,0 +1,1732 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cache 源码阅读导览</title>
+<style>
+:root{
+  --bg:#f7f9fc;--panel:#ffffff;--ink:#172033;--muted:#65758b;--line:#dbe4f0;
+  --blue:#2563eb;--blue2:#e8f0ff;--green:#059669;--green2:#e8f8f2;--orange:#ea580c;--orange2:#fff3e8;--purple:#7c3aed;--purple2:#f2ebff;
+  --red:#dc2626;--red2:#fff0f0;--code:#0f172a;--codebg:#0b1220;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:linear-gradient(180deg,#f7f9fc 0%,#eef4ff 100%);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans SC","Microsoft YaHei",Arial,sans-serif;line-height:1.65}
+a{color:inherit;text-decoration:none}
+.layout{display:grid;grid-template-columns:270px minmax(0,1fr);min-height:100vh}
+aside{position:sticky;top:0;height:100vh;overflow:auto;background:rgba(255,255,255,.86);backdrop-filter:blur(12px);border-right:1px solid var(--line);padding:22px 18px}
+.logo{font-weight:800;font-size:20px;letter-spacing:.2px;margin-bottom:4px}
+.sub{color:var(--muted);font-size:13px;margin-bottom:20px}
+.nav a{display:block;padding:9px 10px;border-radius:12px;color:#334155;font-size:14px;margin:3px 0}
+.nav a:hover{background:#eff6ff;color:#1d4ed8}
+main{padding:34px 42px 80px;max-width:1250px}
+.hero{background:linear-gradient(135deg,#ffffff,#eff6ff);border:1px solid var(--line);border-radius:28px;padding:34px;box-shadow:0 20px 50px rgba(15,23,42,.07)}
+h1{font-size:34px;line-height:1.18;margin:0 0 12px}
+h2{font-size:26px;margin:42px 0 14px}
+h3{font-size:19px;margin:26px 0 10px}
+p{margin:8px 0}
+.badges{display:flex;flex-wrap:wrap;gap:8px;margin:18px 0 0}
+.badge{padding:6px 10px;border-radius:999px;background:#fff;border:1px solid var(--line);font-size:13px;color:#334155}
+.grid{display:grid;gap:16px}
+.grid.two{grid-template-columns:repeat(2,minmax(0,1fr))}
+.grid.three{grid-template-columns:repeat(3,minmax(0,1fr))}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:22px;padding:20px;box-shadow:0 12px 30px rgba(15,23,42,.055)}
+.card h3{margin-top:0}
+.note{border-left:5px solid var(--blue);background:var(--blue2);border-radius:16px;padding:14px 16px;margin:14px 0}
+.warn{border-left:5px solid var(--orange);background:var(--orange2);border-radius:16px;padding:14px 16px;margin:14px 0}
+.ok{border-left:5px solid var(--green);background:var(--green2);border-radius:16px;padding:14px 16px;margin:14px 0}
+.kv{display:grid;grid-template-columns:145px minmax(0,1fr);gap:8px 12px;font-size:15px}
+.kv div:nth-child(odd){font-weight:700;color:#334155}
+.addr{display:grid;grid-template-columns:20fr 10fr 2fr;border:1px solid var(--line);border-radius:18px;overflow:hidden;margin:14px 0;background:#fff}
+.addr div{padding:14px;text-align:center;border-right:1px solid var(--line)}
+.addr div:last-child{border-right:0}
+.addr b{display:block;font-size:18px}
+.addr span{color:var(--muted);font-size:13px}
+.flow{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:12px 0}
+.node{padding:12px 14px;border-radius:16px;border:1px solid var(--line);background:#fff;font-weight:700;box-shadow:0 8px 20px rgba(15,23,42,.045)}
+.node.blue{background:var(--blue2);border-color:#bfdbfe;color:#1d4ed8}
+.node.green{background:var(--green2);border-color:#bbf7d0;color:#047857}
+.node.orange{background:var(--orange2);border-color:#fed7aa;color:#c2410c}
+.node.purple{background:var(--purple2);border-color:#ddd6fe;color:#6d28d9}
+.arrow{color:#64748b;font-weight:900}
+.timeline{border-left:3px solid #bfdbfe;margin:12px 0 4px 9px;padding-left:20px}
+.step{position:relative;margin:0 0 16px}
+.step::before{content:"";position:absolute;left:-30px;top:7px;width:13px;height:13px;border-radius:50%;background:#2563eb;border:3px solid #dbeafe}
+.step b{display:block}
+.codebox{margin:14px 0;border-radius:18px;overflow:hidden;border:1px solid #1e293b;background:var(--codebg);box-shadow:0 16px 38px rgba(15,23,42,.14)}
+.codehead{display:flex;justify-content:space-between;align-items:center;background:#111827;color:#dbeafe;padding:10px 14px;font-size:13px}
+pre{margin:0;padding:16px 18px;overflow:auto;color:#e5e7eb;font:13px/1.55 ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;tab-size:4;max-height:520px}
+.inlinecode{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;background:#eef2ff;color:#3730a3;padding:2px 6px;border-radius:7px}
+table{width:100%;border-collapse:collapse;background:#fff;border-radius:18px;overflow:hidden;border:1px solid var(--line)}
+th,td{border-bottom:1px solid var(--line);padding:12px 14px;text-align:left;vertical-align:top}
+th{background:#f1f5f9;color:#334155}
+tr:last-child td{border-bottom:0}
+details{background:#fff;border:1px solid var(--line);border-radius:18px;margin:12px 0;overflow:hidden}
+summary{cursor:pointer;padding:14px 16px;font-weight:800;background:#f8fafc}
+.source-tabs{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}
+.tabbtn{border:1px solid var(--line);background:#fff;border-radius:999px;padding:8px 12px;cursor:pointer;color:#334155}
+.tabbtn.active{background:#2563eb;color:#fff;border-color:#2563eb}
+.source-panel{display:none}
+.source-panel.active{display:block}
+.search{width:100%;border:1px solid var(--line);border-radius:14px;padding:11px 13px;margin:10px 0 4px;font-size:15px}
+mark{background:#fde68a;color:#78350f;border-radius:4px;padding:0 2px}
+@media(max-width:900px){.layout{display:block}aside{position:relative;height:auto}main{padding:22px 16px 60px}.grid.two,.grid.three{grid-template-columns:1fr}.addr{grid-template-columns:1fr}.addr div{border-right:0;border-bottom:1px solid var(--line)}.addr div:last-child{border-bottom:0}}
+</style>
+</head>
+<body>
+<div class="layout">
+<aside>
+  <div class="logo">Cache 源码导览</div>
+  <div class="sub">直接映射 · write-back · write-allocate · Verilog</div>
+  <nav class="nav">
+    <a href="#goal">阅读目标</a>
+    <a href="#arch">总体结构</a>
+    <a href="#addr">地址划分</a>
+    <a href="#icache">i_cache 指令 Cache</a>
+    <a href="#dcache">d_cache 数据 Cache</a>
+    <a href="#board">板级自测</a>
+    <a href="#signals">握手信号</a>
+    <a href="#exam">满分答题口径</a>
+    <a href="#source">完整源码</a>
+  </nav>
+</aside>
+<main>
+  <section id="goal" class="hero">
+    <h1>Cache 源码阅读导览</h1>
+    <p>这份 HTML 按源码阅读顺序组织：先看 <b>cache.v 总封装</b>，再读 <b>i_cache.v</b>，重点读 <b>d_cache.v</b>，最后用 <b>cache_board_top.v</b> 的自测流程验证你的理解。</p>
+    <div class="badges">
+      <span class="badge">直接映射 Direct Mapped</span>
+      <span class="badge">每行 1 个 32 位 word</span>
+      <span class="badge">I-Cache 只读</span>
+      <span class="badge">D-Cache 写回 write-back</span>
+      <span class="badge">D-Cache 写分配 write-allocate</span>
+      <span class="badge">类 SRAM 握手接口</span>
+    </div>
+  </section>
+
+  <section id="arch">
+    <h2>1. 总体结构：cache.v 只是分发接口</h2>
+    <div class="grid two">
+      <div class="card">
+        <h3>模块关系</h3>
+        <div class="flow">
+          <span class="node blue">CPU 取指通道</span><span class="arrow">→</span><span class="node green">i_cache</span><span class="arrow">→</span><span class="node">指令存储器</span>
+        </div>
+        <div class="flow">
+          <span class="node blue">CPU 访存通道</span><span class="arrow">→</span><span class="node orange">d_cache</span><span class="arrow">→</span><span class="node">数据存储器</span>
+        </div>
+        <p><span class="inlinecode">cache.v</span> 没有实现命中判断，也没有替换逻辑，它只是把两套 CPU 侧接口分别接到 <span class="inlinecode">i_cache</span> 和 <span class="inlinecode">d_cache</span>。</p>
+      </div>
+      <div class="card">
+        <h3>读源码时的抓手</h3>
+        <div class="kv">
+          <div>i_cache</div><div>只处理取指读请求，命中直接返回，缺失进入 REFILL。</div>
+          <div>d_cache</div><div>处理 load/store，额外维护 dirty 位，缺失时可能先 WRITEBACK。</div>
+          <div>board_top</div><div>不是 Cache 本体，是板级自测环境，用 LED 表示测试结果。</div>
+        </div>
+      </div>
+    </div>
+    <div class="codebox"><div class="codehead"><span>cache.v：只负责实例化两个 Cache</span><span>45-87</span></div><pre>045:     // 实例化指令Cache，取指命中时直接返回，缺失时从cache_inst_*补充。
+046:     i_cache i_cache(
+047:         .clk(clk), .rst(rst),
+048:         .cpu_inst_req     (cpu_inst_req     ),
+049:         .cpu_inst_wr      (cpu_inst_wr      ),
+050:         .cpu_inst_size    (cpu_inst_size    ),
+051:         .cpu_inst_addr    (cpu_inst_addr    ),
+052:         .cpu_inst_wdata   (cpu_inst_wdata   ),
+053:         .cpu_inst_rdata   (cpu_inst_rdata   ),
+054:         .cpu_inst_addr_ok (cpu_inst_addr_ok ),
+055:         .cpu_inst_data_ok (cpu_inst_data_ok ),
+056: 
+057:         .cache_inst_req     (cache_inst_req     ),
+058:         .cache_inst_wr      (cache_inst_wr      ),
+059:         .cache_inst_size    (cache_inst_size    ),
+060:         .cache_inst_addr    (cache_inst_addr    ),
+061:         .cache_inst_wdata   (cache_inst_wdata   ),
+062:         .cache_inst_rdata   (cache_inst_rdata   ),
+063:         .cache_inst_addr_ok (cache_inst_addr_ok ),
+064:         .cache_inst_data_ok (cache_inst_data_ok )
+065:     );
+066: 
+067:     // 实例化数据Cache，支持写回和写分配策略。
+068:     d_cache d_cache(
+069:         .clk(clk), .rst(rst),
+070:         .cpu_data_req     (cpu_data_req     ),
+071:         .cpu_data_wr      (cpu_data_wr      ),
+072:         .cpu_data_size    (cpu_data_size    ),
+073:         .cpu_data_addr    (cpu_data_addr    ),
+074:         .cpu_data_wdata   (cpu_data_wdata   ),
+075:         .cpu_data_rdata   (cpu_data_rdata   ),
+076:         .cpu_data_addr_ok (cpu_data_addr_ok ),
+077:         .cpu_data_data_ok (cpu_data_data_ok ),
+078:     
+079:         .cache_data_req     (cache_data_req     ),
+080:         .cache_data_wr      (cache_data_wr      ),
+081:         .cache_data_size    (cache_data_size    ),
+082:         .cache_data_addr    (cache_data_addr    ),
+083:         .cache_data_wdata   (cache_data_wdata   ),
+084:         .cache_data_rdata   (cache_data_rdata   ),
+085:         .cache_data_addr_ok (cache_data_addr_ok ),
+086:         .cache_data_data_ok (cache_data_data_ok )
+087:     );</pre></div>
+  </section>
+
+  <section id="addr">
+    <h2>2. 地址划分：tag / index / byte offset</h2>
+    <p>源码中两个 Cache 都设置：</p>
+    <div class="grid three">
+      <div class="card"><h3>INDEX_WIDTH = 10</h3><p>Cache 有 <b>2¹⁰ = 1024 行</b>。</p></div>
+      <div class="card"><h3>OFFSET_WIDTH = 2</h3><p>一行是 <b>4 字节</b>，也就是 1 个 32 位 word。</p></div>
+      <div class="card"><h3>TAG_WIDTH = 20</h3><p>32 位地址扣掉 index 和 offset，剩下 20 位 tag。</p></div>
+    </div>
+    <div class="addr">
+      <div><b>tag</b><span>addr[31:12]，20 位</span></div>
+      <div><b>index</b><span>addr[11:2]，10 位</span></div>
+      <div><b>offset</b><span>addr[1:0]，2 位</span></div>
+    </div>
+    <div class="note"><b>关键理解：</b>因为每行只有 1 个 word，所以没有“块内第几个 word”的选择。低两位 offset 只用于 byte / halfword 写入时选择字节位置。</div>
+  </section>
+
+  <section id="icache">
+    <h2>3. i_cache.v：读懂两个状态就够了</h2>
+    <div class="grid two">
+      <div class="card">
+        <h3>I-Cache 行结构</h3>
+        <table><tr><th>数组</th><th>作用</th></tr><tr><td><span class="inlinecode">cache_valid[index]</span></td><td>这一行是否有效。</td></tr><tr><td><span class="inlinecode">cache_tag[index]</span></td><td>这一行保存的数据来自哪个 tag。</td></tr><tr><td><span class="inlinecode">cache_block[index]</span></td><td>真正保存的 32 位指令。</td></tr></table>
+      </div>
+      <div class="card">
+        <h3>I-Cache 状态机</h3>
+        <div class="flow"><span class="node green">S_IDLE</span><span class="arrow">miss</span><span class="node orange">S_REFILL</span><span class="arrow">data_ok</span><span class="node green">S_IDLE</span></div>
+        <p>命中时不进 REFILL，直接从 <span class="inlinecode">cache_block[req_index]</span> 返回。</p>
+      </div>
+    </div>
+    <h3>3.1 命中判断</h3>
+    <div class="codebox"><div class="codehead"><span>i_cache.v：地址拆分与命中判断</span><span>24-53</span></div><pre>024: 
+025:     // INDEX_WIDTH决定Cache行数；OFFSET_WIDTH=2表示一行是一个字。
+026:     parameter INDEX_WIDTH = 10;
+027:     parameter OFFSET_WIDTH = 2;
+028:     // tag宽度由32位地址扣掉index和字节偏移得到。
+029:     localparam TAG_WIDTH = 32 - INDEX_WIDTH - OFFSET_WIDTH;
+030:     localparam CACHE_DEPTH = 1 &lt;&lt; INDEX_WIDTH;
+031: 
+032:     // 空闲态处理命中；缺失态等待外部存储器返回数据。
+033:     localparam S_IDLE = 1&#x27;b0;
+034:     localparam S_REFILL = 1&#x27;b1;
+035: 
+036:     // state记录当前是否在等待缺失补充。
+037:     reg state;
+038:     // addr_rcv避免同一次缺失重复向外部存储器发地址。
+039:     reg addr_rcv;
+040:     // saved_*保存缺失时的地址拆分结果，等待data_ok后写入Cache。
+041:     reg [TAG_WIDTH-1:0] saved_tag;
+042:     reg [INDEX_WIDTH-1:0] saved_index;
+043:     reg [31:0] saved_addr;
+044: 
+045:     // valid/tag/data三组数组组成直接映射Cache。
+046:     reg cache_valid [0:CACHE_DEPTH-1];
+047:     reg [TAG_WIDTH-1:0] cache_tag [0:CACHE_DEPTH-1];
+048:     reg [31:0] cache_block [0:CACHE_DEPTH-1];
+049: 
+050:     // 当前CPU地址拆成tag和index。
+051:     wire [TAG_WIDTH-1:0] req_tag = cpu_inst_addr[31:INDEX_WIDTH+OFFSET_WIDTH];
+052:     wire [INDEX_WIDTH-1:0] req_index = cpu_inst_addr[INDEX_WIDTH+OFFSET_WIDTH-1:OFFSET_WIDTH];
+053:     // valid为1且tag一致就是命中。</pre></div>
+    <div class="ok"><b>命中条件：</b><span class="inlinecode">valid == 1</span> 且 <span class="inlinecode">tag 相等</span>。这正是直接映射 Cache 最核心的一句。</div>
+    <h3>3.2 命中 / 缺失返回</h3>
+    <div class="codebox"><div class="codehead"><span>i_cache.v：CPU 侧与外存侧握手</span><span>55-71</span></div><pre>055:     // 只有空闲态才能接收CPU新请求。
+056:     wire idle_req = (state == S_IDLE) &amp;&amp; cpu_inst_req;
+057:     // 外部存储器返回data_ok表示缺失补充完成。
+058:     wire refill_done = (state == S_REFILL) &amp;&amp; cache_inst_data_ok;
+059: 
+060:     // 空闲态看到请求就给addr_ok，表示地址阶段被Cache接收。
+061:     assign cpu_inst_addr_ok = idle_req;
+062:     // 命中或缺失补充完成时，向CPU给data_ok。
+063:     assign cpu_inst_data_ok = (idle_req &amp;&amp; hit) || refill_done;
+064:     // 命中返回Cache数组，缺失返回外部存储器刚取回的数据。
+065:     assign cpu_inst_rdata = (idle_req &amp;&amp; hit) ? cache_block[req_index] : cache_inst_rdata;
+066: 
+067:     // 缺失补充时向外部存储器发一次读请求。
+068:     assign cache_inst_req = (state == S_REFILL) &amp;&amp; !addr_rcv;
+069:     // 指令Cache不写外部存储器。
+070:     assign cache_inst_wr = 1&#x27;b0;
+071:     // 一行一个字，所以访问大小固定为word。</pre></div>
+    <div class="timeline">
+      <div class="step"><b>命中</b>CPU 发取指请求，Cache 在 S_IDLE 中接收地址，并同拍给出 data_ok，数据来自 cache_block。</div>
+      <div class="step"><b>缺失</b>先保存 tag/index/addr，然后进入 S_REFILL，向外部存储器读一个 word。</div>
+      <div class="step"><b>补充完成</b>外存 data_ok 后，把 rdata 写入 cache_block，valid 置 1，回到 S_IDLE。</div>
+    </div>
+    <div class="codebox"><div class="codehead"><span>i_cache.v：状态机主体</span><span>73-118</span></div><pre>073:     // 对齐到字地址访问外部存储器。
+074:     assign cache_inst_addr = saved_addr;
+075:     assign cache_inst_wdata = 32&#x27;b0;
+076: 
+077:     integer i;
+078:     always @(posedge clk) begin
+079:         if (rst) begin
+080:             // 复位只清valid和控制寄存器，不清tag/data数组，节省FPGA资源。
+081:             state &lt;= S_IDLE;
+082:             addr_rcv &lt;= 1&#x27;b0;
+083:             saved_tag &lt;= {TAG_WIDTH{1&#x27;b0}};
+084:             saved_index &lt;= {INDEX_WIDTH{1&#x27;b0}};
+085:             saved_addr &lt;= 32&#x27;b0;
+086:             for (i = 0; i &lt; CACHE_DEPTH; i = i + 1) begin
+087:                 cache_valid[i] &lt;= 1&#x27;b0;
+088:             end
+089:         end else begin
+090:             case (state)
+091:                 S_IDLE: begin
+092:                     // 空闲态允许下一次缺失重新发地址。
+093:                     addr_rcv &lt;= 1&#x27;b0;
+094:                     if (cpu_inst_req &amp;&amp; !hit) begin
+095:                         // 缺失时保存请求信息，之后等待外部存储器返回。
+096:                         saved_tag &lt;= req_tag;
+097:                         saved_index &lt;= req_index;
+098:                         saved_addr &lt;= {cpu_inst_addr[31:2], 2&#x27;b00};
+099:                         state &lt;= S_REFILL;
+100:                     end
+101:                 end
+102:                 S_REFILL: begin
+103:                     if (cache_inst_req &amp;&amp; cache_inst_addr_ok &amp;&amp; !cache_inst_data_ok) begin
+104:                         // 地址已被外部存储器接收，本次缺失不再重复发地址。
+105:                         addr_rcv &lt;= 1&#x27;b1;
+106:                     end
+107:                     if (cache_inst_data_ok) begin
+108:                         // data_ok到来后，把新指令写入对应Cache行。
+109:                         cache_valid[saved_index] &lt;= 1&#x27;b1;
+110:                         cache_tag[saved_index] &lt;= saved_tag;
+111:                         cache_block[saved_index] &lt;= cache_inst_rdata;
+112:                         addr_rcv &lt;= 1&#x27;b0;
+113:                         state &lt;= S_IDLE;
+114:                     end
+115:                 end
+116:             endcase
+117:         end
+118:     end</pre></div>
+  </section>
+
+  <section id="dcache">
+    <h2>4. d_cache.v：重点是 dirty、victim、saved</h2>
+    <div class="grid three">
+      <div class="card"><h3>dirty</h3><p>表示 Cache 中的数据被 CPU 改过，但还没写回内存。</p></div>
+      <div class="card"><h3>saved_*</h3><p>保存这次 CPU 请求，防止等待内存期间 CPU 地址和写数据变化。</p></div>
+      <div class="card"><h3>victim_*</h3><p>保存将被替换掉的旧行，用于脏块写回。</p></div>
+    </div>
+    <h3>4.1 D-Cache 比 I-Cache 多的状态</h3>
+    <div class="flow">
+      <span class="node green">S_IDLE</span><span class="arrow">miss 且旧行 dirty</span><span class="node orange">S_WRITEBACK</span><span class="arrow">写回完成</span><span class="node purple">S_REFILL</span><span class="arrow">补充完成</span><span class="node green">S_IDLE</span>
+    </div>
+    <div class="flow">
+      <span class="node green">S_IDLE</span><span class="arrow">miss 且旧行干净/无效</span><span class="node purple">S_REFILL</span><span class="arrow">补充完成</span><span class="node green">S_IDLE</span>
+    </div>
+    <div class="codebox"><div class="codehead"><span>d_cache.v：状态、saved、victim、数组</span><span>31-70</span></div><pre>031:     // 下一级写数据，来自被替换的脏行。
+032:     output  [31:0] cache_data_wdata   ,
+033:     // 下一级读回的数据。
+034:     input   [31:0] cache_data_rdata   ,
+035:     // 下一级接收地址的握手信号。
+036:     input          cache_data_addr_ok ,
+037:     // 下一级完成读或写的握手信号。
+038:     input          cache_data_data_ok 
+039: );
+040: 
+041:     // INDEX_WIDTH决定Cache行数；OFFSET_WIDTH=2表示一行是一个字。
+042:     parameter INDEX_WIDTH = 10;
+043:     parameter OFFSET_WIDTH = 2;
+044:     // tag宽度由32位地址扣掉index和字节偏移得到。
+045:     localparam TAG_WIDTH = 32 - INDEX_WIDTH - OFFSET_WIDTH;
+046:     localparam CACHE_DEPTH = 1 &lt;&lt; INDEX_WIDTH;
+047: 
+048:     // S_IDLE处理CPU请求；S_WRITEBACK写回脏块；S_REFILL从内存补块。
+049:     localparam S_IDLE = 2&#x27;d0;
+050:     localparam S_WRITEBACK = 2&#x27;d1;
+051:     localparam S_REFILL = 2&#x27;d2;
+052: 
+053:     // state记录当前事务阶段。
+054:     reg [1:0] state;
+055:     // addr_rcv避免同一个内存事务重复发地址。
+056:     reg addr_rcv;
+057: 
+058:     // saved_*保存缺失时CPU原始请求，防止等待内存期间CPU信号变化。
+059:     reg saved_wr;
+060:     reg [1:0] saved_size;
+061:     reg [31:0] saved_addr;
+062:     reg [31:0] saved_wdata;
+063:     reg [TAG_WIDTH-1:0] saved_tag;
+064:     reg [INDEX_WIDTH-1:0] saved_index;
+065:     // victim_*保存被替换的旧Cache行，用于脏块写回。
+066:     reg [TAG_WIDTH-1:0] victim_tag;
+067:     reg [31:0] victim_data;
+068: 
+069:     // valid/dirty/tag/data组成直接映射数据Cache。
+070:     reg cache_valid [0:CACHE_DEPTH-1];</pre></div>
+
+    <h3>4.2 命中路径：读命中与写命中</h3>
+    <div class="grid two">
+      <div class="card"><h3>读命中</h3><p>直接返回 <span class="inlinecode">cache_block[req_index]</span>，不访问外部存储器。</p></div>
+      <div class="card"><h3>写命中</h3><p>调用 <span class="inlinecode">merge_write_data</span> 合并写入，然后 <span class="inlinecode">dirty=1</span>，不立即写内存。</p></div>
+    </div>
+    <div class="codebox"><div class="codehead"><span>d_cache.v：命中、补充、外存请求信号</span><span>72-101</span></div><pre>072:     reg [TAG_WIDTH-1:0] cache_tag [0:CACHE_DEPTH-1];
+073:     reg [31:0] cache_block [0:CACHE_DEPTH-1];
+074: 
+075:     // 当前CPU地址拆成tag和index。
+076:     wire [TAG_WIDTH-1:0] req_tag = cpu_data_addr[31:INDEX_WIDTH+OFFSET_WIDTH];
+077:     wire [INDEX_WIDTH-1:0] req_index = cpu_data_addr[INDEX_WIDTH+OFFSET_WIDTH-1:OFFSET_WIDTH];
+078:     // valid为1且tag匹配表示命中。
+079:     wire req_hit = cache_valid[req_index] &amp;&amp; (cache_tag[req_index] == req_tag);
+080:     // 只有空闲态才能接收CPU请求。
+081:     wire idle_req = (state == S_IDLE) &amp;&amp; cpu_data_req;
+082:     // 命中在接收地址的同一拍完成。
+083:     wire hit_done = idle_req &amp;&amp; req_hit;
+084:     // 缺失补充在外部存储器data_ok时完成。
+085:     wire refill_done = (state == S_REFILL) &amp;&amp; cache_data_data_ok;
+086:     // 写命中时，把写数据合并到原Cache字中。
+087:     wire [31:0] hit_write_word = merge_write_data(cache_block[req_index], cpu_data_wdata, cpu_data_size, cpu_data_addr[1:0]);
+088:     // 写缺失补充回来后，再把保存的写数据合并进去。
+089:     wire [31:0] refill_write_word = merge_write_data(cache_data_rdata, saved_wdata, saved_size, saved_addr[1:0]);
+090:     // 读缺失直接使用内存数据；写缺失使用合并后的数据。
+091:     wire [31:0] refill_final_word = saved_wr ? refill_write_word : cache_data_rdata;
+092: 
+093:     // CPU地址阶段只在空闲态被接收。
+094:     assign cpu_data_addr_ok = idle_req;
+095:     // 命中或缺失补充完成时，向CPU给data_ok。
+096:     assign cpu_data_data_ok = hit_done || refill_done;
+097:     // 命中返回Cache数据；缺失返回补充后的最终数据。
+098:     assign cpu_data_rdata = hit_done ? cache_block[req_index] : refill_final_word;
+099: 
+100:     // 写回态或补充态需要访问外部存储器。
+101:     assign cache_data_req = ((state == S_WRITEBACK) || (state == S_REFILL)) &amp;&amp; !addr_rcv;</pre></div>
+
+    <h3>4.3 字节/半字/字写入合并</h3>
+    <p><span class="inlinecode">merge_write_data</span> 是这份 D-Cache 里最值得细看的函数。它根据 <span class="inlinecode">size</span> 和地址低两位生成字节掩码，只覆盖目标字节。</p>
+    <div class="codebox"><div class="codehead"><span>d_cache.v：merge_write_data</span><span>103-122</span></div><pre>103:     assign cache_data_wr = (state == S_WRITEBACK);
+104:     // Cache行大小为一个字，对外部存储器统一按word访问。
+105:     assign cache_data_size = 2&#x27;b10;
+106:     // 写回用被替换行的旧tag；补充用当前缺失请求地址。
+107:     assign cache_data_addr = (state == S_WRITEBACK) ? {victim_tag, saved_index, 2&#x27;b00}
+108:                                                     : {saved_addr[31:2], 2&#x27;b00};
+109:     // 写回数据是进入缺失处理时保存的旧Cache行。
+110:     assign cache_data_wdata = victim_data;
+111: 
+112:     // 根据写大小和地址低两位，把sb/sh/sw写入正确字节位置。
+113:     function [31:0] merge_write_data;
+114:         input [31:0] old_word;
+115:         input [31:0] write_data;
+116:         input [1:0] size;
+117:         input [1:0] addr_low;
+118:         reg [3:0] mask;
+119:         begin
+120:             // 按访问大小生成字节掩码。
+121:             mask = (size == 2&#x27;b00) ? (4&#x27;b0001 &lt;&lt; addr_low) :
+122:                    (size == 2&#x27;b01) ? (4&#x27;b0011 &lt;&lt; addr_low) :</pre></div>
+    <div class="warn"><b>例子：</b><span class="inlinecode">old_word=32'h11223344</span>，向地址 <span class="inlinecode">+1</span> 做字节写，写入 <span class="inlinecode">AA</span>，最终得到 <span class="inlinecode">32'h1122AA44</span>。这正是 board_top 自测检查的结果。</div>
+
+    <h3>4.4 缺失路径：为什么要 saved 和 victim？</h3>
+    <div class="timeline">
+      <div class="step"><b>CPU 请求缺失</b>保存本次请求到 saved_*，保存将被替换旧行到 victim_*。</div>
+      <div class="step"><b>旧行 dirty</b>先进入 S_WRITEBACK，写回地址为 <span class="inlinecode">{victim_tag, saved_index, 2'b00}</span>。</div>
+      <div class="step"><b>补充新行</b>进入 S_REFILL，从内存读回新 word。</div>
+      <div class="step"><b>写缺失特殊处理</b>如果 saved_wr=1，则把保存的写数据合并进刚读回的新 word，dirty 置 1。</div>
+    </div>
+    <div class="codebox"><div class="codehead"><span>d_cache.v：完整状态机主体</span><span>124-232</span></div><pre>124:             // 未被写入的字节保持原值。
+125:             merge_write_data = old_word;
+126:             // 只覆盖掩码选中的字节。
+127:             if (mask[0]) merge_write_data[7:0] = write_data[7:0];
+128:             if (mask[1]) merge_write_data[15:8] = write_data[15:8];
+129:             if (mask[2]) merge_write_data[23:16] = write_data[23:16];
+130:             if (mask[3]) merge_write_data[31:24] = write_data[31:24];
+131:         end
+132:     endfunction
+133: 
+134:     integer i;
+135:     always @(posedge clk) begin
+136:         if (rst) begin
+137:             // 复位只清valid/dirty和控制寄存器，不清tag/data数组，节省资源。
+138:             state &lt;= S_IDLE;
+139:             addr_rcv &lt;= 1&#x27;b0;
+140:             saved_wr &lt;= 1&#x27;b0;
+141:             saved_size &lt;= 2&#x27;b0;
+142:             saved_addr &lt;= 32&#x27;b0;
+143:             saved_wdata &lt;= 32&#x27;b0;
+144:             saved_tag &lt;= {TAG_WIDTH{1&#x27;b0}};
+145:             saved_index &lt;= {INDEX_WIDTH{1&#x27;b0}};
+146:             victim_tag &lt;= {TAG_WIDTH{1&#x27;b0}};
+147:             victim_data &lt;= 32&#x27;b0;
+148:             for (i = 0; i &lt; CACHE_DEPTH; i = i + 1) begin
+149:                 cache_valid[i] &lt;= 1&#x27;b0;
+150:                 cache_dirty[i] &lt;= 1&#x27;b0;
+151:             end
+152:         end else begin
+153:             case (state)
+154:                 S_IDLE: begin
+155:                     // 回到空闲态后，下一次内存事务可以重新发地址。
+156:                     addr_rcv &lt;= 1&#x27;b0;
+157:                     if (cpu_data_req) begin
+158:                         // CPU请求到来后，先判断当前索引是否命中。
+159:                         if (req_hit) begin
+160:                             // 命中读不需要修改Cache数组。
+161:                             if (cpu_data_wr) begin
+162:                                 // 写命中：更新Cache行并置脏，不立即写内存。
+163:                                 cache_block[req_index] &lt;= hit_write_word;
+164:                                 cache_dirty[req_index] &lt;= 1&#x27;b1;
+165:                             end
+166:                         end else begin
+167:                             // 缺失：保存CPU请求和即将被替换的Cache行。
+168:                             saved_wr &lt;= cpu_data_wr;
+169:                             saved_size &lt;= cpu_data_size;
+170:                             saved_addr &lt;= cpu_data_addr;
+171:                             // 保存写数据，写缺失补充回来后还要合并。
+172:                             saved_wdata &lt;= cpu_data_wdata;
+173:                             // 保存请求tag，补充完成后写入tag数组。
+174:                             saved_tag &lt;= req_tag;
+175:                             // 保存请求index，等待期间不再依赖CPU地址。
+176:                             saved_index &lt;= req_index;
+177:                             // 保存旧tag，用于可能发生的脏块写回地址。
+178:                             victim_tag &lt;= cache_tag[req_index];
+179:                             // 保存旧数据，用于可能发生的脏块写回数据。
+180:                             victim_data &lt;= cache_block[req_index];
+181:                             if (cache_valid[req_index] &amp;&amp; cache_dirty[req_index]) begin
+182:                                 // 有效且脏，必须先写回旧行。
+183:                                 state &lt;= S_WRITEBACK;
+184:                             end else begin
+185:                                 // 无效或干净，可以直接从内存补充新行。
+186:                                 state &lt;= S_REFILL;
+187:                             end
+188:                         end
+189:                     end
+190:                 end
+191:                 S_WRITEBACK: begin
+192:                     if (cache_data_req &amp;&amp; cache_data_addr_ok &amp;&amp; !cache_data_data_ok) begin
+193:                         // 写回地址已被外部存储器接收。
+194:                         addr_rcv &lt;= 1&#x27;b1;
+195:                     end
+196:                     if (cache_data_data_ok) begin
+197:                         // 写回完成后，进入补充新行阶段。
+198:                         addr_rcv &lt;= 1&#x27;b0;
+199:                         // 旧脏行已经写回，下次覆盖前先清脏位。
+200:                         cache_dirty[saved_index] &lt;= 1&#x27;b0;
+201:                         state &lt;= S_REFILL;
+202:                     end
+203:                 end
+204:                 S_REFILL: begin
+205:                     if (cache_data_req &amp;&amp; cache_data_addr_ok &amp;&amp; !cache_data_data_ok) begin
+206:                         // 补充读地址已被外部存储器接收。
+207:                         addr_rcv &lt;= 1&#x27;b1;
+208:                     end
+209:                     if (cache_data_data_ok) begin
+210:                         // 补充完成后，把新数据写入Cache。
+211:                         cache_valid[saved_index] &lt;= 1&#x27;b1;
+212:                         // 写缺失补充后需要置脏；读缺失补充后保持干净。
+213:                         cache_dirty[saved_index] &lt;= saved_wr;
+214:                         // 写入新tag，使后续同地址访问可以命中。
+215:                         cache_tag[saved_index] &lt;= saved_tag;
+216:                         // 写入最终数据，读缺失为原数据，写缺失为合并数据。
+217:                         cache_block[saved_index] &lt;= refill_final_word;
+218:                         // 当前内存事务结束，允许下一次缺失重新发地址。
+219:                         addr_rcv &lt;= 1&#x27;b0;
+220:                         // 回到空闲态，等待CPU下一次访问。
+221:                         state &lt;= S_IDLE;
+222:                     end
+223:                 end
+224:                 default: begin
+225:                     // 非法状态保护：回到空闲态。
+226:                     state &lt;= S_IDLE;
+227:                     addr_rcv &lt;= 1&#x27;b0;
+228:                 end
+229:             endcase
+230:         end
+231:     end
+232: endmodule</pre></div>
+  </section>
+
+  <section id="board">
+    <h2>5. cache_board_top.v：用自测验证 Cache 是否正确</h2>
+    <p><span class="inlinecode">cache_board_top.v</span> 不是正式 CPU 顶层，而是一个板级安全自测环境。它内部模拟 CPU 请求和外部存储器，用 LED 显示结果。</p>
+    <div class="grid two">
+      <div class="card"><h3>指令存储器模型</h3><p>访问外部指令存储器时延迟两拍，返回 <span class="inlinecode">32'h90000000 | addr[15:0]</span>。</p></div>
+      <div class="card"><h3>数据存储器模型</h3><p>用 <span class="inlinecode">data_mem0=11223344</span> 和 <span class="inlinecode">data_mem1=55667788</span> 构造冲突替换场景。</p></div>
+    </div>
+    <div class="codebox"><div class="codehead"><span>cache_board_top.v：本地存储器模型</span><span>139-248</span></div><pre>139:     // 本地存储器模型在req有效时立即接收地址。
+140:     assign cache_inst_addr_ok = cache_inst_req;
+141:     assign cache_data_addr_ok = cache_data_req;
+142: 
+143:     // inst_delay模拟取指存储器延迟。
+144:     reg [1:0] inst_delay;
+145:     // inst_pending_addr保存已接收但尚未返回数据的取指地址。
+146:     reg [31:0] inst_pending_addr;
+147:     // inst_reads统计取指侧实际访问外部存储器的次数。
+148:     reg [7:0] inst_reads;
+149: 
+150:     always @(posedge clk) begin
+151:         if (rst) begin
+152:             // 复位时清空取指存储器模型的等待状态。
+153:             inst_delay &lt;= 2&#x27;d0;
+154:             inst_pending_addr &lt;= 32&#x27;b0;
+155:             cache_inst_rdata &lt;= 32&#x27;b0;
+156:             cache_inst_data_ok &lt;= 1&#x27;b0;
+157:             inst_reads &lt;= 8&#x27;b0;
+158:         end else begin
+159:             // data_ok默认只保持一个周期。
+160:             cache_inst_data_ok &lt;= 1&#x27;b0;
+161:             if (cache_inst_req &amp;&amp; cache_inst_addr_ok &amp;&amp; inst_delay == 2&#x27;d0) begin
+162:                 // 接收一次i_cache缺失补充请求。
+163:                 inst_pending_addr &lt;= cache_inst_addr;
+164:                 // 固定延迟两拍后返回数据。
+165:                 inst_delay &lt;= 2&#x27;d2;
+166:                 // 只要真的访问了本地指令存储器，就累计一次。
+167:                 inst_reads &lt;= inst_reads + 1&#x27;b1;
+168:             end else if (inst_delay != 2&#x27;d0) begin
+169:                 // 延迟计数，用来模拟非零访存等待。
+170:                 inst_delay &lt;= inst_delay - 1&#x27;b1;
+171:                 if (inst_delay == 2&#x27;d1) begin
+172:                     // 返回可预测的指令数据，便于自测比较。
+173:                     cache_inst_rdata &lt;= 32&#x27;h90000000 | inst_pending_addr[15:0];
+174:                     cache_inst_data_ok &lt;= 1&#x27;b1;
+175:                 end
+176:             end
+177:         end
+178:     end
+179: 
+180:     // data_mem0和data_mem1构造两个会发生索引冲突的数据地址。
+181:     reg [31:0] data_mem0;
+182:     reg [31:0] data_mem1;
+183:     // data_delay模拟数据存储器延迟。
+184:     reg [1:0] data_delay;
+185:     // data_pending_*保存已接收但尚未完成的数据访存事务。
+186:     reg data_pending_wr;
+187:     reg [31:0] data_pending_addr;
+188:     reg [31:0] data_pending_wdata;
+189:     // 统计读补充次数，用于判断是否发生不该有的读内存。
+190:     reg [7:0] data_reads;
+191:     // 统计写回次数，用于判断脏块是否正确写回。
+192:     reg [7:0] data_writes;
+193: 
+194:     always @(posedge clk) begin
+195:         if (rst) begin
+196:             // 复位时初始化两个测试数据字。
+197:             data_mem0 &lt;= 32&#x27;h11223344;
+198:             data_mem1 &lt;= 32&#x27;h55667788;
+199:             data_delay &lt;= 2&#x27;d0;
+200:             data_pending_wr &lt;= 1&#x27;b0;
+201:             data_pending_addr &lt;= 32&#x27;b0;
+202:             data_pending_wdata &lt;= 32&#x27;b0;
+203:             // 复位时清空返回数据。
+204:             cache_data_rdata &lt;= 32&#x27;b0;
+205:             // 复位时不产生完成脉冲。
+206:             cache_data_data_ok &lt;= 1&#x27;b0;
+207:             data_reads &lt;= 8&#x27;b0;
+208:             data_writes &lt;= 8&#x27;b0;
+209:         end else begin
+210:             // data_ok默认只保持一个周期。
+211:             cache_data_data_ok &lt;= 1&#x27;b0;
+212:             if (cache_data_req &amp;&amp; cache_data_addr_ok &amp;&amp; data_delay == 2&#x27;d0) begin
+213:                 // 接收一次d_cache的读补充或写回事务。
+214:                 data_pending_wr &lt;= cache_data_wr;
+215:                 data_pending_addr &lt;= cache_data_addr;
+216:                 // 保存写回数据，等待延迟结束后再真正更新模型。
+217:                 data_pending_wdata &lt;= cache_data_wdata;
+218:                 // 固定延迟两拍后完成数据存储器访问。
+219:                 data_delay &lt;= 2&#x27;d2;
+220:                 if (cache_data_wr) begin
+221:                     // 写请求代表d_cache正在写回脏块。
+222:                     data_writes &lt;= data_writes + 1&#x27;b1;
+223:                 end else begin
+224:                     // 读请求代表d_cache正在缺失补充。
+225:                     data_reads &lt;= data_reads + 1&#x27;b1;
+226:                 end
+227:             end else if (data_delay != 2&#x27;d0) begin
+228:                 // 延迟完成当前数据存储器事务。
+229:                 data_delay &lt;= data_delay - 1&#x27;b1;
+230:                 if (data_delay == 2&#x27;d1) begin
+231:                     if (data_pending_wr) begin
+232:                         if (data_pending_addr[12]) begin
+233:                             // 地址bit12为1时写入第二个测试字。
+234:                             data_mem1 &lt;= data_pending_wdata;
+235:                         end else begin
+236:                             // 地址bit12为0时写入第一个测试字。
+237:                             data_mem0 &lt;= data_pending_wdata;
+238:                         end
+239:                     end else begin
+240:                         // 读操作根据地址bit12返回对应测试字。
+241:                         cache_data_rdata &lt;= data_pending_addr[12] ? data_mem1 : data_mem0;
+242:                     end
+243:                     // 读或写事务在这一拍完成。
+244:                     cache_data_data_ok &lt;= 1&#x27;b1;
+245:                 end
+246:             end
+247:         end
+248:     end</pre></div>
+
+    <h3>5.1 自测流程图</h3>
+    <div class="timeline">
+      <div class="step"><b>第一次取指 0x100</b>应该 miss，外存返回 0x90000100，inst_reads=1。</div>
+      <div class="step"><b>第二次取同一地址</b>应该 hit，不能再次访问外部指令存储器。</div>
+      <div class="step"><b>读数据 0x00000000</b>应该 miss，读回 0x11223344。</div>
+      <div class="step"><b>向 0x00000001 写 1 字节</b>应该写命中，只改 Cache，dirty=1，不写外存。</div>
+      <div class="step"><b>读回 0x00000000</b>应该命中，得到 0x1122AA44。</div>
+      <div class="step"><b>访问 0x00001000</b>与 0x00000000 的 index 相同但 tag 不同，触发脏块写回，再补充新行。</div>
+    </div>
+    <div class="note"><b>为什么 0x00000000 和 0x00001000 冲突？</b>因为 index 是 addr[11:2]，这两个地址的 index 都是 0，但 tag 不同，所以映射到同一个 Cache 行。</div>
+    <div class="codebox"><div class="codehead"><span>cache_board_top.v：主自测状态机</span><span>250-388</span></div><pre>250:     // 板级自测主状态机：按顺序验证I-Cache命中和D-Cache写回。
+251:     always @(posedge clk) begin
+252:         if (rst) begin
+253:             // 复位后立即准备发起第一次取指请求。
+254:             state &lt;= ST_I1_REQ;
+255:             fail &lt;= 8&#x27;b0;
+256:             cpu_inst_req &lt;= 1&#x27;b1;
+257:             cpu_inst_wr &lt;= 1&#x27;b0;
+258:             cpu_inst_size &lt;= 2&#x27;b10;
+259:             cpu_inst_addr &lt;= 32&#x27;h00000100;
+260:             cpu_inst_wdata &lt;= 32&#x27;b0;
+261:             cpu_data_req &lt;= 1&#x27;b0;
+262:             cpu_data_wr &lt;= 1&#x27;b0;
+263:             cpu_data_size &lt;= 2&#x27;b10;
+264:             cpu_data_addr &lt;= 32&#x27;b0;
+265:             cpu_data_wdata &lt;= 32&#x27;b0;
+266:         end else begin
+267:             case (state)
+268:                 ST_I1_REQ: begin
+269:                     if (cpu_inst_addr_ok) begin
+270:                         // 第一次取指地址已被接收，等待缺失补充返回。
+271:                         cpu_inst_req &lt;= 1&#x27;b0;
+272:                         // 进入等待状态，等第一次取指数据返回。
+273:                         state &lt;= ST_I1_WAIT;
+274:                     end
+275:                 end
+276:                 ST_I1_WAIT: begin
+277:                     if (cpu_inst_data_ok) begin
+278:                         // 检查第一次取指数据是否来自外部存储器模型。
+279:                         if (cpu_inst_rdata != 32&#x27;h90000100) fail[0] &lt;= 1&#x27;b1;
+280:                         // 第一次取指必须正好读一次外部存储器。
+281:                         if (inst_reads != 8&#x27;d1) fail[1] &lt;= 1&#x27;b1;
+282:                         // 再读同一地址，用来检查I-Cache命中。
+283:                         cpu_inst_addr &lt;= 32&#x27;h00000100;
+284:                         cpu_inst_req &lt;= 1&#x27;b1;
+285:                         // 发起第二次同地址取指。
+286:                         state &lt;= ST_I2_REQ;
+287:                     end
+288:                 end
+289:                 ST_I2_REQ: begin
+290:                     if (cpu_inst_addr_ok) begin
+291:                         // 第二次取指命中时，addr_ok和data_ok可能同拍出现。
+292:                         cpu_inst_req &lt;= 1&#x27;b0;
+293:                         if (cpu_inst_data_ok) begin
+294:                             // 命中返回的数据仍应等于第一次取回的数据。
+295:                             if (cpu_inst_rdata != 32&#x27;h90000100) fail[0] &lt;= 1&#x27;b1;
+296:                             // 命中不能再次访问外部指令存储器。
+297:                             if (inst_reads != 8&#x27;d1) fail[1] &lt;= 1&#x27;b1;
+298:                             // 开始数据Cache第一次读缺失测试。
+299:                             cpu_data_addr &lt;= 32&#x27;h00000000;
+300:                             cpu_data_size &lt;= 2&#x27;b10;
+301:                             cpu_data_wr &lt;= 1&#x27;b0;
+302:                             cpu_data_req &lt;= 1&#x27;b1;
+303:                             // 进入第一次数据读请求状态。
+304:                             state &lt;= ST_D1_REQ;
+305:                         end
+306:                     end
+307:                 end
+308:                 ST_D1_REQ: begin
+309:                     if (cpu_data_addr_ok) begin
+310:                         // 数据读地址已被d_cache接收，等待补充完成。
+311:                         cpu_data_req &lt;= 1&#x27;b0;
+312:                         // 等待第一次数据读返回。
+313:                         state &lt;= ST_D1_WAIT;
+314:                     end
+315:                 end
+316:                 ST_D1_WAIT: begin
+317:                     if (cpu_data_data_ok) begin
+318:                         // 第一次数据读应返回data_mem0初值。
+319:                         if (cpu_data_rdata != 32&#x27;h11223344) fail[2] &lt;= 1&#x27;b1;
+320:                         // 第一次数据读必须正好访问一次外部数据存储器。
+321:                         if (data_reads != 8&#x27;d1) fail[3] &lt;= 1&#x27;b1;
+322:                         // 对地址+1做字节写，期望改写第二个字节为AA。
+323:                         cpu_data_addr &lt;= 32&#x27;h00000001;
+324:                         cpu_data_size &lt;= 2&#x27;b00;
+325:                         cpu_data_wdata &lt;= 32&#x27;hAAAAAAAA;
+326:                         // 写使能置1，开始字节写命中测试。
+327:                         cpu_data_wr &lt;= 1&#x27;b1;
+328:                         cpu_data_req &lt;= 1&#x27;b1;
+329:                         // 进入数据写请求状态。
+330:                         state &lt;= ST_DW_REQ;
+331:                     end
+332:                 end
+333:                 ST_DW_REQ: begin
+334:                     if (cpu_data_addr_ok) begin
+335:                         // 字节写命中被接收后，不应立即写外部存储器。
+336:                         cpu_data_req &lt;= 1&#x27;b0;
+337:                         if (cpu_data_data_ok) begin
+338:                             // 写命中只置脏，不产生写回。
+339:                             if (data_writes != 8&#x27;d0) fail[4] &lt;= 1&#x27;b1;
+340:                             // 读回原地址，检查脏行中的字节合并结果。
+341:                             cpu_data_addr &lt;= 32&#x27;h00000000;
+342:                             cpu_data_size &lt;= 2&#x27;b10;
+343:                             cpu_data_wr &lt;= 1&#x27;b0;
+344:                             cpu_data_req &lt;= 1&#x27;b1;
+345:                             // 进入脏行读回请求状态。
+346:                             state &lt;= ST_D2_REQ;
+347:                         end
+348:                     end
+349:                 end
+350:                 ST_D2_REQ: begin
+351:                     if (cpu_data_addr_ok) begin
+352:                         // 脏行读命中被接收后，应立即返回修改后的字。
+353:                         cpu_data_req &lt;= 1&#x27;b0;
+354:                         if (cpu_data_data_ok) begin
+355:                             // 地址1的字节写后，整字应变成1122AA44。
+356:                             if (cpu_data_rdata != 32&#x27;h1122AA44) fail[5] &lt;= 1&#x27;b1;
+357:                             // 脏行读命中不能再读外部存储器。
+358:                             if (data_reads != 8&#x27;d1) fail[3] &lt;= 1&#x27;b1;
+359:                             // 访问冲突地址，强制替换并写回脏行。
+360:                             cpu_data_addr &lt;= 32&#x27;h00001000;
+361:                             cpu_data_size &lt;= 2&#x27;b10;
+362:                             cpu_data_wr &lt;= 1&#x27;b0;
+363:                             cpu_data_req &lt;= 1&#x27;b1;
+364:                             // 进入冲突读请求状态。
+365:                             state &lt;= ST_DC_REQ;
+366:                         end
+367:                     end
+368:                 end
+369:                 ST_DC_REQ: begin
+370:                     if (cpu_data_addr_ok) begin
+371:                         // 冲突读地址已被接收，等待写回和补充结束。
+372:                         cpu_data_req &lt;= 1&#x27;b0;
+373:                         // 等待冲突读完成。
+374:                         state &lt;= ST_DC_WAIT;
+375:                     end
+376:                 end
+377:                 ST_DC_WAIT: begin
+378:                     if (cpu_data_data_ok) begin
+379:                         // 冲突地址应返回data_mem1初值。
+380:                         if (cpu_data_rdata != 32&#x27;h55667788) fail[6] &lt;= 1&#x27;b1;
+381:                         // 脏块替换必须产生一次写回。
+382:                         if (data_writes != 8&#x27;d1) fail[4] &lt;= 1&#x27;b1;
+383:                         // 写回后data_mem0应保存修改后的脏行。
+384:                         if (data_mem0 != 32&#x27;h1122AA44) fail[7] &lt;= 1&#x27;b1;
+385:                         // 所有检查结束，停在完成态。
+386:                         state &lt;= ST_DONE;
+387:                     end
+388:                 end</pre></div>
+    <div class="codebox"><div class="codehead"><span>cache_board_top.v：LED 显示规则</span><span>399-406</span></div><pre>399:     // LED0表示自测完成。
+400:     assign led[0] = (state == ST_DONE);
+401:     // LED1表示完成且没有任何失败位。
+402:     assign led[1] = (state == ST_DONE) &amp;&amp; (fail == 8&#x27;b0);
+403:     // LED7到LED2直接显示低6位失败码。
+404:     assign led[7:2] = fail[5:0];
+405:     // LED15到LED14显示高2位失败码，LED13到LED9显示状态码。
+406:     assign led[15:8] = {fail[7:6], state[5-1:0], 1&#x27;b0};</pre></div>
+  </section>
+
+  <section id="signals">
+    <h2>6. 握手信号怎么读</h2>
+    <table>
+      <tr><th>信号</th><th>含义</th><th>源码中的行为</th></tr>
+      <tr><td><span class="inlinecode">req</span></td><td>请求有效</td><td>CPU 或 Cache 发起一次访问。</td></tr>
+      <tr><td><span class="inlinecode">addr_ok</span></td><td>地址被接收</td><td>Cache 在 S_IDLE 时接收 CPU 地址；外部模型在 req 有效时立即接收地址。</td></tr>
+      <tr><td><span class="inlinecode">data_ok</span></td><td>数据/事务完成</td><td>命中时可与 addr_ok 同拍；缺失时要等 REFILL 或 WRITEBACK 完成。</td></tr>
+      <tr><td><span class="inlinecode">addr_rcv</span></td><td>地址已被下一级接收</td><td>防止同一次缺失处理过程中重复向外部存储器发地址。</td></tr>
+    </table>
+    <div class="ok"><b>读源码口诀：</b>CPU 侧看 <span class="inlinecode">cpu_*_addr_ok/data_ok</span>，下一级存储器侧看 <span class="inlinecode">cache_*_addr_ok/data_ok</span>。命中只走 CPU 侧，缺失才会走下一级存储器侧。</div>
+  </section>
+
+  <section id="exam">
+    <h2>7. 满分答题口径</h2>
+    <div class="grid two">
+      <div class="card">
+        <h3>一句话概括</h3>
+        <p>本设计实现了一个直接映射 Cache，其中 I-Cache 只读并在缺失时从外部存储器补充；D-Cache 采用写回和写分配策略，通过 valid/tag 判断命中，通过 dirty 位判断替换前是否需要写回。</p>
+      </div>
+      <div class="card">
+        <h3>老师追问时回答</h3>
+        <p>缺失时必须保存 saved_*，因为等待外存期间 CPU 输入可能变化；脏块写回必须使用 victim_tag 和 saved_index 组成旧行地址，而不是用新请求地址。</p>
+      </div>
+    </div>
+    <h3>常见问题速答</h3>
+    <table>
+      <tr><th>问题</th><th>答案</th></tr>
+      <tr><td>为什么复位只清 valid/dirty？</td><td>valid=0 时该行无效，tag/data 内容无意义，清大数组反而浪费资源。</td></tr>
+      <tr><td>为什么写命中不访问外存？</td><td>D-Cache 是 write-back，写命中只更新 Cache 并置 dirty。</td></tr>
+      <tr><td>为什么写缺失要 refill？</td><td>这是 write-allocate 策略，先把块调入 Cache，再在 Cache 中完成写入。</td></tr>
+      <tr><td>为什么需要 WRITEBACK 状态？</td><td>当要替换的旧行 dirty=1 时，旧数据比内存新，必须先写回，不能直接覆盖。</td></tr>
+    </table>
+  </section>
+
+  <section id="source">
+    <h2>8. 完整源码阅读区</h2>
+    <p>下面保留四个文件的完整源码，带行号。可以用浏览器搜索变量名，例如 <span class="inlinecode">saved_index</span>、<span class="inlinecode">cache_dirty</span>、<span class="inlinecode">data_writes</span>。</p>
+    <input class="search" id="searchBox" placeholder="在当前展开的源码中高亮搜索，例如 dirty / refill / addr_ok">
+    <div class="source-tabs">
+      <button class="tabbtn active" data-tab="cache">cache.v</button>
+      <button class="tabbtn" data-tab="icache">i_cache.v</button>
+      <button class="tabbtn" data-tab="dcache">d_cache.v</button>
+      <button class="tabbtn" data-tab="boardtop">cache_board_top.v</button>
+    </div>
+    <div id="panel-cache" class="source-panel active"><div class="codebox"><div class="codehead"><span>cache.v 完整源码</span><span>88 行</span></div><pre class="fullsrc">001: // Cache总封装：只负责把CPU侧接口分别接到指令Cache和数据Cache。
+002: module cache (
+003:     input wire clk, rst,
+004:     // CPU取指通道：只读，用于访问i_cache。
+005:     input         cpu_inst_req     ,
+006:     input         cpu_inst_wr      ,
+007:     input  [1 :0] cpu_inst_size    ,
+008:     input  [31:0] cpu_inst_addr    ,
+009:     input  [31:0] cpu_inst_wdata   ,
+010:     output [31:0] cpu_inst_rdata   ,
+011:     output        cpu_inst_addr_ok ,
+012:     output        cpu_inst_data_ok ,
+013: 
+014:     // CPU访存通道：读写都走d_cache。
+015:     input         cpu_data_req     ,
+016:     input         cpu_data_wr      ,
+017:     input  [1 :0] cpu_data_size    ,
+018:     input  [31:0] cpu_data_addr    ,
+019:     input  [31:0] cpu_data_wdata   ,
+020:     output [31:0] cpu_data_rdata   ,
+021:     output        cpu_data_addr_ok ,
+022:     output        cpu_data_data_ok ,
+023: 
+024:     // 指令Cache到外部存储器的类SRAM接口。
+025:     output         cache_inst_req     ,
+026:     output         cache_inst_wr      ,
+027:     output  [1 :0] cache_inst_size    ,
+028:     output  [31:0] cache_inst_addr    ,
+029:     output  [31:0] cache_inst_wdata   ,
+030:     input   [31:0] cache_inst_rdata   ,
+031:     input          cache_inst_addr_ok ,
+032:     input          cache_inst_data_ok ,
+033: 
+034:     // 数据Cache到外部存储器的类SRAM接口。
+035:     output         cache_data_req     ,
+036:     output         cache_data_wr      ,
+037:     output  [1 :0] cache_data_size    ,
+038:     output  [31:0] cache_data_addr    ,
+039:     output  [31:0] cache_data_wdata   ,
+040:     input   [31:0] cache_data_rdata   ,
+041:     input          cache_data_addr_ok ,
+042:     input          cache_data_data_ok
+043: );
+044: 
+045:     // 实例化指令Cache，取指命中时直接返回，缺失时从cache_inst_*补充。
+046:     i_cache i_cache(
+047:         .clk(clk), .rst(rst),
+048:         .cpu_inst_req     (cpu_inst_req     ),
+049:         .cpu_inst_wr      (cpu_inst_wr      ),
+050:         .cpu_inst_size    (cpu_inst_size    ),
+051:         .cpu_inst_addr    (cpu_inst_addr    ),
+052:         .cpu_inst_wdata   (cpu_inst_wdata   ),
+053:         .cpu_inst_rdata   (cpu_inst_rdata   ),
+054:         .cpu_inst_addr_ok (cpu_inst_addr_ok ),
+055:         .cpu_inst_data_ok (cpu_inst_data_ok ),
+056: 
+057:         .cache_inst_req     (cache_inst_req     ),
+058:         .cache_inst_wr      (cache_inst_wr      ),
+059:         .cache_inst_size    (cache_inst_size    ),
+060:         .cache_inst_addr    (cache_inst_addr    ),
+061:         .cache_inst_wdata   (cache_inst_wdata   ),
+062:         .cache_inst_rdata   (cache_inst_rdata   ),
+063:         .cache_inst_addr_ok (cache_inst_addr_ok ),
+064:         .cache_inst_data_ok (cache_inst_data_ok )
+065:     );
+066: 
+067:     // 实例化数据Cache，支持写回和写分配策略。
+068:     d_cache d_cache(
+069:         .clk(clk), .rst(rst),
+070:         .cpu_data_req     (cpu_data_req     ),
+071:         .cpu_data_wr      (cpu_data_wr      ),
+072:         .cpu_data_size    (cpu_data_size    ),
+073:         .cpu_data_addr    (cpu_data_addr    ),
+074:         .cpu_data_wdata   (cpu_data_wdata   ),
+075:         .cpu_data_rdata   (cpu_data_rdata   ),
+076:         .cpu_data_addr_ok (cpu_data_addr_ok ),
+077:         .cpu_data_data_ok (cpu_data_data_ok ),
+078:     
+079:         .cache_data_req     (cache_data_req     ),
+080:         .cache_data_wr      (cache_data_wr      ),
+081:         .cache_data_size    (cache_data_size    ),
+082:         .cache_data_addr    (cache_data_addr    ),
+083:         .cache_data_wdata   (cache_data_wdata   ),
+084:         .cache_data_rdata   (cache_data_rdata   ),
+085:         .cache_data_addr_ok (cache_data_addr_ok ),
+086:         .cache_data_data_ok (cache_data_data_ok )
+087:     );
+088: endmodule</pre></div></div>
+    <div id="panel-icache" class="source-panel"><div class="codebox"><div class="codehead"><span>i_cache.v 完整源码</span><span>119 行</span></div><pre class="fullsrc">001: // 直接映射指令Cache：每行1个32位字，只处理取指读请求。
+002: module i_cache (
+003:     input wire clk, rst,
+004:     // CPU取指侧类SRAM接口。
+005:     input         cpu_inst_req     ,
+006:     input         cpu_inst_wr      ,
+007:     input  [1 :0] cpu_inst_size    ,
+008:     input  [31:0] cpu_inst_addr    ,
+009:     input  [31:0] cpu_inst_wdata   ,
+010:     output [31:0] cpu_inst_rdata   ,
+011:     output        cpu_inst_addr_ok ,
+012:     output        cpu_inst_data_ok ,
+013: 
+014:     // 下一级存储器侧类SRAM接口。
+015:     output         cache_inst_req     ,
+016:     output         cache_inst_wr      ,
+017:     output  [1 :0] cache_inst_size    ,
+018:     output  [31:0] cache_inst_addr    ,
+019:     output  [31:0] cache_inst_wdata   ,
+020:     input   [31:0] cache_inst_rdata   ,
+021:     input          cache_inst_addr_ok ,
+022:     input          cache_inst_data_ok 
+023: );
+024: 
+025:     // INDEX_WIDTH决定Cache行数；OFFSET_WIDTH=2表示一行是一个字。
+026:     parameter INDEX_WIDTH = 10;
+027:     parameter OFFSET_WIDTH = 2;
+028:     // tag宽度由32位地址扣掉index和字节偏移得到。
+029:     localparam TAG_WIDTH = 32 - INDEX_WIDTH - OFFSET_WIDTH;
+030:     localparam CACHE_DEPTH = 1 &lt;&lt; INDEX_WIDTH;
+031: 
+032:     // 空闲态处理命中；缺失态等待外部存储器返回数据。
+033:     localparam S_IDLE = 1&#x27;b0;
+034:     localparam S_REFILL = 1&#x27;b1;
+035: 
+036:     // state记录当前是否在等待缺失补充。
+037:     reg state;
+038:     // addr_rcv避免同一次缺失重复向外部存储器发地址。
+039:     reg addr_rcv;
+040:     // saved_*保存缺失时的地址拆分结果，等待data_ok后写入Cache。
+041:     reg [TAG_WIDTH-1:0] saved_tag;
+042:     reg [INDEX_WIDTH-1:0] saved_index;
+043:     reg [31:0] saved_addr;
+044: 
+045:     // valid/tag/data三组数组组成直接映射Cache。
+046:     reg cache_valid [0:CACHE_DEPTH-1];
+047:     reg [TAG_WIDTH-1:0] cache_tag [0:CACHE_DEPTH-1];
+048:     reg [31:0] cache_block [0:CACHE_DEPTH-1];
+049: 
+050:     // 当前CPU地址拆成tag和index。
+051:     wire [TAG_WIDTH-1:0] req_tag = cpu_inst_addr[31:INDEX_WIDTH+OFFSET_WIDTH];
+052:     wire [INDEX_WIDTH-1:0] req_index = cpu_inst_addr[INDEX_WIDTH+OFFSET_WIDTH-1:OFFSET_WIDTH];
+053:     // valid为1且tag一致就是命中。
+054:     wire hit = cache_valid[req_index] &amp;&amp; (cache_tag[req_index] == req_tag);
+055:     // 只有空闲态才能接收CPU新请求。
+056:     wire idle_req = (state == S_IDLE) &amp;&amp; cpu_inst_req;
+057:     // 外部存储器返回data_ok表示缺失补充完成。
+058:     wire refill_done = (state == S_REFILL) &amp;&amp; cache_inst_data_ok;
+059: 
+060:     // 空闲态看到请求就给addr_ok，表示地址阶段被Cache接收。
+061:     assign cpu_inst_addr_ok = idle_req;
+062:     // 命中或缺失补充完成时，向CPU给data_ok。
+063:     assign cpu_inst_data_ok = (idle_req &amp;&amp; hit) || refill_done;
+064:     // 命中返回Cache数组，缺失返回外部存储器刚取回的数据。
+065:     assign cpu_inst_rdata = (idle_req &amp;&amp; hit) ? cache_block[req_index] : cache_inst_rdata;
+066: 
+067:     // 缺失补充时向外部存储器发一次读请求。
+068:     assign cache_inst_req = (state == S_REFILL) &amp;&amp; !addr_rcv;
+069:     // 指令Cache不写外部存储器。
+070:     assign cache_inst_wr = 1&#x27;b0;
+071:     // 一行一个字，所以访问大小固定为word。
+072:     assign cache_inst_size = 2&#x27;b10;
+073:     // 对齐到字地址访问外部存储器。
+074:     assign cache_inst_addr = saved_addr;
+075:     assign cache_inst_wdata = 32&#x27;b0;
+076: 
+077:     integer i;
+078:     always @(posedge clk) begin
+079:         if (rst) begin
+080:             // 复位只清valid和控制寄存器，不清tag/data数组，节省FPGA资源。
+081:             state &lt;= S_IDLE;
+082:             addr_rcv &lt;= 1&#x27;b0;
+083:             saved_tag &lt;= {TAG_WIDTH{1&#x27;b0}};
+084:             saved_index &lt;= {INDEX_WIDTH{1&#x27;b0}};
+085:             saved_addr &lt;= 32&#x27;b0;
+086:             for (i = 0; i &lt; CACHE_DEPTH; i = i + 1) begin
+087:                 cache_valid[i] &lt;= 1&#x27;b0;
+088:             end
+089:         end else begin
+090:             case (state)
+091:                 S_IDLE: begin
+092:                     // 空闲态允许下一次缺失重新发地址。
+093:                     addr_rcv &lt;= 1&#x27;b0;
+094:                     if (cpu_inst_req &amp;&amp; !hit) begin
+095:                         // 缺失时保存请求信息，之后等待外部存储器返回。
+096:                         saved_tag &lt;= req_tag;
+097:                         saved_index &lt;= req_index;
+098:                         saved_addr &lt;= {cpu_inst_addr[31:2], 2&#x27;b00};
+099:                         state &lt;= S_REFILL;
+100:                     end
+101:                 end
+102:                 S_REFILL: begin
+103:                     if (cache_inst_req &amp;&amp; cache_inst_addr_ok &amp;&amp; !cache_inst_data_ok) begin
+104:                         // 地址已被外部存储器接收，本次缺失不再重复发地址。
+105:                         addr_rcv &lt;= 1&#x27;b1;
+106:                     end
+107:                     if (cache_inst_data_ok) begin
+108:                         // data_ok到来后，把新指令写入对应Cache行。
+109:                         cache_valid[saved_index] &lt;= 1&#x27;b1;
+110:                         cache_tag[saved_index] &lt;= saved_tag;
+111:                         cache_block[saved_index] &lt;= cache_inst_rdata;
+112:                         addr_rcv &lt;= 1&#x27;b0;
+113:                         state &lt;= S_IDLE;
+114:                     end
+115:                 end
+116:             endcase
+117:         end
+118:     end
+119: endmodule</pre></div></div>
+    <div id="panel-dcache" class="source-panel"><div class="codebox"><div class="codehead"><span>d_cache.v 完整源码</span><span>232 行</span></div><pre class="fullsrc">001: // 直接映射数据Cache：写回、写分配，每行1个32位字。
+002: module d_cache (
+003:     input wire clk, rst,
+004:     // CPU数据访问侧类SRAM接口。
+005:     // req有效表示CPU发起一次数据访问。
+006:     input         cpu_data_req     ,
+007:     // wr为1表示写访问，为0表示读访问。
+008:     input         cpu_data_wr      ,
+009:     // size编码访问宽度：00字节，01半字，10字。
+010:     input  [1 :0] cpu_data_size    ,
+011:     // addr是CPU给出的字节地址。
+012:     input  [31:0] cpu_data_addr    ,
+013:     // wdata是CPU写入数据，sb/sh已由CPU侧扩展。
+014:     input  [31:0] cpu_data_wdata   ,
+015:     // rdata是返回给CPU的读数据。
+016:     output [31:0] cpu_data_rdata   ,
+017:     // addr_ok表示Cache已经接收CPU地址。
+018:     output        cpu_data_addr_ok ,
+019:     // data_ok表示本次读写事务完成。
+020:     output        cpu_data_data_ok ,
+021: 
+022:     // 下一级存储器侧类SRAM接口。
+023:     // cache_data_req有效表示d_cache访问下一级存储器。
+024:     output         cache_data_req     ,
+025:     // cache_data_wr为1时表示写回脏块。
+026:     output         cache_data_wr      ,
+027:     // 下一级访问大小固定为word。
+028:     output  [1 :0] cache_data_size    ,
+029:     // 下一级访问地址，写回时使用victim地址。
+030:     output  [31:0] cache_data_addr    ,
+031:     // 下一级写数据，来自被替换的脏行。
+032:     output  [31:0] cache_data_wdata   ,
+033:     // 下一级读回的数据。
+034:     input   [31:0] cache_data_rdata   ,
+035:     // 下一级接收地址的握手信号。
+036:     input          cache_data_addr_ok ,
+037:     // 下一级完成读或写的握手信号。
+038:     input          cache_data_data_ok 
+039: );
+040: 
+041:     // INDEX_WIDTH决定Cache行数；OFFSET_WIDTH=2表示一行是一个字。
+042:     parameter INDEX_WIDTH = 10;
+043:     parameter OFFSET_WIDTH = 2;
+044:     // tag宽度由32位地址扣掉index和字节偏移得到。
+045:     localparam TAG_WIDTH = 32 - INDEX_WIDTH - OFFSET_WIDTH;
+046:     localparam CACHE_DEPTH = 1 &lt;&lt; INDEX_WIDTH;
+047: 
+048:     // S_IDLE处理CPU请求；S_WRITEBACK写回脏块；S_REFILL从内存补块。
+049:     localparam S_IDLE = 2&#x27;d0;
+050:     localparam S_WRITEBACK = 2&#x27;d1;
+051:     localparam S_REFILL = 2&#x27;d2;
+052: 
+053:     // state记录当前事务阶段。
+054:     reg [1:0] state;
+055:     // addr_rcv避免同一个内存事务重复发地址。
+056:     reg addr_rcv;
+057: 
+058:     // saved_*保存缺失时CPU原始请求，防止等待内存期间CPU信号变化。
+059:     reg saved_wr;
+060:     reg [1:0] saved_size;
+061:     reg [31:0] saved_addr;
+062:     reg [31:0] saved_wdata;
+063:     reg [TAG_WIDTH-1:0] saved_tag;
+064:     reg [INDEX_WIDTH-1:0] saved_index;
+065:     // victim_*保存被替换的旧Cache行，用于脏块写回。
+066:     reg [TAG_WIDTH-1:0] victim_tag;
+067:     reg [31:0] victim_data;
+068: 
+069:     // valid/dirty/tag/data组成直接映射数据Cache。
+070:     reg cache_valid [0:CACHE_DEPTH-1];
+071:     reg cache_dirty [0:CACHE_DEPTH-1];
+072:     reg [TAG_WIDTH-1:0] cache_tag [0:CACHE_DEPTH-1];
+073:     reg [31:0] cache_block [0:CACHE_DEPTH-1];
+074: 
+075:     // 当前CPU地址拆成tag和index。
+076:     wire [TAG_WIDTH-1:0] req_tag = cpu_data_addr[31:INDEX_WIDTH+OFFSET_WIDTH];
+077:     wire [INDEX_WIDTH-1:0] req_index = cpu_data_addr[INDEX_WIDTH+OFFSET_WIDTH-1:OFFSET_WIDTH];
+078:     // valid为1且tag匹配表示命中。
+079:     wire req_hit = cache_valid[req_index] &amp;&amp; (cache_tag[req_index] == req_tag);
+080:     // 只有空闲态才能接收CPU请求。
+081:     wire idle_req = (state == S_IDLE) &amp;&amp; cpu_data_req;
+082:     // 命中在接收地址的同一拍完成。
+083:     wire hit_done = idle_req &amp;&amp; req_hit;
+084:     // 缺失补充在外部存储器data_ok时完成。
+085:     wire refill_done = (state == S_REFILL) &amp;&amp; cache_data_data_ok;
+086:     // 写命中时，把写数据合并到原Cache字中。
+087:     wire [31:0] hit_write_word = merge_write_data(cache_block[req_index], cpu_data_wdata, cpu_data_size, cpu_data_addr[1:0]);
+088:     // 写缺失补充回来后，再把保存的写数据合并进去。
+089:     wire [31:0] refill_write_word = merge_write_data(cache_data_rdata, saved_wdata, saved_size, saved_addr[1:0]);
+090:     // 读缺失直接使用内存数据；写缺失使用合并后的数据。
+091:     wire [31:0] refill_final_word = saved_wr ? refill_write_word : cache_data_rdata;
+092: 
+093:     // CPU地址阶段只在空闲态被接收。
+094:     assign cpu_data_addr_ok = idle_req;
+095:     // 命中或缺失补充完成时，向CPU给data_ok。
+096:     assign cpu_data_data_ok = hit_done || refill_done;
+097:     // 命中返回Cache数据；缺失返回补充后的最终数据。
+098:     assign cpu_data_rdata = hit_done ? cache_block[req_index] : refill_final_word;
+099: 
+100:     // 写回态或补充态需要访问外部存储器。
+101:     assign cache_data_req = ((state == S_WRITEBACK) || (state == S_REFILL)) &amp;&amp; !addr_rcv;
+102:     // 只有写回态对外部存储器写。
+103:     assign cache_data_wr = (state == S_WRITEBACK);
+104:     // Cache行大小为一个字，对外部存储器统一按word访问。
+105:     assign cache_data_size = 2&#x27;b10;
+106:     // 写回用被替换行的旧tag；补充用当前缺失请求地址。
+107:     assign cache_data_addr = (state == S_WRITEBACK) ? {victim_tag, saved_index, 2&#x27;b00}
+108:                                                     : {saved_addr[31:2], 2&#x27;b00};
+109:     // 写回数据是进入缺失处理时保存的旧Cache行。
+110:     assign cache_data_wdata = victim_data;
+111: 
+112:     // 根据写大小和地址低两位，把sb/sh/sw写入正确字节位置。
+113:     function [31:0] merge_write_data;
+114:         input [31:0] old_word;
+115:         input [31:0] write_data;
+116:         input [1:0] size;
+117:         input [1:0] addr_low;
+118:         reg [3:0] mask;
+119:         begin
+120:             // 按访问大小生成字节掩码。
+121:             mask = (size == 2&#x27;b00) ? (4&#x27;b0001 &lt;&lt; addr_low) :
+122:                    (size == 2&#x27;b01) ? (4&#x27;b0011 &lt;&lt; addr_low) :
+123:                                       4&#x27;b1111;
+124:             // 未被写入的字节保持原值。
+125:             merge_write_data = old_word;
+126:             // 只覆盖掩码选中的字节。
+127:             if (mask[0]) merge_write_data[7:0] = write_data[7:0];
+128:             if (mask[1]) merge_write_data[15:8] = write_data[15:8];
+129:             if (mask[2]) merge_write_data[23:16] = write_data[23:16];
+130:             if (mask[3]) merge_write_data[31:24] = write_data[31:24];
+131:         end
+132:     endfunction
+133: 
+134:     integer i;
+135:     always @(posedge clk) begin
+136:         if (rst) begin
+137:             // 复位只清valid/dirty和控制寄存器，不清tag/data数组，节省资源。
+138:             state &lt;= S_IDLE;
+139:             addr_rcv &lt;= 1&#x27;b0;
+140:             saved_wr &lt;= 1&#x27;b0;
+141:             saved_size &lt;= 2&#x27;b0;
+142:             saved_addr &lt;= 32&#x27;b0;
+143:             saved_wdata &lt;= 32&#x27;b0;
+144:             saved_tag &lt;= {TAG_WIDTH{1&#x27;b0}};
+145:             saved_index &lt;= {INDEX_WIDTH{1&#x27;b0}};
+146:             victim_tag &lt;= {TAG_WIDTH{1&#x27;b0}};
+147:             victim_data &lt;= 32&#x27;b0;
+148:             for (i = 0; i &lt; CACHE_DEPTH; i = i + 1) begin
+149:                 cache_valid[i] &lt;= 1&#x27;b0;
+150:                 cache_dirty[i] &lt;= 1&#x27;b0;
+151:             end
+152:         end else begin
+153:             case (state)
+154:                 S_IDLE: begin
+155:                     // 回到空闲态后，下一次内存事务可以重新发地址。
+156:                     addr_rcv &lt;= 1&#x27;b0;
+157:                     if (cpu_data_req) begin
+158:                         // CPU请求到来后，先判断当前索引是否命中。
+159:                         if (req_hit) begin
+160:                             // 命中读不需要修改Cache数组。
+161:                             if (cpu_data_wr) begin
+162:                                 // 写命中：更新Cache行并置脏，不立即写内存。
+163:                                 cache_block[req_index] &lt;= hit_write_word;
+164:                                 cache_dirty[req_index] &lt;= 1&#x27;b1;
+165:                             end
+166:                         end else begin
+167:                             // 缺失：保存CPU请求和即将被替换的Cache行。
+168:                             saved_wr &lt;= cpu_data_wr;
+169:                             saved_size &lt;= cpu_data_size;
+170:                             saved_addr &lt;= cpu_data_addr;
+171:                             // 保存写数据，写缺失补充回来后还要合并。
+172:                             saved_wdata &lt;= cpu_data_wdata;
+173:                             // 保存请求tag，补充完成后写入tag数组。
+174:                             saved_tag &lt;= req_tag;
+175:                             // 保存请求index，等待期间不再依赖CPU地址。
+176:                             saved_index &lt;= req_index;
+177:                             // 保存旧tag，用于可能发生的脏块写回地址。
+178:                             victim_tag &lt;= cache_tag[req_index];
+179:                             // 保存旧数据，用于可能发生的脏块写回数据。
+180:                             victim_data &lt;= cache_block[req_index];
+181:                             if (cache_valid[req_index] &amp;&amp; cache_dirty[req_index]) begin
+182:                                 // 有效且脏，必须先写回旧行。
+183:                                 state &lt;= S_WRITEBACK;
+184:                             end else begin
+185:                                 // 无效或干净，可以直接从内存补充新行。
+186:                                 state &lt;= S_REFILL;
+187:                             end
+188:                         end
+189:                     end
+190:                 end
+191:                 S_WRITEBACK: begin
+192:                     if (cache_data_req &amp;&amp; cache_data_addr_ok &amp;&amp; !cache_data_data_ok) begin
+193:                         // 写回地址已被外部存储器接收。
+194:                         addr_rcv &lt;= 1&#x27;b1;
+195:                     end
+196:                     if (cache_data_data_ok) begin
+197:                         // 写回完成后，进入补充新行阶段。
+198:                         addr_rcv &lt;= 1&#x27;b0;
+199:                         // 旧脏行已经写回，下次覆盖前先清脏位。
+200:                         cache_dirty[saved_index] &lt;= 1&#x27;b0;
+201:                         state &lt;= S_REFILL;
+202:                     end
+203:                 end
+204:                 S_REFILL: begin
+205:                     if (cache_data_req &amp;&amp; cache_data_addr_ok &amp;&amp; !cache_data_data_ok) begin
+206:                         // 补充读地址已被外部存储器接收。
+207:                         addr_rcv &lt;= 1&#x27;b1;
+208:                     end
+209:                     if (cache_data_data_ok) begin
+210:                         // 补充完成后，把新数据写入Cache。
+211:                         cache_valid[saved_index] &lt;= 1&#x27;b1;
+212:                         // 写缺失补充后需要置脏；读缺失补充后保持干净。
+213:                         cache_dirty[saved_index] &lt;= saved_wr;
+214:                         // 写入新tag，使后续同地址访问可以命中。
+215:                         cache_tag[saved_index] &lt;= saved_tag;
+216:                         // 写入最终数据，读缺失为原数据，写缺失为合并数据。
+217:                         cache_block[saved_index] &lt;= refill_final_word;
+218:                         // 当前内存事务结束，允许下一次缺失重新发地址。
+219:                         addr_rcv &lt;= 1&#x27;b0;
+220:                         // 回到空闲态，等待CPU下一次访问。
+221:                         state &lt;= S_IDLE;
+222:                     end
+223:                 end
+224:                 default: begin
+225:                     // 非法状态保护：回到空闲态。
+226:                     state &lt;= S_IDLE;
+227:                     addr_rcv &lt;= 1&#x27;b0;
+228:                 end
+229:             endcase
+230:         end
+231:     end
+232: endmodule</pre></div></div>
+    <div id="panel-boardtop" class="source-panel"><div class="codebox"><div class="codehead"><span>cache_board_top.v 完整源码</span><span>407 行</span></div><pre class="fullsrc">001: `timescale 1ns / 1ps
+002: 
+003: // 板级安全顶层：只暴露clk、rst、led，避免把cache内部总线当成FPGA引脚。
+004: module cache_board_top (
+005:     input  wire        clk,
+006:     // 板上复位输入。
+007:     input  wire        rst,
+008:     // 16个LED用于显示自测状态和错误码。
+009:     output wire [15:0] led
+010: );
+011:     // 指令自测状态：第一次读缺失，第二次读命中。
+012:     localparam ST_I1_REQ  = 5&#x27;d0;
+013:     // 等待第一次取指缺失补充完成。
+014:     localparam ST_I1_WAIT = 5&#x27;d1;
+015:     // 第二次访问同一条指令，用来验证命中。
+016:     localparam ST_I2_REQ  = 5&#x27;d2;
+017:     // 数据自测状态：读缺失、写命中、读命中、冲突替换。
+018:     localparam ST_D1_REQ  = 5&#x27;d3;
+019:     // 等待第一次数据读缺失补充完成。
+020:     localparam ST_D1_WAIT = 5&#x27;d4;
+021:     // 执行字节写命中测试。
+022:     localparam ST_DW_REQ  = 5&#x27;d5;
+023:     // 读回脏行，验证字节合并结果。
+024:     localparam ST_D2_REQ  = 5&#x27;d6;
+025:     // 访问冲突地址，触发脏块替换。
+026:     localparam ST_DC_REQ  = 5&#x27;d7;
+027:     // 等待冲突读完成，并检查写回结果。
+028:     localparam ST_DC_WAIT = 5&#x27;d8;
+029:     // 完成态编码为31，完成后LED13到LED9都会亮。
+030:     localparam ST_DONE    = 5&#x27;d31;
+031: 
+032:     // state控制板级自测流程。
+033:     reg [4:0] state;
+034:     // fail每一位都是粘滞错误标志，出错后一直保持到复位。
+035:     reg [7:0] fail;
+036: 
+037:     // 自测FSM驱动的CPU取指请求信号。
+038:     reg         cpu_inst_req;
+039:     // 取指通道不写，这个信号保持0。
+040:     reg         cpu_inst_wr;
+041:     // 取指大小固定为word。
+042:     reg  [1:0]  cpu_inst_size;
+043:     // 当前取指地址。
+044:     reg  [31:0] cpu_inst_addr;
+045:     // 取指写数据不用，保持0。
+046:     reg  [31:0] cpu_inst_wdata;
+047:     // i_cache返回给自测FSM的指令数据。
+048:     wire [31:0] cpu_inst_rdata;
+049:     // i_cache接收取指地址的握手信号。
+050:     wire        cpu_inst_addr_ok;
+051:     // i_cache返回取指数据的握手信号。
+052:     wire        cpu_inst_data_ok;
+053: 
+054:     // 自测FSM驱动的CPU数据访问请求信号。
+055:     reg         cpu_data_req;
+056:     // 读写控制，1表示写，0表示读。
+057:     reg         cpu_data_wr;
+058:     // 数据访问大小，00为字节，10为word。
+059:     reg  [1:0]  cpu_data_size;
+060:     // 当前数据访问地址。
+061:     reg  [31:0] cpu_data_addr;
+062:     // 当前数据写入值。
+063:     reg  [31:0] cpu_data_wdata;
+064:     // d_cache返回给自测FSM的数据。
+065:     wire [31:0] cpu_data_rdata;
+066:     // d_cache接收数据地址的握手信号。
+067:     wire        cpu_data_addr_ok;
+068:     // d_cache完成数据访问的握手信号。
+069:     wire        cpu_data_data_ok;
+070: 
+071:     // cache到本地指令存储器模型的接口。
+072:     wire        cache_inst_req;
+073:     // 指令存储器模型只读，因此该信号应为0。
+074:     wire        cache_inst_wr;
+075:     // 指令存储器访问大小。
+076:     wire [1:0]  cache_inst_size;
+077:     // i_cache发出的补充地址。
+078:     wire [31:0] cache_inst_addr;
+079:     // 指令通道写数据未使用。
+080:     wire [31:0] cache_inst_wdata;
+081:     // 本地指令存储器模型返回的数据。
+082:     reg  [31:0] cache_inst_rdata;
+083:     wire        cache_inst_addr_ok;
+084:     reg         cache_inst_data_ok;
+085: 
+086:     // cache到本地数据存储器模型的接口。
+087:     wire        cache_data_req;
+088:     // d_cache访问本地数据存储器模型时的读写控制。
+089:     wire        cache_data_wr;
+090:     // d_cache访问本地数据存储器模型时的访问大小。
+091:     wire [1:0]  cache_data_size;
+092:     // d_cache发出的数据存储器地址。
+093:     wire [31:0] cache_data_addr;
+094:     // d_cache写回脏块时的数据。
+095:     wire [31:0] cache_data_wdata;
+096:     // 本地数据存储器模型返回的数据。
+097:     reg  [31:0] cache_data_rdata;
+098:     wire        cache_data_addr_ok;
+099:     reg         cache_data_data_ok;
+100: 
+101:     // 被测对象：实验中实现的cache总封装。
+102:     cache u_cache (
+103:         .clk(clk),
+104:         .rst(rst),
+105:         .cpu_inst_req(cpu_inst_req),
+106:         .cpu_inst_wr(cpu_inst_wr),
+107:         .cpu_inst_size(cpu_inst_size),
+108:         .cpu_inst_addr(cpu_inst_addr),
+109:         .cpu_inst_wdata(cpu_inst_wdata),
+110:         .cpu_inst_rdata(cpu_inst_rdata),
+111:         .cpu_inst_addr_ok(cpu_inst_addr_ok),
+112:         .cpu_inst_data_ok(cpu_inst_data_ok),
+113:         .cpu_data_req(cpu_data_req),
+114:         .cpu_data_wr(cpu_data_wr),
+115:         .cpu_data_size(cpu_data_size),
+116:         .cpu_data_addr(cpu_data_addr),
+117:         .cpu_data_wdata(cpu_data_wdata),
+118:         .cpu_data_rdata(cpu_data_rdata),
+119:         .cpu_data_addr_ok(cpu_data_addr_ok),
+120:         .cpu_data_data_ok(cpu_data_data_ok),
+121:         .cache_inst_req(cache_inst_req),
+122:         .cache_inst_wr(cache_inst_wr),
+123:         .cache_inst_size(cache_inst_size),
+124:         .cache_inst_addr(cache_inst_addr),
+125:         .cache_inst_wdata(cache_inst_wdata),
+126:         .cache_inst_rdata(cache_inst_rdata),
+127:         .cache_inst_addr_ok(cache_inst_addr_ok),
+128:         .cache_inst_data_ok(cache_inst_data_ok),
+129:         .cache_data_req(cache_data_req),
+130:         .cache_data_wr(cache_data_wr),
+131:         .cache_data_size(cache_data_size),
+132:         .cache_data_addr(cache_data_addr),
+133:         .cache_data_wdata(cache_data_wdata),
+134:         .cache_data_rdata(cache_data_rdata),
+135:         .cache_data_addr_ok(cache_data_addr_ok),
+136:         .cache_data_data_ok(cache_data_data_ok)
+137:     );
+138: 
+139:     // 本地存储器模型在req有效时立即接收地址。
+140:     assign cache_inst_addr_ok = cache_inst_req;
+141:     assign cache_data_addr_ok = cache_data_req;
+142: 
+143:     // inst_delay模拟取指存储器延迟。
+144:     reg [1:0] inst_delay;
+145:     // inst_pending_addr保存已接收但尚未返回数据的取指地址。
+146:     reg [31:0] inst_pending_addr;
+147:     // inst_reads统计取指侧实际访问外部存储器的次数。
+148:     reg [7:0] inst_reads;
+149: 
+150:     always @(posedge clk) begin
+151:         if (rst) begin
+152:             // 复位时清空取指存储器模型的等待状态。
+153:             inst_delay &lt;= 2&#x27;d0;
+154:             inst_pending_addr &lt;= 32&#x27;b0;
+155:             cache_inst_rdata &lt;= 32&#x27;b0;
+156:             cache_inst_data_ok &lt;= 1&#x27;b0;
+157:             inst_reads &lt;= 8&#x27;b0;
+158:         end else begin
+159:             // data_ok默认只保持一个周期。
+160:             cache_inst_data_ok &lt;= 1&#x27;b0;
+161:             if (cache_inst_req &amp;&amp; cache_inst_addr_ok &amp;&amp; inst_delay == 2&#x27;d0) begin
+162:                 // 接收一次i_cache缺失补充请求。
+163:                 inst_pending_addr &lt;= cache_inst_addr;
+164:                 // 固定延迟两拍后返回数据。
+165:                 inst_delay &lt;= 2&#x27;d2;
+166:                 // 只要真的访问了本地指令存储器，就累计一次。
+167:                 inst_reads &lt;= inst_reads + 1&#x27;b1;
+168:             end else if (inst_delay != 2&#x27;d0) begin
+169:                 // 延迟计数，用来模拟非零访存等待。
+170:                 inst_delay &lt;= inst_delay - 1&#x27;b1;
+171:                 if (inst_delay == 2&#x27;d1) begin
+172:                     // 返回可预测的指令数据，便于自测比较。
+173:                     cache_inst_rdata &lt;= 32&#x27;h90000000 | inst_pending_addr[15:0];
+174:                     cache_inst_data_ok &lt;= 1&#x27;b1;
+175:                 end
+176:             end
+177:         end
+178:     end
+179: 
+180:     // data_mem0和data_mem1构造两个会发生索引冲突的数据地址。
+181:     reg [31:0] data_mem0;
+182:     reg [31:0] data_mem1;
+183:     // data_delay模拟数据存储器延迟。
+184:     reg [1:0] data_delay;
+185:     // data_pending_*保存已接收但尚未完成的数据访存事务。
+186:     reg data_pending_wr;
+187:     reg [31:0] data_pending_addr;
+188:     reg [31:0] data_pending_wdata;
+189:     // 统计读补充次数，用于判断是否发生不该有的读内存。
+190:     reg [7:0] data_reads;
+191:     // 统计写回次数，用于判断脏块是否正确写回。
+192:     reg [7:0] data_writes;
+193: 
+194:     always @(posedge clk) begin
+195:         if (rst) begin
+196:             // 复位时初始化两个测试数据字。
+197:             data_mem0 &lt;= 32&#x27;h11223344;
+198:             data_mem1 &lt;= 32&#x27;h55667788;
+199:             data_delay &lt;= 2&#x27;d0;
+200:             data_pending_wr &lt;= 1&#x27;b0;
+201:             data_pending_addr &lt;= 32&#x27;b0;
+202:             data_pending_wdata &lt;= 32&#x27;b0;
+203:             // 复位时清空返回数据。
+204:             cache_data_rdata &lt;= 32&#x27;b0;
+205:             // 复位时不产生完成脉冲。
+206:             cache_data_data_ok &lt;= 1&#x27;b0;
+207:             data_reads &lt;= 8&#x27;b0;
+208:             data_writes &lt;= 8&#x27;b0;
+209:         end else begin
+210:             // data_ok默认只保持一个周期。
+211:             cache_data_data_ok &lt;= 1&#x27;b0;
+212:             if (cache_data_req &amp;&amp; cache_data_addr_ok &amp;&amp; data_delay == 2&#x27;d0) begin
+213:                 // 接收一次d_cache的读补充或写回事务。
+214:                 data_pending_wr &lt;= cache_data_wr;
+215:                 data_pending_addr &lt;= cache_data_addr;
+216:                 // 保存写回数据，等待延迟结束后再真正更新模型。
+217:                 data_pending_wdata &lt;= cache_data_wdata;
+218:                 // 固定延迟两拍后完成数据存储器访问。
+219:                 data_delay &lt;= 2&#x27;d2;
+220:                 if (cache_data_wr) begin
+221:                     // 写请求代表d_cache正在写回脏块。
+222:                     data_writes &lt;= data_writes + 1&#x27;b1;
+223:                 end else begin
+224:                     // 读请求代表d_cache正在缺失补充。
+225:                     data_reads &lt;= data_reads + 1&#x27;b1;
+226:                 end
+227:             end else if (data_delay != 2&#x27;d0) begin
+228:                 // 延迟完成当前数据存储器事务。
+229:                 data_delay &lt;= data_delay - 1&#x27;b1;
+230:                 if (data_delay == 2&#x27;d1) begin
+231:                     if (data_pending_wr) begin
+232:                         if (data_pending_addr[12]) begin
+233:                             // 地址bit12为1时写入第二个测试字。
+234:                             data_mem1 &lt;= data_pending_wdata;
+235:                         end else begin
+236:                             // 地址bit12为0时写入第一个测试字。
+237:                             data_mem0 &lt;= data_pending_wdata;
+238:                         end
+239:                     end else begin
+240:                         // 读操作根据地址bit12返回对应测试字。
+241:                         cache_data_rdata &lt;= data_pending_addr[12] ? data_mem1 : data_mem0;
+242:                     end
+243:                     // 读或写事务在这一拍完成。
+244:                     cache_data_data_ok &lt;= 1&#x27;b1;
+245:                 end
+246:             end
+247:         end
+248:     end
+249: 
+250:     // 板级自测主状态机：按顺序验证I-Cache命中和D-Cache写回。
+251:     always @(posedge clk) begin
+252:         if (rst) begin
+253:             // 复位后立即准备发起第一次取指请求。
+254:             state &lt;= ST_I1_REQ;
+255:             fail &lt;= 8&#x27;b0;
+256:             cpu_inst_req &lt;= 1&#x27;b1;
+257:             cpu_inst_wr &lt;= 1&#x27;b0;
+258:             cpu_inst_size &lt;= 2&#x27;b10;
+259:             cpu_inst_addr &lt;= 32&#x27;h00000100;
+260:             cpu_inst_wdata &lt;= 32&#x27;b0;
+261:             cpu_data_req &lt;= 1&#x27;b0;
+262:             cpu_data_wr &lt;= 1&#x27;b0;
+263:             cpu_data_size &lt;= 2&#x27;b10;
+264:             cpu_data_addr &lt;= 32&#x27;b0;
+265:             cpu_data_wdata &lt;= 32&#x27;b0;
+266:         end else begin
+267:             case (state)
+268:                 ST_I1_REQ: begin
+269:                     if (cpu_inst_addr_ok) begin
+270:                         // 第一次取指地址已被接收，等待缺失补充返回。
+271:                         cpu_inst_req &lt;= 1&#x27;b0;
+272:                         // 进入等待状态，等第一次取指数据返回。
+273:                         state &lt;= ST_I1_WAIT;
+274:                     end
+275:                 end
+276:                 ST_I1_WAIT: begin
+277:                     if (cpu_inst_data_ok) begin
+278:                         // 检查第一次取指数据是否来自外部存储器模型。
+279:                         if (cpu_inst_rdata != 32&#x27;h90000100) fail[0] &lt;= 1&#x27;b1;
+280:                         // 第一次取指必须正好读一次外部存储器。
+281:                         if (inst_reads != 8&#x27;d1) fail[1] &lt;= 1&#x27;b1;
+282:                         // 再读同一地址，用来检查I-Cache命中。
+283:                         cpu_inst_addr &lt;= 32&#x27;h00000100;
+284:                         cpu_inst_req &lt;= 1&#x27;b1;
+285:                         // 发起第二次同地址取指。
+286:                         state &lt;= ST_I2_REQ;
+287:                     end
+288:                 end
+289:                 ST_I2_REQ: begin
+290:                     if (cpu_inst_addr_ok) begin
+291:                         // 第二次取指命中时，addr_ok和data_ok可能同拍出现。
+292:                         cpu_inst_req &lt;= 1&#x27;b0;
+293:                         if (cpu_inst_data_ok) begin
+294:                             // 命中返回的数据仍应等于第一次取回的数据。
+295:                             if (cpu_inst_rdata != 32&#x27;h90000100) fail[0] &lt;= 1&#x27;b1;
+296:                             // 命中不能再次访问外部指令存储器。
+297:                             if (inst_reads != 8&#x27;d1) fail[1] &lt;= 1&#x27;b1;
+298:                             // 开始数据Cache第一次读缺失测试。
+299:                             cpu_data_addr &lt;= 32&#x27;h00000000;
+300:                             cpu_data_size &lt;= 2&#x27;b10;
+301:                             cpu_data_wr &lt;= 1&#x27;b0;
+302:                             cpu_data_req &lt;= 1&#x27;b1;
+303:                             // 进入第一次数据读请求状态。
+304:                             state &lt;= ST_D1_REQ;
+305:                         end
+306:                     end
+307:                 end
+308:                 ST_D1_REQ: begin
+309:                     if (cpu_data_addr_ok) begin
+310:                         // 数据读地址已被d_cache接收，等待补充完成。
+311:                         cpu_data_req &lt;= 1&#x27;b0;
+312:                         // 等待第一次数据读返回。
+313:                         state &lt;= ST_D1_WAIT;
+314:                     end
+315:                 end
+316:                 ST_D1_WAIT: begin
+317:                     if (cpu_data_data_ok) begin
+318:                         // 第一次数据读应返回data_mem0初值。
+319:                         if (cpu_data_rdata != 32&#x27;h11223344) fail[2] &lt;= 1&#x27;b1;
+320:                         // 第一次数据读必须正好访问一次外部数据存储器。
+321:                         if (data_reads != 8&#x27;d1) fail[3] &lt;= 1&#x27;b1;
+322:                         // 对地址+1做字节写，期望改写第二个字节为AA。
+323:                         cpu_data_addr &lt;= 32&#x27;h00000001;
+324:                         cpu_data_size &lt;= 2&#x27;b00;
+325:                         cpu_data_wdata &lt;= 32&#x27;hAAAAAAAA;
+326:                         // 写使能置1，开始字节写命中测试。
+327:                         cpu_data_wr &lt;= 1&#x27;b1;
+328:                         cpu_data_req &lt;= 1&#x27;b1;
+329:                         // 进入数据写请求状态。
+330:                         state &lt;= ST_DW_REQ;
+331:                     end
+332:                 end
+333:                 ST_DW_REQ: begin
+334:                     if (cpu_data_addr_ok) begin
+335:                         // 字节写命中被接收后，不应立即写外部存储器。
+336:                         cpu_data_req &lt;= 1&#x27;b0;
+337:                         if (cpu_data_data_ok) begin
+338:                             // 写命中只置脏，不产生写回。
+339:                             if (data_writes != 8&#x27;d0) fail[4] &lt;= 1&#x27;b1;
+340:                             // 读回原地址，检查脏行中的字节合并结果。
+341:                             cpu_data_addr &lt;= 32&#x27;h00000000;
+342:                             cpu_data_size &lt;= 2&#x27;b10;
+343:                             cpu_data_wr &lt;= 1&#x27;b0;
+344:                             cpu_data_req &lt;= 1&#x27;b1;
+345:                             // 进入脏行读回请求状态。
+346:                             state &lt;= ST_D2_REQ;
+347:                         end
+348:                     end
+349:                 end
+350:                 ST_D2_REQ: begin
+351:                     if (cpu_data_addr_ok) begin
+352:                         // 脏行读命中被接收后，应立即返回修改后的字。
+353:                         cpu_data_req &lt;= 1&#x27;b0;
+354:                         if (cpu_data_data_ok) begin
+355:                             // 地址1的字节写后，整字应变成1122AA44。
+356:                             if (cpu_data_rdata != 32&#x27;h1122AA44) fail[5] &lt;= 1&#x27;b1;
+357:                             // 脏行读命中不能再读外部存储器。
+358:                             if (data_reads != 8&#x27;d1) fail[3] &lt;= 1&#x27;b1;
+359:                             // 访问冲突地址，强制替换并写回脏行。
+360:                             cpu_data_addr &lt;= 32&#x27;h00001000;
+361:                             cpu_data_size &lt;= 2&#x27;b10;
+362:                             cpu_data_wr &lt;= 1&#x27;b0;
+363:                             cpu_data_req &lt;= 1&#x27;b1;
+364:                             // 进入冲突读请求状态。
+365:                             state &lt;= ST_DC_REQ;
+366:                         end
+367:                     end
+368:                 end
+369:                 ST_DC_REQ: begin
+370:                     if (cpu_data_addr_ok) begin
+371:                         // 冲突读地址已被接收，等待写回和补充结束。
+372:                         cpu_data_req &lt;= 1&#x27;b0;
+373:                         // 等待冲突读完成。
+374:                         state &lt;= ST_DC_WAIT;
+375:                     end
+376:                 end
+377:                 ST_DC_WAIT: begin
+378:                     if (cpu_data_data_ok) begin
+379:                         // 冲突地址应返回data_mem1初值。
+380:                         if (cpu_data_rdata != 32&#x27;h55667788) fail[6] &lt;= 1&#x27;b1;
+381:                         // 脏块替换必须产生一次写回。
+382:                         if (data_writes != 8&#x27;d1) fail[4] &lt;= 1&#x27;b1;
+383:                         // 写回后data_mem0应保存修改后的脏行。
+384:                         if (data_mem0 != 32&#x27;h1122AA44) fail[7] &lt;= 1&#x27;b1;
+385:                         // 所有检查结束，停在完成态。
+386:                         state &lt;= ST_DONE;
+387:                     end
+388:                 end
+389:                 default: begin
+390:                     // 任何未定义状态都停到完成态，避免状态机跑飞。
+391:                     cpu_inst_req &lt;= 1&#x27;b0;
+392:                     cpu_data_req &lt;= 1&#x27;b0;
+393:                     state &lt;= ST_DONE;
+394:                 end
+395:             endcase
+396:         end
+397:     end
+398: 
+399:     // LED0表示自测完成。
+400:     assign led[0] = (state == ST_DONE);
+401:     // LED1表示完成且没有任何失败位。
+402:     assign led[1] = (state == ST_DONE) &amp;&amp; (fail == 8&#x27;b0);
+403:     // LED7到LED2直接显示低6位失败码。
+404:     assign led[7:2] = fail[5:0];
+405:     // LED15到LED14显示高2位失败码，LED13到LED9显示状态码。
+406:     assign led[15:8] = {fail[7:6], state[5-1:0], 1&#x27;b0};
+407: endmodule</pre></div></div>
+  </section>
+</main>
+</div>
+<script>
+const tabs=[...document.querySelectorAll('.tabbtn')];
+const panels=[...document.querySelectorAll('.source-panel')];
+const originals=new Map([...document.querySelectorAll('.fullsrc')].map(el=>[el,el.innerHTML]));
+tabs.forEach(btn=>btn.addEventListener('click',()=>{
+  tabs.forEach(b=>b.classList.remove('active'));
+  panels.forEach(p=>p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('panel-'+btn.dataset.tab).classList.add('active');
+  document.getElementById('searchBox').dispatchEvent(new Event('input'));
+}));
+function escapeRegExp(s){return s.replace(/[.*+?^${}()|[\]\]/g,'\$&');}
+document.getElementById('searchBox').addEventListener('input',e=>{
+  const q=e.target.value.trim();
+  document.querySelectorAll('.fullsrc').forEach(el=>{el.innerHTML=originals.get(el);});
+  if(!q)return;
+  const active=document.querySelector('.source-panel.active .fullsrc');
+  const re=new RegExp(escapeRegExp(q),'gi');
+  active.innerHTML=originals.get(active).replace(re,m=>`<mark>${m}</mark>`);
+});
+</script>
+</body>
+</html>

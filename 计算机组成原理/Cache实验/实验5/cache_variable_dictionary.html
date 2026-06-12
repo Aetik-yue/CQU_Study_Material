@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Cache Verilog 源码变量速查表</title>
+<style>
+:root{
+  --bg:#f7f8fb; --card:#ffffff; --text:#1f2937; --muted:#6b7280; --line:#e5e7eb;
+  --blue:#2563eb; --blue2:#eff6ff; --green:#059669; --amber:#d97706; --red:#dc2626; --purple:#7c3aed;
+  --code:#0f172a; --codebg:#f1f5f9;
+}
+*{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei",Arial,sans-serif;line-height:1.7}
+.layout{display:grid;grid-template-columns:280px 1fr;min-height:100vh}
+aside{position:sticky;top:0;height:100vh;overflow:auto;background:#fff;border-right:1px solid var(--line);padding:24px 18px}
+main{padding:34px;max-width:1200px}
+h1{font-size:30px;margin:0 0 8px} h2{font-size:24px;margin:34px 0 14px;border-left:5px solid var(--blue);padding-left:12px} h3{font-size:19px;margin:24px 0 12px}.subtitle{color:var(--muted);margin-bottom:20px}.nav-title{font-weight:800;margin-bottom:12px}.nav a{display:block;color:#374151;text-decoration:none;padding:7px 10px;border-radius:10px;font-size:14px}.nav a:hover{background:var(--blue2);color:var(--blue)}.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:22px;margin:18px 0;box-shadow:0 6px 20px rgba(15,23,42,.04)}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px}.note{background:#fff7ed;border:1px solid #fed7aa;border-radius:14px;padding:14px}.ok{background:#ecfdf5;border:1px solid #a7f3d0;border-radius:14px;padding:14px}.warn{background:#fef2f2;border:1px solid #fecaca;border-radius:14px;padding:14px}code{background:var(--codebg);color:#111827;padding:2px 6px;border-radius:6px;font-family:"Cascadia Code","Consolas",monospace;font-size:.92em}.table-wrap{overflow:auto;border:1px solid var(--line);border-radius:14px}table{width:100%;border-collapse:collapse;background:#fff;min-width:850px}th,td{border-bottom:1px solid var(--line);padding:10px 12px;vertical-align:top}th{background:#f8fafc;text-align:left;font-size:14px;color:#374151}td:first-child{font-family:"Cascadia Code","Consolas",monospace;font-weight:700;color:#111827;white-space:nowrap}tr:last-child td{border-bottom:0}.tag{display:inline-block;padding:2px 8px;border-radius:999px;font-size:12px;font-weight:700}.in{background:#dbeafe;color:#1d4ed8}.out{background:#dcfce7;color:#166534}.reg{background:#ede9fe;color:#6d28d9}.wire{background:#fef3c7;color:#92400e}.param{background:#e0f2fe;color:#0369a1}.state{background:#fee2e2;color:#991b1b}.flow{font-family:"Cascadia Code","Consolas",monospace;background:#f8fafc;border:1px solid var(--line);border-radius:14px;padding:14px;white-space:pre-wrap}.small{font-size:14px;color:var(--muted)}.kbd{font-family:"Cascadia Code","Consolas",monospace;background:#111827;color:#fff;border-radius:7px;padding:2px 7px}.topline{display:flex;gap:10px;flex-wrap:wrap;margin:12px 0}.pill{border:1px solid var(--line);background:#fff;border-radius:999px;padding:5px 10px;font-size:13px;color:#374151}.hl{font-weight:800;color:var(--blue)}@media(max-width:900px){.layout{grid-template-columns:1fr}aside{position:relative;height:auto}main{padding:20px}table{min-width:760px}}
+</style>
+</head>
+<body>
+<div class="layout">
+<aside>
+  <div class="nav-title">变量速查目录</div>
+  <div class="nav">
+    <a href="#rule">0. 先看命名规则</a>
+    <a href="#interface">1. 类 SRAM 接口变量</a>
+    <a href="#cachev">2. cache.v</a>
+    <a href="#icache">3. i_cache.v</a>
+    <a href="#dcache">4. d_cache.v</a>
+    <a href="#board">5. cache_board_top.v</a>
+    <a href="#states">6. 状态变量</a>
+    <a href="#readpath">7. 按访问流程记变量</a>
+  </div>
+</aside>
+<main>
+<h1>Cache Verilog 源码变量速查表</h1>
+<p class="subtitle">适用于 <code>cache.v</code>、<code>i_cache.v</code>、<code>d_cache.v</code>、<code>cache_board_top.v</code>。重点是：变量在哪里来、表示什么、什么时候变。</p>
+<div class="topline">
+  <span class="pill">直接映射 Cache</span><span class="pill">每行 1 个 32 位 word</span><span class="pill">I-Cache 只读</span><span class="pill">D-Cache 写回 + 写分配</span>
+</div>
+
+<section id="rule" class="card">
+<h2>0. 先看命名规则</h2>
+<div class="grid">
+<div class="ok"><b><code>cpu_*</code></b><br>CPU 侧接口。CPU 向 Cache 发请求，Cache 向 CPU 返回数据和握手。</div>
+<div class="ok"><b><code>cache_*</code></b><br>Cache 访问下一级存储器的接口。这里的 cache 不是数组，而是“Cache 对外发出的内存总线信号”。</div>
+<div class="note"><b><code>*_inst_*</code></b><br>指令通道，用于取指，对应 <code>i_cache</code>。</div>
+<div class="note"><b><code>*_data_*</code></b><br>数据通道，用于 load/store，对应 <code>d_cache</code>。</div>
+<div class="warn"><b><code>saved_*</code></b><br>缺失时保存 CPU 请求。因为等待内存期间，CPU 输入可能变化。</div>
+<div class="warn"><b><code>victim_*</code></b><br>保存被替换的旧 Cache 行。脏块写回时必须用旧 tag 和旧 data。</div>
+</div>
+</section>
+
+<section id="interface" class="card">
+<h2>1. 类 SRAM 接口变量通用解释</h2>
+<p>这四个模块都围绕同一种握手机制写：<code>req</code> 发起事务，<code>addr_ok</code> 表示地址被接收，<code>data_ok</code> 表示事务完成。</p>
+<div class="table-wrap"><table>
+<tr><th>变量后缀</th><th>方向</th><th>含义</th><th>理解重点</th></tr>
+<tr><td>req</td><td>请求方 → 接收方</td><td>请求有效</td><td>CPU 或 Cache 说：“我要访问一次”。</td></tr>
+<tr><td>wr</td><td>请求方 → 接收方</td><td>是否写</td><td><code>1</code> 表示写，<code>0</code> 表示读。</td></tr>
+<tr><td>size</td><td>请求方 → 接收方</td><td>访问宽度</td><td><code>00</code> 字节，<code>01</code> 半字，<code>10</code> 字。I-Cache 和外部访问基本固定为 word。</td></tr>
+<tr><td>addr</td><td>请求方 → 接收方</td><td>访问地址</td><td>32 位字节地址。Cache 内部用它拆 tag/index/offset。</td></tr>
+<tr><td>wdata</td><td>请求方 → 接收方</td><td>写入数据</td><td>store 指令的数据。</td></tr>
+<tr><td>rdata</td><td>接收方 → 请求方</td><td>读出数据</td><td>load 或取指返回的数据。</td></tr>
+<tr><td>addr_ok</td><td>接收方 → 请求方</td><td>地址阶段完成</td><td>表示这次地址请求已经被接收。</td></tr>
+<tr><td>data_ok</td><td>接收方 → 请求方</td><td>数据阶段完成</td><td>读：数据有效；写：写事务完成。</td></tr>
+</table></div>
+</section>
+
+<section id="cachev" class="card">
+<h2>2. <code>cache.v</code>：总封装接口变量</h2>
+<p><code>cache.v</code> 本身不实现 Cache 算法，只把指令通道交给 <code>i_cache</code>，数据通道交给 <code>d_cache</code>。</p>
+<div class="table-wrap"><table>
+<tr><th>变量</th><th>类型</th><th>含义</th><th>作用</th></tr>
+<tr><td>clk</td><td><span class="tag in">input</span></td><td>时钟</td><td>所有状态机和寄存器在时钟上升沿更新。</td></tr>
+<tr><td>rst</td><td><span class="tag in">input</span></td><td>复位</td><td>清空 valid/dirty 和控制寄存器，使 Cache 从空闲态开始。</td></tr>
+<tr><td>cpu_inst_req</td><td><span class="tag in">input</span></td><td>CPU 取指请求</td><td>CPU 想从 <code>cpu_inst_addr</code> 取一条指令。</td></tr>
+<tr><td>cpu_inst_wr</td><td><span class="tag in">input</span></td><td>指令侧写使能</td><td>接口保留信号。I-Cache 只读，本实现中基本不用。</td></tr>
+<tr><td>cpu_inst_size</td><td><span class="tag in">input</span></td><td>取指访问大小</td><td>接口保留信号。取指固定 32 位 word。</td></tr>
+<tr><td>cpu_inst_addr</td><td><span class="tag in">input</span></td><td>取指地址</td><td>I-Cache 用它拆出 tag 和 index。</td></tr>
+<tr><td>cpu_inst_wdata</td><td><span class="tag in">input</span></td><td>指令侧写数据</td><td>接口保留信号。I-Cache 不写，所以不用。</td></tr>
+<tr><td>cpu_inst_rdata</td><td><span class="tag out">output</span></td><td>返回给 CPU 的指令</td><td>命中时来自 I-Cache，缺失时来自下一级存储器。</td></tr>
+<tr><td>cpu_inst_addr_ok</td><td><span class="tag out">output</span></td><td>I-Cache 接收取指地址</td><td>告诉 CPU：地址阶段完成。</td></tr>
+<tr><td>cpu_inst_data_ok</td><td><span class="tag out">output</span></td><td>I-Cache 返回指令完成</td><td>告诉 CPU：取指事务完成，<code>rdata</code> 有效。</td></tr>
+<tr><td>cpu_data_req</td><td><span class="tag in">input</span></td><td>CPU 数据访问请求</td><td>load/store 都通过它发起。</td></tr>
+<tr><td>cpu_data_wr</td><td><span class="tag in">input</span></td><td>数据侧写使能</td><td><code>1</code> 是 store，<code>0</code> 是 load。</td></tr>
+<tr><td>cpu_data_size</td><td><span class="tag in">input</span></td><td>数据访问宽度</td><td>决定 byte/halfword/word 写入合并方式。</td></tr>
+<tr><td>cpu_data_addr</td><td><span class="tag in">input</span></td><td>数据访问地址</td><td>D-Cache 用它拆 tag/index/offset。</td></tr>
+<tr><td>cpu_data_wdata</td><td><span class="tag in">input</span></td><td>CPU 写数据</td><td>store 写入的数据。</td></tr>
+<tr><td>cpu_data_rdata</td><td><span class="tag out">output</span></td><td>返回给 CPU 的 load 数据</td><td>命中返回 Cache 行，缺失返回回填后的数据。</td></tr>
+<tr><td>cpu_data_addr_ok</td><td><span class="tag out">output</span></td><td>D-Cache 接收数据地址</td><td>告诉 CPU：地址阶段完成。</td></tr>
+<tr><td>cpu_data_data_ok</td><td><span class="tag out">output</span></td><td>D-Cache 数据事务完成</td><td>读：数据有效；写：写命中或写缺失处理完成。</td></tr>
+<tr><td>cache_inst_*</td><td><span class="tag out">output/input</span></td><td>I-Cache 到下一级指令存储器接口</td><td>I-Cache miss 时使用。</td></tr>
+<tr><td>cache_data_*</td><td><span class="tag out">output/input</span></td><td>D-Cache 到下一级数据存储器接口</td><td>D-Cache 写回和回填时使用。</td></tr>
+</table></div>
+</section>
+
+<section id="icache" class="card">
+<h2>3. <code>i_cache.v</code>：变量解释</h2>
+<h3>3.1 参数和状态</h3>
+<div class="table-wrap"><table>
+<tr><th>变量</th><th>类型</th><th>含义</th><th>源码中的作用</th></tr>
+<tr><td>INDEX_WIDTH</td><td><span class="tag param">parameter</span></td><td>index 位宽</td><td>这里是 10，所以 I-Cache 有 <code>2^10=1024</code> 行。</td></tr>
+<tr><td>OFFSET_WIDTH</td><td><span class="tag param">parameter</span></td><td>块内偏移位宽</td><td>这里是 2，表示一行 4 字节，也就是一个 32 位 word。</td></tr>
+<tr><td>TAG_WIDTH</td><td><span class="tag param">localparam</span></td><td>tag 位宽</td><td><code>32 - INDEX_WIDTH - OFFSET_WIDTH = 20</code>。</td></tr>
+<tr><td>CACHE_DEPTH</td><td><span class="tag param">localparam</span></td><td>Cache 行数</td><td><code>1 << INDEX_WIDTH = 1024</code>。</td></tr>
+<tr><td>S_IDLE</td><td><span class="tag state">localparam</span></td><td>空闲态</td><td>可以接收 CPU 新取指请求。</td></tr>
+<tr><td>S_REFILL</td><td><span class="tag state">localparam</span></td><td>回填态</td><td>miss 后等待下一级存储器返回指令。</td></tr>
+<tr><td>state</td><td><span class="tag reg">reg</span></td><td>当前状态</td><td>在 <code>S_IDLE</code> 和 <code>S_REFILL</code> 之间切换。</td></tr>
+<tr><td>addr_rcv</td><td><span class="tag reg">reg</span></td><td>外部地址是否已被接收</td><td>防止同一次 miss 重复向下一级存储器发送地址。</td></tr>
+</table></div>
+<h3>3.2 保存请求和 Cache 数组</h3>
+<div class="table-wrap"><table>
+<tr><th>变量</th><th>类型</th><th>含义</th><th>为什么需要</th></tr>
+<tr><td>saved_tag</td><td><span class="tag reg">reg</span></td><td>miss 地址的 tag</td><td>回填完成后写入 <code>cache_tag[saved_index]</code>。</td></tr>
+<tr><td>saved_index</td><td><span class="tag reg">reg</span></td><td>miss 地址的 index</td><td>回填完成后知道该写入 Cache 的哪一行。</td></tr>
+<tr><td>saved_addr</td><td><span class="tag reg">reg</span></td><td>miss 地址，低两位对齐为 0</td><td>向下一级指令存储器发读请求。</td></tr>
+<tr><td>cache_valid[i]</td><td><span class="tag reg">reg array</span></td><td>第 i 行是否有效</td><td>valid 为 0 时，即使 tag/data 有值也不能算命中。</td></tr>
+<tr><td>cache_tag[i]</td><td><span class="tag reg">reg array</span></td><td>第 i 行保存的 tag</td><td>和当前请求 tag 比较，判断是否是同一个内存块。</td></tr>
+<tr><td>cache_block[i]</td><td><span class="tag reg">reg array</span></td><td>第 i 行保存的 32 位指令</td><td>命中时直接返回给 CPU。</td></tr>
+<tr><td>i</td><td><span class="tag reg">integer</span></td><td>循环变量</td><td>复位时遍历清空 <code>cache_valid</code>。</td></tr>
+</table></div>
+<h3>3.3 组合逻辑信号</h3>
+<div class="table-wrap"><table>
+<tr><th>变量</th><th>类型</th><th>含义</th><th>对应表达式/作用</th></tr>
+<tr><td>req_tag</td><td><span class="tag wire">wire</span></td><td>当前 CPU 取指地址的 tag</td><td><code>cpu_inst_addr[31:12]</code>。</td></tr>
+<tr><td>req_index</td><td><span class="tag wire">wire</span></td><td>当前 CPU 取指地址的 index</td><td><code>cpu_inst_addr[11:2]</code>。</td></tr>
+<tr><td>hit</td><td><span class="tag wire">wire</span></td><td>I-Cache 是否命中</td><td><code>cache_valid[req_index] && cache_tag[req_index] == req_tag</code>。</td></tr>
+<tr><td>idle_req</td><td><span class="tag wire">wire</span></td><td>空闲态收到 CPU 请求</td><td>只有这个为 1，才给 CPU <code>addr_ok</code>。</td></tr>
+<tr><td>refill_done</td><td><span class="tag wire">wire</span></td><td>回填完成</td><td><code>S_REFILL</code> 状态下收到 <code>cache_inst_data_ok</code>。</td></tr>
+</table></div>
+</section>
+
+<section id="dcache" class="card">
+<h2>4. <code>d_cache.v</code>：变量解释</h2>
+<h3>4.1 参数、状态和控制寄存器</h3>
+<div class="table-wrap"><table>
+<tr><th>变量</th><th>类型</th><th>含义</th><th>源码中的作用</th></tr>
+<tr><td>INDEX_WIDTH</td><td><span class="tag param">parameter</span></td><td>index 位宽</td><td>10 位 index，1024 行。</td></tr>
+<tr><td>OFFSET_WIDTH</td><td><span class="tag param">parameter</span></td><td>块内偏移位宽</td><td>2 位 offset，一行 4 字节。</td></tr>
+<tr><td>TAG_WIDTH</td><td><span class="tag param">localparam</span></td><td>tag 位宽</td><td>20 位。</td></tr>
+<tr><td>CACHE_DEPTH</td><td><span class="tag param">localparam</span></td><td>Cache 行数</td><td>1024 行。</td></tr>
+<tr><td>S_IDLE</td><td><span class="tag state">localparam</span></td><td>空闲态</td><td>接收 CPU load/store。</td></tr>
+<tr><td>S_WRITEBACK</td><td><span class="tag state">localparam</span></td><td>写回态</td><td>miss 且旧行 dirty 时，把旧行写回下一级存储器。</td></tr>
+<tr><td>S_REFILL</td><td><span class="tag state">localparam</span></td><td>回填态</td><td>从下一级存储器读入新行。</td></tr>
+<tr><td>state</td><td><span class="tag reg">reg</span></td><td>D-Cache 当前状态</td><td>控制 idle、writeback、refill 三个阶段。</td></tr>
+<tr><td>addr_rcv</td><td><span class="tag reg">reg</span></td><td>地址已被下一级接收</td><td>避免同一次写回/回填重复发送地址。</td></tr>
+</table></div>
+<h3>4.2 saved/victim：理解 D-Cache 的关键</h3>
+<div class="table-wrap"><table>
+<tr><th>变量</th><th>类型</th><th>含义</th><th>为什么需要</th></tr>
+<tr><td>saved_wr</td><td><span class="tag reg">reg</span></td><td>miss 时 CPU 请求是否是写</td><td>回填后决定 <code>dirty</code> 是否置 1；写缺失需要合并写数据。</td></tr>
+<tr><td>saved_size</td><td><span class="tag reg">reg</span></td><td>miss 时 CPU 访问大小</td><td>写缺失回填后，用它判断写 byte/halfword/word。</td></tr>
+<tr><td>saved_addr</td><td><span class="tag reg">reg</span></td><td>miss 时 CPU 原始地址</td><td>回填地址、写数据合并的 byte offset 都要用它。</td></tr>
+<tr><td>saved_wdata</td><td><span class="tag reg">reg</span></td><td>miss 时 CPU 写数据</td><td>写缺失时，内存数据回来后再把它合并进去。</td></tr>
+<tr><td>saved_tag</td><td><span class="tag reg">reg</span></td><td>miss 地址的 tag</td><td>回填后写入 <code>cache_tag[saved_index]</code>。</td></tr>
+<tr><td>saved_index</td><td><span class="tag reg">reg</span></td><td>miss 地址的 index</td><td>回填/写回都要定位到这一行。</td></tr>
+<tr><td>victim_tag</td><td><span class="tag reg">reg</span></td><td>被替换旧行的 tag</td><td>写回旧脏行时，用它拼出旧行原来的内存地址。</td></tr>
+<tr><td>victim_data</td><td><span class="tag reg">reg</span></td><td>被替换旧行的数据</td><td>写回脏块时作为 <code>cache_data_wdata</code>。</td></tr>
+</table></div>
+<h3>4.3 Cache 存储数组</h3>
+<div class="table-wrap"><table>
+<tr><th>变量</th><th>类型</th><th>含义</th><th>判断/更新规则</th></tr>
+<tr><td>cache_valid[i]</td><td><span class="tag reg">reg array</span></td><td>第 i 行是否有效</td><td>复位清 0；回填成功置 1。</td></tr>
+<tr><td>cache_dirty[i]</td><td><span class="tag reg">reg array</span></td><td>第 i 行是否脏</td><td>写命中置 1；写缺失回填后置 1；读缺失回填后置 0；写回后清 0。</td></tr>
+<tr><td>cache_tag[i]</td><td><span class="tag reg">reg array</span></td><td>第 i 行保存的 tag</td><td>回填时更新为新请求 tag。</td></tr>
+<tr><td>cache_block[i]</td><td><span class="tag reg">reg array</span></td><td>第 i 行保存的数据 word</td><td>读命中返回它；写命中修改它；回填时写入新数据。</td></tr>
+<tr><td>i</td><td><span class="tag reg">integer</span></td><td>循环变量</td><td>复位时遍历清空 <code>valid/dirty</code>。</td></tr>
+</table></div>
+<h3>4.4 组合逻辑信号</h3>
+<div class="table-wrap"><table>
+<tr><th>变量</th><th>类型</th><th>含义</th><th>源码中的作用</th></tr>
+<tr><td>req_tag</td><td><span class="tag wire">wire</span></td><td>当前 CPU 数据地址的 tag</td><td><code>cpu_data_addr[31:12]</code>。</td></tr>
+<tr><td>req_index</td><td><span class="tag wire">wire</span></td><td>当前 CPU 数据地址的 index</td><td><code>cpu_data_addr[11:2]</code>。</td></tr>
+<tr><td>req_hit</td><td><span class="tag wire">wire</span></td><td>D-Cache 是否命中</td><td>valid 为 1 且 tag 相等。</td></tr>
+<tr><td>idle_req</td><td><span class="tag wire">wire</span></td><td>空闲态收到 CPU 请求</td><td>只有此时才接收 CPU 地址。</td></tr>
+<tr><td>hit_done</td><td><span class="tag wire">wire</span></td><td>命中访问完成</td><td>命中读/写都可在同一拍完成。</td></tr>
+<tr><td>refill_done</td><td><span class="tag wire">wire</span></td><td>回填完成</td><td>下一级存储器返回 <code>cache_data_data_ok</code>。</td></tr>
+<tr><td>hit_write_word</td><td><span class="tag wire">wire</span></td><td>写命中合并后的 word</td><td>把 <code>cpu_data_wdata</code> 合并进旧 <code>cache_block</code>。</td></tr>
+<tr><td>refill_write_word</td><td><span class="tag wire">wire</span></td><td>写缺失回填后合并的 word</td><td>先从内存读回 word，再把保存的写数据合并进去。</td></tr>
+<tr><td>refill_final_word</td><td><span class="tag wire">wire</span></td><td>最终写入 Cache 的回填数据</td><td>读缺失用内存数据；写缺失用合并后数据。</td></tr>
+<tr><td>old_word</td><td><span class="tag in">function input</span></td><td>原 32 位 word</td><td><code>merge_write_data</code> 的输入，被部分字节覆盖。</td></tr>
+<tr><td>write_data</td><td><span class="tag in">function input</span></td><td>要写入的数据</td><td>byte/halfword/word 的来源。</td></tr>
+<tr><td>size</td><td><span class="tag in">function input</span></td><td>写入宽度</td><td>决定掩码是 1 字节、2 字节还是 4 字节。</td></tr>
+<tr><td>addr_low</td><td><span class="tag in">function input</span></td><td>地址低两位</td><td>决定从 word 的哪个字节开始写。</td></tr>
+<tr><td>mask</td><td><span class="tag reg">function reg</span></td><td>字节写掩码</td><td><code>mask[0]</code> 对应低 8 位，<code>mask[3]</code> 对应高 8 位。</td></tr>
+<tr><td>merge_write_data</td><td><span class="tag wire">function return</span></td><td>合并后的 32 位 word</td><td>用于写命中和写缺失。</td></tr>
+</table></div>
+</section>
+
+<section id="board" class="card">
+<h2>5. <code>cache_board_top.v</code>：板级自测变量解释</h2>
+<p>这个文件不是 Cache 算法本体，而是一个“自测平台”：模拟 CPU 请求、模拟下一级存储器，用 LED 显示测试结果。</p>
+<h3>5.1 顶层控制和失败标志</h3>
+<div class="table-wrap"><table>
+<tr><th>变量</th><th>类型</th><th>含义</th><th>作用</th></tr>
+<tr><td>clk</td><td><span class="tag in">input</span></td><td>板上时钟</td><td>驱动自测 FSM、存储器模型和 Cache。</td></tr>
+<tr><td>rst</td><td><span class="tag in">input</span></td><td>复位</td><td>重新开始自测。</td></tr>
+<tr><td>led</td><td><span class="tag out">output</span></td><td>LED 输出</td><td>显示是否完成、是否成功、失败码和状态码。</td></tr>
+<tr><td>state</td><td><span class="tag reg">reg</span></td><td>板级自测状态</td><td>控制测试按取指 miss、取指 hit、D-Cache miss、写命中、脏块写回顺序执行。</td></tr>
+<tr><td>fail</td><td><span class="tag reg">reg</span></td><td>失败标志寄存器</td><td>每一位对应一个检查项，任意位为 1 表示对应测试失败。</td></tr>
+</table></div>
+<h3>5.2 自测 CPU 侧信号</h3>
+<div class="table-wrap"><table>
+<tr><th>变量</th><th>类型</th><th>含义</th><th>作用</th></tr>
+<tr><td>cpu_inst_req</td><td><span class="tag reg">reg</span></td><td>模拟 CPU 发取指请求</td><td>自测 FSM 拉高它来测试 I-Cache。</td></tr>
+<tr><td>cpu_inst_wr</td><td><span class="tag reg">reg</span></td><td>模拟取指写使能</td><td>一直为 0，因为取指是读。</td></tr>
+<tr><td>cpu_inst_size</td><td><span class="tag reg">reg</span></td><td>模拟取指大小</td><td>设为 <code>2'b10</code>，表示 word。</td></tr>
+<tr><td>cpu_inst_addr</td><td><span class="tag reg">reg</span></td><td>模拟取指地址</td><td>测试中使用 <code>0x00000100</code>。</td></tr>
+<tr><td>cpu_inst_wdata</td><td><span class="tag reg">reg</span></td><td>模拟指令写数据</td><td>无实际作用，置 0。</td></tr>
+<tr><td>cpu_inst_rdata</td><td><span class="tag wire">wire</span></td><td>Cache 返回的指令</td><td>自测检查是否等于 <code>32'h90000100</code>。</td></tr>
+<tr><td>cpu_inst_addr_ok</td><td><span class="tag wire">wire</span></td><td>I-Cache 接收地址</td><td>自测 FSM 看到它后撤销 <code>cpu_inst_req</code>。</td></tr>
+<tr><td>cpu_inst_data_ok</td><td><span class="tag wire">wire</span></td><td>I-Cache 返回完成</td><td>自测 FSM 看到它后检查 <code>cpu_inst_rdata</code>。</td></tr>
+<tr><td>cpu_data_req</td><td><span class="tag reg">reg</span></td><td>模拟 CPU 数据访问请求</td><td>用于测试 D-Cache load/store。</td></tr>
+<tr><td>cpu_data_wr</td><td><span class="tag reg">reg</span></td><td>模拟 load/store</td><td>0 为读，1 为写。</td></tr>
+<tr><td>cpu_data_size</td><td><span class="tag reg">reg</span></td><td>模拟数据访问大小</td><td>测试 word 读和 byte 写。</td></tr>
+<tr><td>cpu_data_addr</td><td><span class="tag reg">reg</span></td><td>模拟数据访问地址</td><td>用 <code>0x00000000</code>、<code>0x00000001</code>、<code>0x00001000</code> 测试命中和冲突。</td></tr>
+<tr><td>cpu_data_wdata</td><td><span class="tag reg">reg</span></td><td>模拟 CPU 写数据</td><td>byte 写测试中使用 <code>32'hAAAAAAAA</code>。</td></tr>
+<tr><td>cpu_data_rdata</td><td><span class="tag wire">wire</span></td><td>D-Cache 返回的读数据</td><td>自测检查读回结果是否正确。</td></tr>
+<tr><td>cpu_data_addr_ok</td><td><span class="tag wire">wire</span></td><td>D-Cache 接收地址</td><td>自测 FSM 看到它后撤销 <code>cpu_data_req</code>。</td></tr>
+<tr><td>cpu_data_data_ok</td><td><span class="tag wire">wire</span></td><td>D-Cache 数据事务完成</td><td>自测 FSM 看到它后检查读写效果。</td></tr>
+</table></div>
+<h3>5.3 下一级存储器模型信号</h3>
+<div class="table-wrap"><table>
+<tr><th>变量</th><th>类型</th><th>含义</th><th>作用</th></tr>
+<tr><td>cache_inst_req</td><td><span class="tag wire">wire</span></td><td>I-Cache 访问指令存储器请求</td><td>I-Cache miss 时拉高。</td></tr>
+<tr><td>cache_inst_wr</td><td><span class="tag wire">wire</span></td><td>I-Cache 是否写指令存储器</td><td>固定为 0。</td></tr>
+<tr><td>cache_inst_size</td><td><span class="tag wire">wire</span></td><td>指令存储器访问大小</td><td>固定 word。</td></tr>
+<tr><td>cache_inst_addr</td><td><span class="tag wire">wire</span></td><td>I-Cache miss 回填地址</td><td>指令存储器模型根据它生成返回值。</td></tr>
+<tr><td>cache_inst_wdata</td><td><span class="tag wire">wire</span></td><td>I-Cache 写数据</td><td>无实际作用，固定 0。</td></tr>
+<tr><td>cache_inst_rdata</td><td><span class="tag reg">reg</span></td><td>指令存储器返回数据</td><td>模型返回 <code>32'h90000000 | addr[15:0]</code>。</td></tr>
+<tr><td>cache_inst_addr_ok</td><td><span class="tag wire">wire</span></td><td>指令存储器接收地址</td><td>这里直接等于 <code>cache_inst_req</code>。</td></tr>
+<tr><td>cache_inst_data_ok</td><td><span class="tag reg">reg</span></td><td>指令存储器返回完成</td><td>延迟几拍后置 1。</td></tr>
+<tr><td>cache_data_req</td><td><span class="tag wire">wire</span></td><td>D-Cache 访问数据存储器请求</td><td>写回或回填时拉高。</td></tr>
+<tr><td>cache_data_wr</td><td><span class="tag wire">wire</span></td><td>D-Cache 是否写数据存储器</td><td>写回脏块时为 1，回填读时为 0。</td></tr>
+<tr><td>cache_data_size</td><td><span class="tag wire">wire</span></td><td>数据存储器访问大小</td><td>固定 word。</td></tr>
+<tr><td>cache_data_addr</td><td><span class="tag wire">wire</span></td><td>D-Cache 访问下一级地址</td><td>写回时是 victim 地址，回填时是 saved 地址。</td></tr>
+<tr><td>cache_data_wdata</td><td><span class="tag wire">wire</span></td><td>D-Cache 写回数据</td><td>来自被替换脏行。</td></tr>
+<tr><td>cache_data_rdata</td><td><span class="tag reg">reg</span></td><td>数据存储器返回数据</td><td>根据地址 bit12 返回 <code>data_mem0</code> 或 <code>data_mem1</code>。</td></tr>
+<tr><td>cache_data_addr_ok</td><td><span class="tag wire">wire</span></td><td>数据存储器接收地址</td><td>这里直接等于 <code>cache_data_req</code>。</td></tr>
+<tr><td>cache_data_data_ok</td><td><span class="tag reg">reg</span></td><td>数据存储器事务完成</td><td>延迟几拍后置 1。</td></tr>
+</table></div>
+<h3>5.4 存储器模型内部变量</h3>
+<div class="table-wrap"><table>
+<tr><th>变量</th><th>类型</th><th>含义</th><th>作用</th></tr>
+<tr><td>inst_delay</td><td><span class="tag reg">reg</span></td><td>指令存储器响应延迟计数器</td><td>模拟外部存储器不是立刻返回。</td></tr>
+<tr><td>inst_pending_addr</td><td><span class="tag reg">reg</span></td><td>指令存储器已接收但未返回的地址</td><td>延迟结束后根据它生成 <code>cache_inst_rdata</code>。</td></tr>
+<tr><td>inst_reads</td><td><span class="tag reg">reg</span></td><td>指令存储器读次数</td><td>用于验证第二次同地址取指是否命中，不能再次读外存。</td></tr>
+<tr><td>data_mem0</td><td><span class="tag reg">reg</span></td><td>数据存储器测试 word 0</td><td>初值 <code>32'h11223344</code>，地址 bit12 为 0 时访问。</td></tr>
+<tr><td>data_mem1</td><td><span class="tag reg">reg</span></td><td>数据存储器测试 word 1</td><td>初值 <code>32'h55667788</code>，地址 bit12 为 1 时访问。</td></tr>
+<tr><td>data_delay</td><td><span class="tag reg">reg</span></td><td>数据存储器响应延迟计数器</td><td>模拟数据存储器访问延迟。</td></tr>
+<tr><td>data_pending_wr</td><td><span class="tag reg">reg</span></td><td>等待完成的数据访问是否为写</td><td>延迟结束后决定写入还是返回数据。</td></tr>
+<tr><td>data_pending_addr</td><td><span class="tag reg">reg</span></td><td>等待完成的数据访问地址</td><td>延迟期间保存地址。</td></tr>
+<tr><td>data_pending_wdata</td><td><span class="tag reg">reg</span></td><td>等待完成的数据写入值</td><td>写回完成时写入 <code>data_mem0/1</code>。</td></tr>
+<tr><td>data_reads</td><td><span class="tag reg">reg</span></td><td>数据存储器读次数</td><td>验证 D-Cache 命中时不会再次读外存。</td></tr>
+<tr><td>data_writes</td><td><span class="tag reg">reg</span></td><td>数据存储器写次数</td><td>验证写命中不写外存，脏块替换才写回一次。</td></tr>
+</table></div>
+</section>
+
+<section id="states" class="card">
+<h2>6. 状态变量速查</h2>
+<div class="table-wrap"><table>
+<tr><th>状态</th><th>所在文件</th><th>含义</th><th>下一步</th></tr>
+<tr><td>S_IDLE</td><td>i_cache / d_cache</td><td>空闲，可接收 CPU 请求</td><td>命中则完成；缺失则进入回填或写回。</td></tr>
+<tr><td>S_REFILL</td><td>i_cache / d_cache</td><td>从下一级存储器读入缺失块</td><td>收到 data_ok 后写入 Cache，回到 idle。</td></tr>
+<tr><td>S_WRITEBACK</td><td>d_cache</td><td>把被替换的脏行写回内存</td><td>写回完成后进入 S_REFILL。</td></tr>
+<tr><td>ST_I1_REQ</td><td>cache_board_top</td><td>第一次取指请求</td><td>测试 I-Cache miss。</td></tr>
+<tr><td>ST_I1_WAIT</td><td>cache_board_top</td><td>等待第一次取指返回</td><td>检查返回值和外存读次数。</td></tr>
+<tr><td>ST_I2_REQ</td><td>cache_board_top</td><td>第二次同地址取指</td><td>测试 I-Cache hit。</td></tr>
+<tr><td>ST_D1_REQ</td><td>cache_board_top</td><td>第一次数据读请求</td><td>测试 D-Cache 读 miss。</td></tr>
+<tr><td>ST_D1_WAIT</td><td>cache_board_top</td><td>等待第一次数据读返回</td><td>检查读到 <code>11223344</code>。</td></tr>
+<tr><td>ST_DW_REQ</td><td>cache_board_top</td><td>字节写请求</td><td>测试写命中、dirty 置位、不立刻写外存。</td></tr>
+<tr><td>ST_D2_REQ</td><td>cache_board_top</td><td>读回原地址</td><td>检查 byte 写合并结果 <code>1122AA44</code>。</td></tr>
+<tr><td>ST_DC_REQ</td><td>cache_board_top</td><td>访问冲突地址</td><td>触发脏行写回 + 新行回填。</td></tr>
+<tr><td>ST_DC_WAIT</td><td>cache_board_top</td><td>等待冲突访问完成</td><td>检查写回次数和写回内容。</td></tr>
+<tr><td>ST_DONE</td><td>cache_board_top</td><td>自测完成</td><td>LED 显示结果。</td></tr>
+</table></div>
+</section>
+
+<section id="readpath" class="card">
+<h2>7. 按访问流程记变量</h2>
+<h3>I-Cache miss 流程</h3>
+<div class="flow">cpu_inst_req + cpu_inst_addr
+    ↓ 拆地址
+req_tag / req_index
+    ↓ 判断
+hit = valid[index] && tag[index] == req_tag
+    ↓ miss
+saved_tag / saved_index / saved_addr
+    ↓ 访问下一级
+cache_inst_req / cache_inst_addr
+    ↓ 返回
+cache_inst_data_ok / cache_inst_rdata
+    ↓ 写入 Cache
+cache_valid / cache_tag / cache_block</div>
+<h3>D-Cache 脏块替换流程</h3>
+<div class="flow">cpu_data_req + cpu_data_addr
+    ↓ 拆地址
+req_tag / req_index
+    ↓ miss
+saved_* 保存新请求
+victim_* 保存旧行
+    ↓ 如果旧行 valid && dirty
+S_WRITEBACK: cache_data_addr = {victim_tag, saved_index, 2'b00}
+             cache_data_wdata = victim_data
+    ↓ 写回完成
+S_REFILL: cache_data_addr = {saved_addr[31:2], 2'b00}
+    ↓ 回填完成
+cache_valid = 1
+cache_dirty = saved_wr
+cache_tag = saved_tag
+cache_block = refill_final_word</div>
+<div class="note"><b>最重要的一句话：</b><code>saved_*</code> 是“新请求”，<code>victim_*</code> 是“旧行”。写回用 <code>victim_*</code>，回填用 <code>saved_*</code>。</div>
+</section>
+</main>
+</div>
+</body>
+</html>

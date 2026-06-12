@@ -1,4 +1,4 @@
-This is XeTeX, Version 3.141592653-2.6-0.999997 (TeX Live 2025) (preloaded format=xelatex 2025.11.23)  2 JUN 2026 15:34
+This is XeTeX, Version 3.141592653-2.6-0.999997 (TeX Live 2025) (preloaded format=xelatex 2025.11.23)  5 JUN 2026 02:00
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1826,23 +1826,25 @@ Package fontspec Info:
 (fontspec)             - 'small caps'  (m/sc) with NFSS spec.:
 (fontspec)             <->s*[1]"[FangSong.otf]/OT"
 
-[3]
-Overfull \hbox (26.96274pt too wide) in paragraph at lines 104--105
-[]\TU/SimSun(0)/m/n/10.95 其 核 心 思 想 是 将 流 水 线 的 \TU/SimSun(0)/b/n/10.95 控 制 逻 辑
- \TU/SimSun(0)/m/n/10.95 与 \TU/SimSun(0)/b/n/10.95 数 据 通 路 \TU/SimSun(0)/m/n/10
-.95 分 离。| \TU/TeXGyreTermesX(0)/m/n/10.95 pipeX_data \TU/SimSun(0)/m/n/10.95 属 
-于 数 据 通 路，| \TU/TeXGyreTermesX(0)/m/n/10.95 pipeX_valid/allowin
+[3] [4]) (./sections/3_experiment_note.tex
+Overfull \hbox (50.79335pt too wide) in paragraph at lines 21--22
+[]\TU/SimSun(0)/m/n/10.95 编 写 测 试 激 励，|  前 \TU/TeXGyreTermesX(0)/m/n/10.95 10 \
+TU/SimSun(0)/m/n/10.95 个 周 期 进 行 多 组 加 法 运 算  |（\TU/TeXGyreTermesX(0)/m/n/10.95
+ 0x11110000+0x22220000 \TU/SimSun(0)/m/n/10.95 至 \TU/TeXGyreTermesX(0)/m/n/10.9
+5 0x05550000+0x06660000\TU/SimSun(0)/m/n/10.95 ） ，|
  []
 
-[4]) (./sections/3_experiment_note.tex [5]) (./sections/4_experiment_result.tex
-[6]
-File: image/place_holder.png Graphic file (type bmp)
-<image/place_holder.png>
-File: image/place_holder.png Graphic file (type bmp)
-<image/place_holder.png>
-File: image/place_holder.png Graphic file (type bmp)
-<image/place_holder.png>
- [7] [8]) (./sections/5_code_appendix.tex
+[5]) (./sections/4_experiment_result.tex [6]
+Overfull \hbox (67.06152pt too wide) in paragraph at lines 36--37
+[]\TU/SimSun(0)/m/n/10.95 仿 真 中 前 \TU/TeXGyreTermesX(0)/m/n/10.95 10 \TU/SimSun
+(0)/m/n/10.95 个 周 期 正 常 进 行 加 法 运 算，|  输 入 数 据 依 次 为 \TU/TeXGyreTermesX(0)/m/n/
+10.95 0x11110000+0x22220000\TU/SimSun(0)/m/n/10.95 、| \TU/TeXGyreTermesX(0)/m/n
+/10.95 0x22220000+0x33330000
+ []
+
+File: image/pipeline_sim.png Graphic file (type bmp)
+<image/pipeline_sim.png>
+) (./sections/5_code_appendix.tex
 (d:/Texlive/texlive/2025/texmf-dist/tex/latex/listings/lstlang1.sty
 File: lstlang1.sty 2025/11/14 1.11b listings language file
 )
@@ -1851,8 +1853,8 @@ File: lstlang2.sty 2025/11/14 1.11b listings language file
 )
 (d:/Texlive/texlive/2025/texmf-dist/tex/latex/listings/lstlang3.sty
 File: lstlang3.sty 2025/11/14 1.11b listings language file
-) [9]
-[10] [11] [12]) [13] (./experiment_report.aux)
+) [7]
+[8] [9] [10]) [11] (./experiment_report.aux)
  ***********
 LaTeX2e <2025-11-01>
 L3 programming layer <2022/08/05>
@@ -1862,15 +1864,15 @@ L3 programming layer <2022/08/05>
 LaTeX Font Warning: Some font shapes were not available, defaults substituted.
 
 Package rerunfilecheck Info: File `experiment_report.out' has not changed.
-(rerunfilecheck)             Checksum: 100776836F6A70F014606A612374FBF2;3709.
+(rerunfilecheck)             Checksum: AD10817C749ED055BBD0AE1EC8FD6B66;3459.
  ) 
 Here is how much of TeX's memory you used:
- 33820 strings out of 468179
- 685128 string characters out of 5433211
- 1476528 words of memory out of 5000000
- 61907 multiletter control sequences out of 15000+600000
+ 33800 strings out of 468179
+ 682303 string characters out of 5433211
+ 1481527 words of memory out of 5000000
+ 61887 multiletter control sequences out of 15000+600000
  644360 words of font info for 117 fonts, out of 8000000 for 9000
  1348 hyphenation exceptions out of 8191
- 108i,12n,136p,554b,2184s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 108i,12n,136p,554b,2182s stack positions out of 10000i,1000n,20000p,200000b,200000s
 
-Output written on experiment_report.pdf (13 pages).
+Output written on experiment_report.pdf (11 pages).

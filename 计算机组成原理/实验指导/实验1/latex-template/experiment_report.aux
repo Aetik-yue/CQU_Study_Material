@@ -19,8 +19,8 @@
 \@writefile{toc}{\contentsline {subsubsection}{\numberline {2.1.3}逻辑控制}{3}{subsubsection.2.1.3}\protected@file@percent }
 \@writefile{lot}{\contentsline {table}{\numberline {3}{\ignorespaces ALU运算控制码及功能}}{3}{table.caption.4}\protected@file@percent }
 \newlabel{tab:alu_opcode}{{3}{3}{ALU运算控制码及功能}{table.caption.4}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.2}4级流水线8bit全加器}{3}{subsection.2.2}\protected@file@percent }
-\newlabel{sub:ctl}{{2.2}{3}{4级流水线8bit全加器}{subsection.2.2}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.2}4级流水线32bit全加器}{3}{subsection.2.2}\protected@file@percent }
+\newlabel{sub:ctl}{{2.2}{3}{4级流水线32bit全加器}{subsection.2.2}{}}
 \@writefile{toc}{\contentsline {subsubsection}{\numberline {2.2.1}功能描述}{4}{subsubsection.2.2.1}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsubsection}{\numberline {2.2.2}接口定义}{4}{subsubsection.2.2.2}\protected@file@percent }
 \@writefile{lot}{\contentsline {table}{\numberline {4}{\ignorespaces 流水线全加器接口定义}}{4}{table.caption.5}\protected@file@percent }
@@ -29,25 +29,20 @@
 \@writefile{toc}{\contentsline {section}{\numberline {3}实验过程记录}{5}{section.3}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {3.1}ALU模块设计与仿真}{5}{subsection.3.1}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {3.2}流水线全加器设计与仿真}{5}{subsection.3.2}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.3}问题与解决方案}{5}{subsection.3.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.3}问题与解决方案}{6}{subsection.3.3}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {3.4}问题1：SLT运算的符号位处理}{6}{subsection.3.4}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {3.5}问题2：流水线暂停时数据保持}{6}{subsection.3.5}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {3.6}问题3：flush与stall的优先级}{6}{subsection.3.6}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.7}问题4：流水线各级部分和的对齐}{6}{subsection.3.7}\protected@file@percent }
 \@writefile{toc}{\contentsline {section}{\numberline {4}实验结果及分析}{6}{section.4}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.1}ALU验证实验结果}{6}{subsection.4.1}\protected@file@percent }
-\@writefile{lot}{\contentsline {table}{\numberline {5}{\ignorespaces ALU验证结果表}}{6}{table.caption.6}\protected@file@percent }
-\newlabel{tab:alu_result}{{5}{6}{ALU验证结果表}{table.caption.6}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.2}ALU仿真波形图}{7}{subsection.4.2}\protected@file@percent }
-\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces ALU行为仿真波形图}}{7}{figure.caption.7}\protected@file@percent }
-\newlabel{fig:alu_wave}{{1}{7}{ALU行为仿真波形图}{figure.caption.7}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.3}流水线阻塞仿真图}{7}{subsection.4.3}\protected@file@percent }
-\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces 流水线暂停仿真波形图}}{8}{figure.caption.8}\protected@file@percent }
-\newlabel{fig:pipe_stall}{{2}{8}{流水线暂停仿真波形图}{figure.caption.8}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.4}流水线刷新仿真图}{9}{subsection.4.4}\protected@file@percent }
-\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces 流水线刷新仿真波形图}}{9}{figure.caption.9}\protected@file@percent }
-\newlabel{fig:pipe_flush}{{3}{9}{流水线刷新仿真波形图}{figure.caption.9}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {A}ALU代码 (alu.v) —— always实现}{9}{appendix.A}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {B}ALU代码 (alu\_assign.v) —— assign实现}{10}{appendix.B}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {C}4级流水线8bit全加器代码 (adder\_8bits\_4steps.v)}{10}{appendix.C}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {D}流水线全加器测试激励代码 (tb\_pipeline\_adder.v)}{12}{appendix.D}\protected@file@percent }
-\gdef \@abspage@last{13}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.1}ALU验证实验结果}{7}{subsection.4.1}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {5}{\ignorespaces ALU验证结果表}}{7}{table.caption.6}\protected@file@percent }
+\newlabel{tab:alu_result}{{5}{7}{ALU验证结果表}{table.caption.6}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.2}流水线阻塞仿真图}{7}{subsection.4.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.3}流水线刷新仿真图}{7}{subsection.4.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {A}ALU代码 (alu.v)}{7}{appendix.A}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces 流水线暂停仿真波形图}}{8}{figure.caption.7}\protected@file@percent }
+\newlabel{fig:pipe_stall}{{1}{8}{流水线暂停仿真波形图}{figure.caption.7}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {B}4级流水线32bit全加器代码 (liushuixian\_4ji.v)}{8}{appendix.B}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {C}流水线全加器测试激励代码 (liushuixian\_4ji\_sim2.v)}{10}{appendix.C}\protected@file@percent }
+\gdef \@abspage@last{11}

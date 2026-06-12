@@ -54,17 +54,25 @@ ALU采用纯组合逻辑实现，通过case语句根据控制码F[2:0]选择对�
 
 SLT运算使用Verilog内置函数\texttt{\$signed()}将操作数转换为有符号数后进行比较，按照补码规则判断大小。
 
-\subsection{4级流水线8bit全加器}\label{sub:ctl}
+\subsection{4级流水线32bit全加器}\label{sub:ctl}
 
 \subsubsection{功能描述}
-实现4级流水线8位全加器，参考指导书Listing 5的\texttt{adder\_8bits\_4steps}模块。将8位加法运算拆分为4个流水阶段，每级处理2位数据的加法及进位传递。支持流水线暂停和刷新控制，用于模拟流水线冲突和异常处理。
+实现4级流水线32位全加器。将32位加法运算拆分为4个流水阶段，每级处理8位数据的加法及进位传递，采用移位寄存器方案对齐各级的部分和输出。支持流水线暂停和刷新控制，用于模拟流水线冲突和异常处理。
 
 流水线各级功能划分：
 \begin{itemize}
-    \item \textbf{第1级}：输入寄存，计算低2位（bit[1:0]）的加法结果及进位
-    \item \textbf{第2级}：计算次低2位（bit[3:2]）的加法，拼接第1级的部分和
-    \item \textbf{第3级}：计算次高2位（bit[5:4]）的加法，拼接前两级的部分和
-    \item \textbf{第4级}：计算最高2位（bit[7:6]）的加法，输出最终8位和与进位
+    \item \textbf{第1级}：计算低8位（bit[7:0]）的加法，产生部分和sum\_s1及进位cout\_s1，剩余高位数据存入rem\_a1/rem\_b1
+    \item \textbf{第2级}：计算次低8位（bit[15:8]）的加法，接收第1级进位
+    \item \textbf{第3级}：计算次高8位（bit[23:16]）的加法，接收第2级进位
+    \item \textbf{第4级}：计算最高8位（bit[31:24]）的加法，接收第3级进位，输出最终进位cout
+\end{itemize}
+
+由于各级部分和在不同时钟周期产生，需通过移位寄存器将各级结果对齐至同一时刻输出：
+\begin{itemize}
+    \item 第1级的部分和sum\_s1需延迟3个周期（经过sum1\_d2→sum1\_d3→sum1\_d4）
+    \item 第2级的部分和sum\_s2需延迟2个周期（经过sum2\_d3→sum2\_d4）
+    \item 第3级的部分和sum\_s3需延迟1个周期（经过sum3\_d4）
+    \item 第4级的部分和sum\_s4直接作为最高8位输出
 \end{itemize}
 
 \subsubsection{接口定义}
@@ -76,14 +84,13 @@ SLT运算使用Verilog内置函数\texttt{\$signed()}将操作数转换为有符
     \hline
     \textbf{信号名} & \textbf{方向} & \textbf{位宽} & \textbf{功能描述}\\ \hline \hline
     clk    & Input  & 1-bit  & 时钟信号 \\
-    rst\_n & Input  & 1-bit  & 异步复位信号，低有效 \\
-    cin\_a & Input  & 8-bit  & 操作数A \\
-    cin\_b & Input  & 8-bit  & 操作数B \\
-    c\_in  & Input  & 1-bit  & 进位输入 \\
+    cin\_a & Input  & 32-bit & 操作数A \\
+    cin\_b & Input  & 32-bit & 操作数B \\
+    cin    & Input  & 1-bit  & 进位输入 \\
     stall  & Input  & 1-bit  & 流水线暂停信号，高有效 \\
-    flush  & Input  & 1-bit  & 流水线刷新信号，高有效 \\
-    c\_out & Output & 1-bit  & 进位输出 \\
-    sum\_out & Output & 8-bit & 加法结果和 \\
+    flush  & Input  & 1-bit  & 流水线刷新信号，高有效，优先级高于stall \\
+    cout   & Output & 1-bit  & 进位输出 \\
+    sum    & Output & 32-bit & 加法结果和 \\
     \hline
     \end{tabular}
 \end{center}
@@ -93,21 +100,10 @@ SLT运算使用Verilog内置函数\texttt{\$signed()}将操作数转换为有符
 
 \textbf{流水线控制机制：}
 
-指导书介绍了流水线的控制逻辑设计方法——基于valid/ready的握手协议：
-\begin{itemize}
-    \item \verb|pipeX_valid|：流水级X中是否有有效数据
-    \item \verb|pipeX_allowin|：流水级X是否允许数据进入
-    \item \verb|pipeX_ready_go|：流水级X是否完成当前数据处理
-    \item \verb|pipeX_to_pipeY_valid|：从X级传递到Y级的数据是否有效
-\end{itemize}
-
-其核心思想是将流水线的\textbf{控制逻辑}与\textbf{数据通路}分离。pipeX\_data属于数据通路，pipeX\_valid/allowin属于控制逻辑。
-
-\textbf{本实验的简化控制：}
 \begin{enumerate}
-    \item \textbf{正常流动}：stall=0且flush=0时，每个时钟周期数据向下一级推进
-    \item \textbf{暂停}：stall=1时，所有流水线级寄存器保持当前值不变。用于模拟数据相关或外部等待场景
-    \item \textbf{刷新}：flush=1时，所有流水线寄存器清零。flush优先级高于stall
+    \item \textbf{正常流动}：stall=0且flush=0时，每个时钟周期数据向下一级推进。各级并行计算各自负责的8位加法，进位在各级间传递
+    \item \textbf{暂停}：stall=1时，所有流水线寄存器保持当前值不变，各级计算暂停
+    \item \textbf{刷新}：flush=1时，所有流水线寄存器清零，包括各级部分和、进位、剩余数据以及移位寄存器。stall和flush同时有效时，flush优先
 \end{enumerate}
 
 \textbf{仿真控制时序：}
@@ -116,5 +112,6 @@ SLT运算使用Verilog内置函数\texttt{\$signed()}将操作数转换为有符
     \item 第15个时钟周期时，flush信号有效1个周期，模拟第3级流水线刷新，观察流水线寄存器清零和重新流动
 \end{itemize}
 
-\textbf{进位传递机制：}
-每级流水线使用\{进位, 部分和\}的拼接方式传递数据。c\_out\_t1从第1级产生，传递至第2级；c\_out\_t2传递至第3级；c\_out\_t3传递至第4级。最终进位c\_out由第4级产生，最终和sum\_out由4级的部分和拼接而成。
+\textbf{进位传递与结果拼接：}
+
+每级加法使用\{进位, 部分和\}的拼接格式：\{cout\_sN, sum\_sN\} <= \{1'b0, a\_part\} + \{1'b0, b\_part\} + carry\_in。进位cout\_s1从第1级传递至第2级，cout\_s2传递至第3级，cout\_s3传递至第4级。最终进位cout由第4级产生。由于各级部分和在流水线中处于不同阶段，通过移位寄存器对齐后拼接为32位最终结果：sum[7:0]来自延迟3拍的sum\_s1，sum[15:8]来自延迟2拍的sum\_s2，sum[23:16]来自延迟1拍的sum\_s3，sum[31:24]直接来自sum\_s4。

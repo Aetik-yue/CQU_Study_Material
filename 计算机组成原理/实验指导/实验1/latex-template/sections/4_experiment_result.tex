@@ -23,41 +23,25 @@ ALU验证实验将B端口固定为32'h01，A端口依次输入不同的测试值
 
 \textbf{结果分析：}
 \begin{enumerate}
-    \item \textbf{A+B (Unsigned)}：2 + 1 = 3，结果正确
-    \item \textbf{A - B}：0xFF - 0x01 = 0xFE，结果正确
-    \item \textbf{A AND B}：0xFE \& 0x01 = 0x00，结果正确
-    \item \textbf{A OR B}：0xAA $\vert$ 0x01 = 0xAB，结果正确
+    \item \textbf{A+B (Unsigned)}：0x00000002 + 0x00000001 = 0x00000003，结果正确
+    \item \textbf{A - B}：0x000000FF - 0x00000001 = 0x000000FE，结果正确
+    \item \textbf{A AND B}：0x000000FE \& 0x00000001 = 0x00000000，结果正确
+    \item \textbf{A OR B}：0x000000AA $\vert$ 0x00000001 = 0x000000AB，结果正确
     \item \textbf{NOT A}：\textasciitilde 0x000000F0 = 0xFFFFFF0F，结果正确
     \item \textbf{SLT}：\$signed(0x00000081) = 129，\$signed(0x00000001) = 1，129 < 1 为假，输出0，结果正确
 \end{enumerate}
 
-\subsection{ALU仿真波形图}
-
-\begin{figure}[htbp]
-    \centering
-    \includegraphics[width=0.95\textwidth]{image/place_holder.png}
-    \caption{ALU行为仿真波形图}
-    \label{fig:alu_wave}
-\end{figure}
-
 \subsection{流水线阻塞仿真图}
 
-在仿真中控制第10个时钟周期后，stall信号有效2个周期，模拟第2级流水线暂停。暂停期间，流水线各寄存器保持原值不变。2个周期后stall信号无效，流水线恢复正常流动。
+仿真中前10个周期正常进行加法运算，输入数据依次为0x11110000+0x22220000、0x22220000+0x33330000等。第10个时钟周期后，stall信号拉高并持续2个周期。stall有效期间，流水线所有寄存器保持原值不变，新的输入数据无法进入流水线。2个周期后stall信号拉低，流水线恢复正常流动。
 
 \begin{figure}[htbp]
     \centering
-    \includegraphics[width=0.95\textwidth]{image/place_holder.png}
+    \includegraphics[width=0.95\textwidth]{image/pipeline_sim.png}
     \caption{流水线暂停仿真波形图}
     \label{fig:pipe_stall}
 \end{figure}
 
 \subsection{流水线刷新仿真图}
 
-在仿真中控制第15个时钟周期时，flush信号有效1个周期，模拟第3级流水线刷新。刷新期间，流水线各级寄存器被清零，之后流水线重新开始流动。
-
-\begin{figure}[htbp]
-    \centering
-    \includegraphics[width=0.95\textwidth]{image/place_holder.png}
-    \caption{流水线刷新仿真波形图}
-    \label{fig:pipe_flush}
-\end{figure}
+stall结束后继续正常运算。第15个时钟周期时，flush信号拉高并持续1个周期。flush有效期间，流水线所有寄存器被清零，包括各级部分和、进位、剩余数据以及移位寄存器。flush结束后，流水线从零状态重新开始流动，后续输入0x64+0xC8正常运算出结果0x12C。

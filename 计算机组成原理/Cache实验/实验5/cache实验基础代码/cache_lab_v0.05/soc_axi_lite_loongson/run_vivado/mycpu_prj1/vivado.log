@@ -1,20 +1,290 @@
 #-----------------------------------------------------------
-# Vivado v2017.4 (64-bit)
-# SW Build 2086221 on Fri Dec 15 20:55:39 MST 2017
-# IP Build 2085800 on Fri Dec 15 22:25:07 MST 2017
-# Start of session at: Thu Oct 29 12:17:41 2020
-# Process ID: 15048
-# Current directory: E:/研究生相关/助教/计算机体系结构/实验课/cache_lab_v0.05/cache_lab_v0.05/soc_axi_lite_loongson/run_vivado/mycpu_prj1
-# Command line: vivado.exe -gui_launcher_event rodinguilauncherevent46472 E:\研究生相关\助教\计算机体系结构\实验课\cache_lab_v0.05\cache_lab_v0.05\soc_axi_lite_loongson\run_vivado\mycpu_prj1\mycpu.xpr
-# Log file: E:/研究生相关/助教/计算机体系结构/实验课/cache_lab_v0.05/cache_lab_v0.05/soc_axi_lite_loongson/run_vivado/mycpu_prj1/vivado.log
-# Journal file: E:/研究生相关/助教/计算机体系结构/实验课/cache_lab_v0.05/cache_lab_v0.05/soc_axi_lite_loongson/run_vivado/mycpu_prj1\vivado.jou
+# Vivado v2018.3 (64-bit)
+# SW Build 2405991 on Thu Dec  6 23:38:27 MST 2018
+# IP Build 2404404 on Fri Dec  7 01:43:56 MST 2018
+# Start of session at: Sun Jun  7 14:05:07 2026
+# Process ID: 50016
+# Current directory: C:/Users/yanha/Desktop/严浩睿的珍藏学习资料/计算机组成原理/Cache实验/实验5/cache实验基础代码/cache_lab_v0.05/soc_axi_lite_loongson/run_vivado/mycpu_prj1
+# Command line: vivado.exe -gui_launcher_event rodinguilauncherevent22604 C:\Users\yanha\Desktop\严浩睿的珍藏学习资料\计算机组成原理\Cache实验\实验5\cache实验基础代码\cache_lab_v0.05\soc_axi_lite_loongson\run_vivado\mycpu_prj1\mycpu.xpr
+# Log file: C:/Users/yanha/Desktop/严浩睿的珍藏学习资料/计算机组成原理/Cache实验/实验5/cache实验基础代码/cache_lab_v0.05/soc_axi_lite_loongson/run_vivado/mycpu_prj1/vivado.log
+# Journal file: C:/Users/yanha/Desktop/严浩睿的珍藏学习资料/计算机组成原理/Cache实验/实验5/cache实验基础代码/cache_lab_v0.05/soc_axi_lite_loongson/run_vivado/mycpu_prj1\vivado.jou
 #-----------------------------------------------------------
 start_gui
-open_project E:/研究生相关/助教/计算机体系结构/实验课/cache_lab_v0.05/cache_lab_v0.05/soc_axi_lite_loongson/run_vivado/mycpu_prj1/mycpu.xpr
+open_project C:/Users/yanha/Desktop/严浩睿的珍藏学习资料/计算机组成原理/Cache实验/实验5/cache实验基础代码/cache_lab_v0.05/soc_axi_lite_loongson/run_vivado/mycpu_prj1/mycpu.xpr
 INFO: [ProjectBase 1-489] The host OS only allows 260 characters in a normal path. The project is stored in a path with more than 80 characters. If you experience issues with IP, Block Designs, or files not being found, please consider moving the project to a location with a shorter path. Alternately consider using the OS subst command to map part of the path to a drive letter.
-Current project path is 'E:/研究生相关/助教/计算机体系结构/实验课/cache_lab_v0.05/cache_lab_v0.05/soc_axi_lite_loongson/run_vivado/mycpu_prj1'
+Current project path is 'C:/Users/yanha/Desktop/严浩睿的珍藏学习资料/计算机组成原理/Cache实验/实验5/cache实验基础代码/cache_lab_v0.05/soc_axi_lite_loongson/run_vivado/mycpu_prj1'
 INFO: [Project 1-313] Project file moved from 'd:/nscscc2020/团队赛/nscscc2019-info/nscscc2019_release_v0.01/perf_test_v0.01/soc_axi_perf/run_vivado/mycpu_prj1' since last save.
 Scanning sources...
-ERROR: [Common 17-70] Application Exception: SrcMgr::createSS : type not set
+Finished scanning sources
+WARNING: [filemgmt 56-2] IPUserFilesDir: Could not find the directory 'C:/Users/yanha/Desktop/严浩睿的珍藏学习资料/计算机组成原理/Cache实验/实验5/cache实验基础代码/cache_lab_v0.05/soc_axi_lite_loongson/run_vivado/mycpu_prj1/mycpu.ip_user_files', nor could it be found using path 'd:/nscscc2020/团队赛/nscscc2019-info/nscscc2019_release_v0.01/perf_test_v0.01/soc_axi_perf/run_vivado/mycpu_prj1/mycpu.ip_user_files'.
+CRITICAL WARNING: [Project 1-505] Unrecognized Option Name DcpsUptoDate
+INFO: [IP_Flow 19-234] Refreshing IP repositories
+INFO: [IP_Flow 19-1704] No user IP repositories specified
+INFO: [IP_Flow 19-2313] Loaded Vivado IP repository 'D:/Xilinx/Vivado/2018.3/data/ip'.
+WARNING: [IP_Flow 19-2162] IP 'axi_clock_converter' is locked:
+* Project containing IP 'axi_clock_converter' is read-only.
+Please select 'Report IP Status' from the 'Tools/Report' menu or run Tcl command 'report_ip_status' for more information.
+WARNING: [IP_Flow 19-2162] IP 'axi_crossbar_1x2' is locked:
+* Project containing IP 'axi_crossbar_1x2' is read-only.
+Please select 'Report IP Status' from the 'Tools/Report' menu or run Tcl command 'report_ip_status' for more information.
+WARNING: [IP_Flow 19-2162] IP 'axi_ram' is locked:
+* Project containing IP 'axi_ram' is read-only.
+Please select 'Report IP Status' from the 'Tools/Report' menu or run Tcl command 'report_ip_status' for more information.
+WARNING: [IP_Flow 19-2162] IP 'clk_pll' is locked:
+* Project containing IP 'clk_pll' is read-only.
+Please select 'Report IP Status' from the 'Tools/Report' menu or run Tcl command 'report_ip_status' for more information.
+WARNING: [IP_Flow 19-2162] IP 'signed_mult' is locked:
+* Project containing IP 'signed_mult' is read-only.
+Please select 'Report IP Status' from the 'Tools/Report' menu or run Tcl command 'report_ip_status' for more information.
+WARNING: [IP_Flow 19-2162] IP 'unsigned_mult' is locked:
+* Project containing IP 'unsigned_mult' is read-only.
+Please select 'Report IP Status' from the 'Tools/Report' menu or run Tcl command 'report_ip_status' for more information.
+WARNING: [Project 1-231] Project 'mycpu.xpr' was created with a future version and may or may not perform reliably with this version of Vivado. It has been opened in read-only mode for the protection of unrecognized data. Use 'File | Save Project As...' if you wish to alter a copy of the project.
+update_compile_order -fileset sources_1
+save_project_as ref_cache C:/Users/yanha/Desktop/Cache/5/cache/cache_lab_v0.05/soc_axi_lite_loongson/run_vivado/mycpu_prj1/ref_cache -force
+INFO: [ProjectBase 1-489] The host OS only allows 260 characters in a normal path. The project is stored in a path with more than 80 characters. If you experience issues with IP, Block Designs, or files not being found, please consider moving the project to a location with a shorter path. Alternately consider using the OS subst command to map part of the path to a drive letter.
+Current project path is 'C:/Users/yanha/Desktop/Cache/5/cache/cache_lab_v0.05/soc_axi_lite_loongson/run_vivado/mycpu_prj1/ref_cache'
+WARNING: [IP_Flow 19-2162] IP 'clk_pll' is locked:
+* Project containing IP 'clk_pll' is read-only.
+Please select 'Report IP Status' from the 'Tools/Report' menu or run Tcl command 'report_ip_status' for more information.
+WARNING: [IP_Flow 19-2162] IP 'axi_ram' is locked:
+* Project containing IP 'axi_ram' is read-only.
+Please select 'Report IP Status' from the 'Tools/Report' menu or run Tcl command 'report_ip_status' for more information.
+WARNING: [IP_Flow 19-2162] IP 'axi_crossbar_1x2' is locked:
+* Project containing IP 'axi_crossbar_1x2' is read-only.
+Please select 'Report IP Status' from the 'Tools/Report' menu or run Tcl command 'report_ip_status' for more information.
+WARNING: [IP_Flow 19-2162] IP 'axi_clock_converter' is locked:
+* Project containing IP 'axi_clock_converter' is read-only.
+Please select 'Report IP Status' from the 'Tools/Report' menu or run Tcl command 'report_ip_status' for more information.
+WARNING: [IP_Flow 19-2162] IP 'unsigned_mult' is locked:
+* Project containing IP 'unsigned_mult' is read-only.
+Please select 'Report IP Status' from the 'Tools/Report' menu or run Tcl command 'report_ip_status' for more information.
+WARNING: [IP_Flow 19-2162] IP 'signed_mult' is locked:
+* Project containing IP 'signed_mult' is read-only.
+Please select 'Report IP Status' from the 'Tools/Report' menu or run Tcl command 'report_ip_status' for more information.
+update_ip_catalog -rebuild -scan_changes
+INFO: [IP_Flow 19-234] Refreshing IP repositories
+INFO: [IP_Flow 19-1704] No user IP repositories specified
+report_ip_status -name ip_status
+launch_simulation
+INFO: [Vivado 12-5698] Checking validity of IPs in the design for the 'XSim' simulator...
+INFO: [Vivado 12-5682] Launching behavioral simulation in 'C:/Users/yanha/Desktop/Cache/5/cache/cache_lab_v0.05/soc_axi_lite_loongson/run_vivado/mycpu_prj1/ref_cache/ref_cache.sim/sim_1/behav/xsim'
+INFO: [Vivado 12-4795] Using compiled simulation libraries for IPs
+INFO: [SIM-utils-51] Simulation object is 'sim_1'
+INFO: [USF-XSim-7] Finding pre-compiled libraries...
+INFO: [USF-XSim-11] File 'D:/Xilinx/Vivado/2018.3/data/xsim/xsim.ini' copied to run dir:'C:/Users/yanha/Desktop/Cache/5/cache/cache_lab_v0.05/soc_axi_lite_loongson/run_vivado/mycpu_prj1/ref_cache/ref_cache.sim/sim_1/behav/xsim'
+INFO: [SIM-utils-54] Inspecting design source files for 'tb_top' in fileset 'sim_1'...
+INFO: [SIM-utils-43] Exported 'C:/Users/yanha/Desktop/Cache/5/cache/cache_lab_v0.05/soc_axi_lite_loongson/run_vivado/mycpu_prj1/ref_cache/ref_cache.sim/sim_1/behav/xsim/axi_ram.mif'
+INFO: [SIM-utils-43] Exported 'C:/Users/yanha/Desktop/Cache/5/cache/cache_lab_v0.05/soc_axi_lite_loongson/run_vivado/mycpu_prj1/ref_cache/ref_cache.sim/sim_1/behav/xsim/axi_ram.coe'
+INFO: [USF-XSim-97] Finding global include files...
+INFO: [USF-XSim-98] Fetching design files from 'sim_1'...
+INFO: [USF-XSim-2] XSim::Compile design
+INFO: [USF-XSim-61] Executing 'COMPILE and ANALYZE' step in 'C:/Users/yanha/Desktop/Cache/5/cache/cache_lab_v0.05/soc_axi_lite_loongson/run_vivado/mycpu_prj1/ref_cache/ref_cache.sim/sim_1/behav/xsim'
+"xvlog --incr --relax -prj tb_top_vlog.prj"
+INFO: [VRFC 10-2263] Analyzing Verilog file "C:/Users/yanha/Desktop/严浩睿的珍藏学习资料/计算机组成原理/Cache实验/实验5/cache实验基础代码/cache_lab_v0.05/soc_axi_lite_loongson/rtl/xilinx_ip/clk_pll/clk_pll_clk_wiz.v" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module clk_pll_clk_wiz
+INFO: [VRFC 10-2263] Analyzing Verilog file "C:/Users/yanha/Desktop/严浩睿的珍藏学习资料/计算机组成原理/Cache实验/实验5/cache实验基础代码/cache_lab_v0.05/soc_axi_lite_loongson/rtl/xilinx_ip/clk_pll/clk_pll.v" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module clk_pll
+INFO: [VRFC 10-2263] Analyzing Verilog file "C:/Users/yanha/Desktop/Cache/5/cache/cache_lab_v0.05/soc_axi_lite_loongson/run_vivado/mycpu_prj1/ref_cache/ref_cache.ip_user_files/ipstatic/simulation/blk_mem_gen_v8_4.v" into library blk_mem_gen_v8_4_2
+INFO: [VRFC 10-311] analyzing module STATE_LOGIC_v8_4
+INFO: [VRFC 10-311] analyzing module beh_vlog_muxf7_v8_4
+INFO: [VRFC 10-311] analyzing module beh_vlog_ff_clr_v8_4
+INFO: [VRFC 10-311] analyzing module beh_vlog_ff_pre_v8_4
+INFO: [VRFC 10-311] analyzing module beh_vlog_ff_ce_clr_v8_4
+INFO: [VRFC 10-311] analyzing module write_netlist_v8_4
+INFO: [VRFC 10-311] analyzing module read_netlist_v8_4
+INFO: [VRFC 10-311] analyzing module blk_mem_axi_write_wrapper_beh_v8_4
+INFO: [VRFC 10-311] analyzing module blk_mem_axi_read_wrapper_beh_v8_4
+INFO: [VRFC 10-311] analyzing module blk_mem_axi_regs_fwd_v8_4
+INFO: [VRFC 10-311] analyzing module blk_mem_gen_v8_4_2_output_stage
+INFO: [VRFC 10-311] analyzing module blk_mem_gen_v8_4_2_softecc_output_reg_stage
+INFO: [VRFC 10-311] analyzing module blk_mem_gen_v8_4_2_mem_module
+INFO: [VRFC 10-311] analyzing module blk_mem_gen_v8_4_2
+INFO: [VRFC 10-2263] Analyzing Verilog file "C:/Users/yanha/Desktop/严浩睿的珍藏学习资料/计算机组成原理/Cache实验/实验5/cache实验基础代码/cache_lab_v0.05/soc_axi_lite_loongson/rtl/xilinx_ip/axi_ram/sim/axi_ram.v" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module axi_ram
+INFO: [VRFC 10-2263] Analyzing Verilog file "C:/Users/yanha/Desktop/Cache/5/cache/cache_lab_v0.05/soc_axi_lite_loongson/run_vivado/mycpu_prj1/ref_cache/ref_cache.ip_user_files/ipstatic/hdl/generic_baseblocks_v2_1_vl_rfs.v" into library generic_baseblocks_v2_1_0
+INFO: [VRFC 10-311] analyzing module generic_baseblocks_v2_1_0_carry_and
+INFO: [VRFC 10-311] analyzing module generic_baseblocks_v2_1_0_carry_latch_and
+INFO: [VRFC 10-311] analyzing module generic_baseblocks_v2_1_0_carry_latch_or
+INFO: [VRFC 10-311] analyzing module generic_baseblocks_v2_1_0_carry_or
+INFO: [VRFC 10-311] analyzing module generic_baseblocks_v2_1_0_carry
+INFO: [VRFC 10-311] analyzing module generic_baseblocks_v2_1_0_command_fifo
+INFO: [VRFC 10-311] analyzing module generic_baseblocks_v2_1_0_comparator_mask_static
+INFO: [VRFC 10-311] analyzing module generic_baseblocks_v2_1_0_comparator_mask
+INFO: [VRFC 10-311] analyzing module generic_baseblocks_v2_1_0_comparator_sel_mask_static
+INFO: [VRFC 10-311] analyzing module generic_baseblocks_v2_1_0_comparator_sel_mask
+INFO: [VRFC 10-311] analyzing module generic_baseblocks_v2_1_0_comparator_sel_static
+INFO: [VRFC 10-311] analyzing module generic_baseblocks_v2_1_0_comparator_sel
+INFO: [VRFC 10-311] analyzing module generic_baseblocks_v2_1_0_comparator_static
+INFO: [VRFC 10-311] analyzing module generic_baseblocks_v2_1_0_comparator
+INFO: [VRFC 10-311] analyzing module generic_baseblocks_v2_1_0_mux_enc
+INFO: [VRFC 10-311] analyzing module generic_baseblocks_v2_1_0_mux
+INFO: [VRFC 10-311] analyzing module generic_baseblocks_v2_1_0_nto1_mux
+INFO: [VRFC 10-2263] Analyzing Verilog file "C:/Users/yanha/Desktop/Cache/5/cache/cache_lab_v0.05/soc_axi_lite_loongson/run_vivado/mycpu_prj1/ref_cache/ref_cache.ip_user_files/ipstatic/hdl/axi_infrastructure_v1_1_vl_rfs.v" into library axi_infrastructure_v1_1_0
+INFO: [VRFC 10-311] analyzing module axi_infrastructure_v1_1_0_axi2vector
+INFO: [VRFC 10-311] analyzing module axi_infrastructure_v1_1_0_axic_srl_fifo
+INFO: [VRFC 10-311] analyzing module axi_infrastructure_v1_1_0_vector2axi
+INFO: [VRFC 10-2263] Analyzing Verilog file "C:/Users/yanha/Desktop/Cache/5/cache/cache_lab_v0.05/soc_axi_lite_loongson/run_vivado/mycpu_prj1/ref_cache/ref_cache.ip_user_files/ipstatic/hdl/axi_register_slice_v2_1_vl_rfs.v" into library axi_register_slice_v2_1_18
+INFO: [VRFC 10-311] analyzing module axi_register_slice_v2_1_18_tdm_sample
+INFO: [VRFC 10-311] analyzing module axi_register_slice_v2_1_18_auto_slr
+INFO: [VRFC 10-2458] undeclared symbol s_handshake_d, assumed default net type wire [C:/Users/yanha/Desktop/Cache/5/cache/cache_lab_v0.05/soc_axi_lite_loongson/run_vivado/mycpu_prj1/ref_cache/ref_cache.ip_user_files/ipstatic/hdl/axi_register_slice_v2_1_vl_rfs.v:181]
+INFO: [VRFC 10-2458] undeclared symbol m_ready_d, assumed default net type wire [C:/Users/yanha/Desktop/Cache/5/cache/cache_lab_v0.05/soc_axi_lite_loongson/run_vivado/mycpu_prj1/ref_cache/ref_cache.ip_user_files/ipstatic/hdl/axi_register_slice_v2_1_vl_rfs.v:191]
+INFO: [VRFC 10-311] analyzing module axi_register_slice_v2_1_18_auto_src
+INFO: [VRFC 10-311] analyzing module axi_register_slice_v2_1_18_auto_dest
+INFO: [VRFC 10-311] analyzing module axi_register_slice_v2_1_18_srl_rtl
+INFO: [VRFC 10-311] analyzing module axi_register_slice_v2_1_18_axic_register_slice
+INFO: [VRFC 10-311] analyzing module axi_register_slice_v2_1_18_multi_slr
+INFO: [VRFC 10-311] analyzing module axi_register_slice_v2_1_18_middle_region_slr
+INFO: [VRFC 10-311] analyzing module axi_register_slice_v2_1_18_source_region_slr
+INFO: [VRFC 10-311] analyzing module axi_register_slice_v2_1_18_dest_region_slr
+INFO: [VRFC 10-311] analyzing module axi_register_slice_v2_1_18_single_slr
+INFO: [VRFC 10-311] analyzing module axi_register_slice_v2_1_18_axic_reg_srl_fifo
+INFO: [VRFC 10-311] analyzing module axi_register_slice_v2_1_18_axi_register_slice
+INFO: [VRFC 10-2263] Analyzing Verilog file "C:/Users/yanha/Desktop/Cache/5/cache/cache_lab_v0.05/soc_axi_lite_loongson/run_vivado/mycpu_prj1/ref_cache/ref_cache.ip_user_files/ipstatic/simulation/fifo_generator_vlog_beh.v" into library fifo_generator_v13_2_3
+INFO: [VRFC 10-311] analyzing module fifo_generator_vlog_beh
+INFO: [VRFC 10-2458] undeclared symbol wr_rst_busy_i, assumed default net type wire [C:/Users/yanha/Desktop/Cache/5/cache/cache_lab_v0.05/soc_axi_lite_loongson/run_vivado/mycpu_prj1/ref_cache/ref_cache.ip_user_files/ipstatic/simulation/fifo_generator_vlog_beh.v:1249]
+INFO: [VRFC 10-2458] undeclared symbol wr_eop_ad, assumed default net type wire [C:/Users/yanha/Desktop/Cache/5/cache/cache_lab_v0.05/soc_axi_lite_loongson/run_vivado/mycpu_prj1/ref_cache/ref_cache.ip_user_files/ipstatic/simulation/fifo_generator_vlog_beh.v:1331]
+INFO: [VRFC 10-2458] undeclared symbol rd_eop_ad, assumed default net type wire [C:/Users/yanha/Desktop/Cache/5/cache/cache_lab_v0.05/soc_axi_lite_loongson/run_vivado/mycpu_prj1/ref_cache/ref_cache.ip_user_files/ipstatic/simulation/fifo_generator_vlog_beh.v:1332]
+INFO: [VRFC 10-2458] undeclared symbol rd_rst_busy_axis, assumed default net type wire [C:/Users/yanha/Desktop/Cache/5/cache/cache_lab_v0.05/soc_axi_lite_loongson/run_vivado/mycpu_prj1/ref_cache/ref_cache.ip_user_files/ipstatic/simulation/fifo_generator_vlog_beh.v:1574]
+INFO: [VRFC 10-2458] undeclared symbol rd_rst_busy_wach, assumed default net type wire [C:/Users/yanha/Desktop/Cache/5/cache/cache_lab_v0.05/soc_axi_lite_loongson/run_vivado/mycpu_prj1/ref_cache/ref_cache.ip_user_files/ipstatic/simulation/fifo_generator_vlog_beh.v:2099]
+INFO: [VRFC 10-2458] undeclared symbol rd_rst_busy_wdch, assumed default net type wire [C:/Users/yanha/Desktop/Cache/5/cache/cache_lab_v0.05/soc_axi_lite_loongson/run_vivado/mycpu_prj1/ref_cache/ref_cache.ip_user_files/ipstatic/simulation/fifo_generator_vlog_beh.v:2319]
+INFO: [VRFC 10-2458] undeclared symbol rd_rst_busy_wrch, assumed default net type wire [C:/Users/yanha/Desktop/Cache/5/cache/cache_lab_v0.05/soc_axi_lite_loongson/run_vivado/mycpu_prj1/ref_cache/ref_cache.ip_user_files/ipstatic/simulation/fifo_generator_vlog_beh.v:2486]
+INFO: [VRFC 10-2458] undeclared symbol rd_rst_busy_rach, assumed default net type wire [C:/Users/yanha/Desktop/Cache/5/cache/cache_lab_v0.05/soc_axi_lite_loongson/run_vivado/mycpu_prj1/ref_cache/ref_cache.ip_user_files/ipstatic/simulation/fifo_generator_vlog_beh.v:2866]
+INFO: [VRFC 10-2458] undeclared symbol rd_rst_busy_rdch, assumed default net type wire [C:/Users/yanha/Desktop/Cache/5/cache/cache_lab_v0.05/soc_axi_lite_loongson/run_vivado/mycpu_prj1/ref_cache/ref_cache.ip_user_files/ipstatic/simulation/fifo_generator_vlog_beh.v:3099]
+INFO: [VRFC 10-311] analyzing module fifo_generator_v13_2_3_CONV_VER
+INFO: [VRFC 10-2458] undeclared symbol safety_ckt_rd_rst, assumed default net type wire [C:/Users/yanha/Desktop/Cache/5/cache/cache_lab_v0.05/soc_axi_lite_loongson/run_vivado/mycpu_prj1/ref_cache/ref_cache.ip_user_files/ipstatic/simulation/fifo_generator_vlog_beh.v:4153]
+INFO: [VRFC 10-2458] undeclared symbol safety_ckt_rd_rst, assumed default net type wire [C:/Users/yanha/Desktop/Cache/5/cache/cache_lab_v0.05/soc_axi_lite_loongson/run_vivado/mycpu_prj1/ref_cache/ref_cache.ip_user_files/ipstatic/simulation/fifo_generator_vlog_beh.v:4361]
+INFO: [VRFC 10-311] analyzing module fifo_generator_v13_2_3_sync_stage
+INFO: [VRFC 10-311] analyzing module fifo_generator_v13_2_3_bhv_ver_as
+INFO: [VRFC 10-311] analyzing module fifo_generator_v13_2_3_beh_ver_ll_afifo
+INFO: [VRFC 10-311] analyzing module fifo_generator_v13_2_3_bhv_ver_ss
+INFO: [VRFC 10-2458] undeclared symbol srst_wrst_busy, assumed default net type wire [C:/Users/yanha/Desktop/Cache/5/cache/cache_lab_v0.05/soc_axi_lite_loongson/run_vivado/mycpu_prj1/ref_cache/ref_cache.ip_user_files/ipstatic/simulation/fifo_generator_vlog_beh.v:7793]
+INFO: [VRFC 10-311] analyzing module fifo_generator_v13_2_3_bhv_ver_preload0
+INFO: [VRFC 10-311] analyzing module fifo_generator_v13_2_3_axic_reg_slice
+INFO: [VRFC 10-2263] Analyzing Verilog file "C:/Users/yanha/Desktop/Cache/5/cache/cache_lab_v0.05/soc_axi_lite_loongson/run_vivado/mycpu_prj1/ref_cache/ref_cache.ip_user_files/ipstatic/hdl/fifo_generator_v13_2_rfs.v" into library fifo_generator_v13_2_3
+INFO: [VRFC 10-311] analyzing module fifo_generator_v13_2_3
+INFO: [VRFC 10-2458] undeclared symbol sleep_i, assumed default net type wire [C:/Users/yanha/Desktop/Cache/5/cache/cache_lab_v0.05/soc_axi_lite_loongson/run_vivado/mycpu_prj1/ref_cache/ref_cache.ip_user_files/ipstatic/hdl/fifo_generator_v13_2_rfs.v:519]
+INFO: [VRFC 10-2263] Analyzing Verilog file "C:/Users/yanha/Desktop/Cache/5/cache/cache_lab_v0.05/soc_axi_lite_loongson/run_vivado/mycpu_prj1/ref_cache/ref_cache.ip_user_files/ipstatic/hdl/axi_data_fifo_v2_1_vl_rfs.v" into library axi_data_fifo_v2_1_17
+INFO: [VRFC 10-311] analyzing module axi_data_fifo_v2_1_17_axic_fifo
+INFO: [VRFC 10-311] analyzing module axi_data_fifo_v2_1_17_fifo_gen
+INFO: [VRFC 10-311] analyzing module axi_data_fifo_v2_1_17_axic_srl_fifo
+INFO: [VRFC 10-311] analyzing module axi_data_fifo_v2_1_17_axic_reg_srl_fifo
+INFO: [VRFC 10-311] analyzing module axi_data_fifo_v2_1_17_ndeep_srl
+INFO: [VRFC 10-311] analyzing module axi_data_fifo_v2_1_17_axi_data_fifo
+INFO: [VRFC 10-2263] Analyzing Verilog file "C:/Users/yanha/Desktop/Cache/5/cache/cache_lab_v0.05/soc_axi_lite_loongson/run_vivado/mycpu_prj1/ref_cache/ref_cache.ip_user_files/ipstatic/hdl/axi_crossbar_v2_1_vl_rfs.v" into library axi_crossbar_v2_1_19
+INFO: [VRFC 10-311] analyzing module axi_crossbar_v2_1_19_addr_arbiter_sasd
+INFO: [VRFC 10-311] analyzing module axi_crossbar_v2_1_19_addr_arbiter
+INFO: [VRFC 10-311] analyzing module axi_crossbar_v2_1_19_addr_decoder
+INFO: [VRFC 10-311] analyzing module axi_crossbar_v2_1_19_arbiter_resp
+INFO: [VRFC 10-311] analyzing module axi_crossbar_v2_1_19_crossbar_sasd
+INFO: [VRFC 10-311] analyzing module axi_crossbar_v2_1_19_crossbar
+INFO: [VRFC 10-311] analyzing module axi_crossbar_v2_1_19_decerr_slave
+INFO: [VRFC 10-311] analyzing module axi_crossbar_v2_1_19_si_transactor
+INFO: [VRFC 10-311] analyzing module axi_crossbar_v2_1_19_splitter
+INFO: [VRFC 10-311] analyzing module axi_crossbar_v2_1_19_wdata_mux
+INFO: [VRFC 10-311] analyzing module axi_crossbar_v2_1_19_wdata_router
+INFO: [VRFC 10-311] analyzing module axi_crossbar_v2_1_19_axi_crossbar
+INFO: [VRFC 10-2263] Analyzing Verilog file "C:/Users/yanha/Desktop/严浩睿的珍藏学习资料/计算机组成原理/Cache实验/实验5/cache实验基础代码/cache_lab_v0.05/soc_axi_lite_loongson/rtl/xilinx_ip/axi_crossbar_1x2/sim/axi_crossbar_1x2.v" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module axi_crossbar_1x2
+ERROR: [Common 17-145] codecvt to wstring conversion failed '1'
+ERROR: [Common 17-145] codecvt to wstring conversion failed '1'
+INFO: [VRFC 10-2263] Analyzing Verilog file "C:/Users/yanha/Desktop/Cache/5/cache/cache_lab_v0.05/soc_axi_lite_loongson/run_vivado/mycpu_prj1/ref_cache/ref_cache.ip_user_files/ipstatic/hdl/axi_clock_converter_v2_1_vl_rfs.v" into library axi_clock_converter_v2_1_17
+INFO: [VRFC 10-311] analyzing module axi_clock_converter_v2_1_17_axic_sync_clock_converter
+INFO: [VRFC 10-311] analyzing module axi_clock_converter_v2_1_17_axic_sample_cycle_ratio
+INFO: [VRFC 10-311] analyzing module axi_clock_converter_v2_1_17_lite_async
+INFO: [VRFC 10-311] analyzing module axi_clock_converter_v2_1_17_axi_clock_converter
+INFO: [VRFC 10-2263] Analyzing Verilog file "C:/Users/yanha/Desktop/严浩睿的珍藏学习资料/计算机组成原理/Cache实验/实验5/cache实验基础代码/cache_lab_v0.05/soc_axi_lite_loongson/rtl/xilinx_ip/axi_clock_converter/sim/axi_clock_converter.v" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module axi_clock_converter
+INFO: [VRFC 10-2263] Analyzing Verilog file "C:/Users/yanha/Desktop/严浩睿的珍藏学习资料/计算机组成原理/Cache实验/实验5/cache实验基础代码/cache_lab_v0.05/soc_axi_lite_loongson/rtl/myCPU/EX/alu.v" into library xil_defaultlib
+ERROR: [VRFC 10-3195] cannot open include file 'aludefines.vh' [C:/Users/yanha/Desktop/严浩睿的珍藏学习资料/计算机组成原理/Cache实验/实验5/cache实验基础代码/cache_lab_v0.05/soc_axi_lite_loongson/rtl/myCPU/EX/alu.v:1]
+INFO: [VRFC 10-311] analyzing module alu
+ERROR: [VRFC 10-3805] use of undefined macro 'ALU_AND' [C:/Users/yanha/Desktop/严浩睿的珍藏学习资料/计算机组成原理/Cache实验/实验5/cache实验基础代码/cache_lab_v0.05/soc_axi_lite_loongson/rtl/myCPU/EX/alu.v:73]
+ERROR: [VRFC 10-1412] syntax error near ) [C:/Users/yanha/Desktop/严浩睿的珍藏学习资料/计算机组成原理/Cache实验/实验5/cache实验基础代码/cache_lab_v0.05/soc_axi_lite_loongson/rtl/myCPU/EX/alu.v:73]
+ERROR: [VRFC 10-3805] use of undefined macro 'ALU_OR' [C:/Users/yanha/Desktop/严浩睿的珍藏学习资料/计算机组成原理/Cache实验/实验5/cache实验基础代码/cache_lab_v0.05/soc_axi_lite_loongson/rtl/myCPU/EX/alu.v:74]
+ERROR: [VRFC 10-1412] syntax error near ) [C:/Users/yanha/Desktop/严浩睿的珍藏学习资料/计算机组成原理/Cache实验/实验5/cache实验基础代码/cache_lab_v0.05/soc_axi_lite_loongson/rtl/myCPU/EX/alu.v:74]
+ERROR: [VRFC 10-3805] use of undefined macro 'ALU_NOR' [C:/Users/yanha/Desktop/严浩睿的珍藏学习资料/计算机组成原理/Cache实验/实验5/cache实验基础代码/cache_lab_v0.05/soc_axi_lite_loongson/rtl/myCPU/EX/alu.v:75]
+ERROR: [VRFC 10-1412] syntax error near ) [C:/Users/yanha/Desktop/严浩睿的珍藏学习资料/计算机组成原理/Cache实验/实验5/cache实验基础代码/cache_lab_v0.05/soc_axi_lite_loongson/rtl/myCPU/EX/alu.v:75]
+ERROR: [VRFC 10-3805] use of undefined macro 'ALU_XOR' [C:/Users/yanha/Desktop/严浩睿的珍藏学习资料/计算机组成原理/Cache实验/实验5/cache实验基础代码/cache_lab_v0.05/soc_axi_lite_loongson/rtl/myCPU/EX/alu.v:76]
+ERROR: [VRFC 10-1412] syntax error near ) [C:/Users/yanha/Desktop/严浩睿的珍藏学习资料/计算机组成原理/Cache实验/实验5/cache实验基础代码/cache_lab_v0.05/soc_axi_lite_loongson/rtl/myCPU/EX/alu.v:76]
+ERROR: [VRFC 10-3805] use of undefined macro 'ALU_ADD' [C:/Users/yanha/Desktop/严浩睿的珍藏学习资料/计算机组成原理/Cache实验/实验5/cache实验基础代码/cache_lab_v0.05/soc_axi_lite_loongson/rtl/myCPU/EX/alu.v:77]
+ERROR: [VRFC 10-1412] syntax error near ) [C:/Users/yanha/Desktop/严浩睿的珍藏学习资料/计算机组成原理/Cache实验/实验5/cache实验基础代码/cache_lab_v0.05/soc_axi_lite_loongson/rtl/myCPU/EX/alu.v:77]
+ERROR: [VRFC 10-3805] use of undefined macro 'ALU_ADDU' [C:/Users/yanha/Desktop/严浩睿的珍藏学习资料/计算机组成原理/Cache实验/实验5/cache实验基础代码/cache_lab_v0.05/soc_axi_lite_loongson/rtl/myCPU/EX/alu.v:78]
+ERROR: [VRFC 10-1412] syntax error near ) [C:/Users/yanha/Desktop/严浩睿的珍藏学习资料/计算机组成原理/Cache实验/实验5/cache实验基础代码/cache_lab_v0.05/soc_axi_lite_loongson/rtl/myCPU/EX/alu.v:78]
+ERROR: [VRFC 10-3805] use of undefined macro 'ALU_SUB' [C:/Users/yanha/Desktop/严浩睿的珍藏学习资料/计算机组成原理/Cache实验/实验5/cache实验基础代码/cache_lab_v0.05/soc_axi_lite_loongson/rtl/myCPU/EX/alu.v:79]
+ERROR: [VRFC 10-1412] syntax error near ) [C:/Users/yanha/Desktop/严浩睿的珍藏学习资料/计算机组成原理/Cache实验/实验5/cache实验基础代码/cache_lab_v0.05/soc_axi_lite_loongson/rtl/myCPU/EX/alu.v:79]
+ERROR: [VRFC 10-3805] use of undefined macro 'ALU_SUBU' [C:/Users/yanha/Desktop/严浩睿的珍藏学习资料/计算机组成原理/Cache实验/实验5/cache实验基础代码/cache_lab_v0.05/soc_axi_lite_loongson/rtl/myCPU/EX/alu.v:80]
+ERROR: [VRFC 10-1412] syntax error near ) [C:/Users/yanha/Desktop/严浩睿的珍藏学习资料/计算机组成原理/Cache实验/实验5/cache实验基础代码/cache_lab_v0.05/soc_axi_lite_loongson/rtl/myCPU/EX/alu.v:80]
+ERROR: [VRFC 10-3805] use of undefined macro 'ALU_SLT' [C:/Users/yanha/Desktop/严浩睿的珍藏学习资料/计算机组成原理/Cache实验/实验5/cache实验基础代码/cache_lab_v0.05/soc_axi_lite_loongson/rtl/myCPU/EX/alu.v:81]
+ERROR: [VRFC 10-1412] syntax error near ) [C:/Users/yanha/Desktop/严浩睿的珍藏学习资料/计算机组成原理/Cache实验/实验5/cache实验基础代码/cache_lab_v0.05/soc_axi_lite_loongson/rtl/myCPU/EX/alu.v:81]
+INFO: [#UNDEF] Sorry, too many errors..
+"xvhdl --incr --relax -prj tb_top_vhdl.prj"
+INFO: [VRFC 10-163] Analyzing VHDL file "C:/Users/yanha/Desktop/Cache/5/cache/cache_lab_v0.05/soc_axi_lite_loongson/run_vivado/mycpu_prj1/ref_cache/ref_cache.ip_user_files/ipstatic/hdl/fifo_generator_v13_2_rfs.vhd" into library fifo_generator_v13_2_3
+INFO: [VRFC 10-3107] analyzing entity 'input_blk'
+INFO: [VRFC 10-3107] analyzing entity 'output_blk'
+INFO: [VRFC 10-3107] analyzing entity 'shft_wrapper'
+INFO: [VRFC 10-3107] analyzing entity 'shft_ram'
+INFO: [VRFC 10-3107] analyzing entity 'wr_pf_as'
+INFO: [VRFC 10-3107] analyzing entity 'wr_pf_ss'
+INFO: [VRFC 10-3107] analyzing entity 'rd_pe_as'
+INFO: [VRFC 10-3107] analyzing entity 'rd_pe_ss'
+INFO: [VRFC 10-3107] analyzing entity 'synchronizer_ff'
+INFO: [VRFC 10-3107] analyzing entity 'delay'
+INFO: [VRFC 10-3107] analyzing entity 'bin_cntr'
+INFO: [VRFC 10-3107] analyzing entity 'clk_x_pntrs_builtin'
+INFO: [VRFC 10-3107] analyzing entity 'logic_builtin'
+INFO: [VRFC 10-3107] analyzing entity 'builtin_prim'
+INFO: [VRFC 10-3107] analyzing entity 'builtin_extdepth'
+INFO: [VRFC 10-3107] analyzing entity 'builtin_top'
+INFO: [VRFC 10-3107] analyzing entity 'reset_builtin'
+INFO: [VRFC 10-3107] analyzing entity 'builtin_prim_v6'
+INFO: [VRFC 10-3107] analyzing entity 'builtin_extdepth_v6'
+INFO: [VRFC 10-3107] analyzing entity 'builtin_extdepth_low_latency'
+INFO: [VRFC 10-3107] analyzing entity 'builtin_top_v6'
+INFO: [VRFC 10-3107] analyzing entity 'fifo_generator_v13_2_3_builtin'
+INFO: [VRFC 10-3107] analyzing entity 'bram_sync_reg'
+INFO: [VRFC 10-3107] analyzing entity 'bram_fifo_rstlogic'
+INFO: [VRFC 10-3107] analyzing entity 'reset_blk_ramfifo'
+INFO: [VRFC 10-3107] analyzing entity 'axi_reg_slice'
+INFO: [VRFC 10-3107] analyzing entity 'fifo_generator_top'
+INFO: [VRFC 10-3107] analyzing entity 'fifo_generator_v13_2_3_synth'
+INFO: [VRFC 10-163] Analyzing VHDL file "C:/Users/yanha/Desktop/Cache/5/cache/cache_lab_v0.05/soc_axi_lite_loongson/run_vivado/mycpu_prj1/ref_cache/ref_cache.ip_user_files/ipstatic/hdl/xbip_utils_v3_0_vh_rfs.vhd" into library xbip_utils_v3_0_9
+INFO: [VRFC 10-163] Analyzing VHDL file "C:/Users/yanha/Desktop/Cache/5/cache/cache_lab_v0.05/soc_axi_lite_loongson/run_vivado/mycpu_prj1/ref_cache/ref_cache.ip_user_files/ipstatic/hdl/xbip_pipe_v3_0_vh_rfs.vhd" into library xbip_pipe_v3_0_5
+INFO: [VRFC 10-3107] analyzing entity 'xbip_pipe_v3_0_5_viv'
+INFO: [VRFC 10-3107] analyzing entity 'xbip_pipe_v3_0_5'
+INFO: [VRFC 10-163] Analyzing VHDL file "C:/Users/yanha/Desktop/Cache/5/cache/cache_lab_v0.05/soc_axi_lite_loongson/run_vivado/mycpu_prj1/ref_cache/ref_cache.ip_user_files/ipstatic/hdl/xbip_bram18k_v3_0_vh_rfs.vhd" into library xbip_bram18k_v3_0_5
+INFO: [VRFC 10-3107] analyzing entity 'xbip_bram18k_synth'
+INFO: [VRFC 10-3107] analyzing entity 'xbip_bram18k_rtl'
+INFO: [VRFC 10-3107] analyzing entity 'xbip_bram18k_v3_0_5_viv'
+INFO: [VRFC 10-3107] analyzing entity 'xbip_bram18k_v3_0_5'
+INFO: [VRFC 10-163] Analyzing VHDL file "C:/Users/yanha/Desktop/Cache/5/cache/cache_lab_v0.05/soc_axi_lite_loongson/run_vivado/mycpu_prj1/ref_cache/ref_cache.ip_user_files/ipstatic/hdl/mult_gen_v12_0_vh_rfs.vhd" into library mult_gen_v12_0_14
+INFO: [VRFC 10-3107] analyzing entity 'op_resize'
+INFO: [VRFC 10-3107] analyzing entity 'delay_line'
+INFO: [VRFC 10-3107] analyzing entity 'cc_compare'
+INFO: [VRFC 10-3107] analyzing entity 'luts'
+INFO: [VRFC 10-3107] analyzing entity 'mult18'
+INFO: [VRFC 10-3107] analyzing entity 'dsp'
+INFO: [VRFC 10-3107] analyzing entity 'hybrid'
+INFO: [VRFC 10-3107] analyzing entity 'ccm_dist_mem'
+INFO: [VRFC 10-3107] analyzing entity 'ccm_sp_block_mem'
+INFO: [VRFC 10-3107] analyzing entity 'ccm_dp_block_mem'
+INFO: [VRFC 10-3107] analyzing entity 'ccm_syncmem'
+INFO: [VRFC 10-3107] analyzing entity 'ccm_scaled_adder'
+INFO: [VRFC 10-3107] analyzing entity 'ccm_operation'
+INFO: [VRFC 10-3107] analyzing entity 'ccm'
+INFO: [VRFC 10-3107] analyzing entity 'three_input_adder'
+INFO: [VRFC 10-3107] analyzing entity 'multmxn_lut6'
+INFO: [VRFC 10-3107] analyzing entity 'mult_gen_v12_0_14_viv'
+INFO: [VRFC 10-3107] analyzing entity 'mult_gen_v12_0_14'
+INFO: [VRFC 10-163] Analyzing VHDL file "C:/Users/yanha/Desktop/严浩睿的珍藏学习资料/计算机组成原理/Cache实验/实验5/cache实验基础代码/cache_lab_v0.05/soc_axi_lite_loongson/rtl/xilinx_ip/unsigned_mult/sim/unsigned_mult.vhd" into library xil_defaultlib
+INFO: [VRFC 10-3107] analyzing entity 'unsigned_mult'
+INFO: [VRFC 10-163] Analyzing VHDL file "C:/Users/yanha/Desktop/严浩睿的珍藏学习资料/计算机组成原理/Cache实验/实验5/cache实验基础代码/cache_lab_v0.05/soc_axi_lite_loongson/rtl/xilinx_ip/signed_mult/sim/signed_mult.vhd" into library xil_defaultlib
+INFO: [VRFC 10-3107] analyzing entity 'signed_mult'
+run_program: Time (s): cpu = 00:00:00 ; elapsed = 00:00:15 . Memory (MB): peak = 847.293 ; gain = 0.000
+INFO: [USF-XSim-69] 'compile' step finished in '14' seconds
+INFO: [USF-XSim-99] Step results log file:'C:/Users/yanha/Desktop/Cache/5/cache/cache_lab_v0.05/soc_axi_lite_loongson/run_vivado/mycpu_prj1/ref_cache/ref_cache.sim/sim_1/behav/xsim/xvlog.log'
+ERROR: [USF-XSim-62] 'compile' step failed with error(s). Please check the Tcl console output or 'C:/Users/yanha/Desktop/Cache/5/cache/cache_lab_v0.05/soc_axi_lite_loongson/run_vivado/mycpu_prj1/ref_cache/ref_cache.sim/sim_1/behav/xsim/xvlog.log' file for more information.
+ERROR: [Vivado 12-4473] Detected error while running simulation. Please correct the issue and retry this operation.
+launch_simulation: Time (s): cpu = 00:00:01 ; elapsed = 00:00:18 . Memory (MB): peak = 847.293 ; gain = 0.000
+ERROR: [Common 17-39] 'launch_simulation' failed due to earlier errors.
 exit
-INFO: [Common 17-206] Exiting Vivado at Thu Oct 29 12:19:37 2020...
+INFO: [Common 17-206] Exiting Vivado at Sun Jun  7 14:15:16 2026...

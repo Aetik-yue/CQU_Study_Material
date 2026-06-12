@@ -1,0 +1,460 @@
+﻿<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>实验5 Cache设计与验收讲解</title>
+  <style>
+    :root {
+      --bg: #f6f7f9;
+      --panel: #ffffff;
+      --text: #1f2933;
+      --muted: #5d6876;
+      --border: #d8dee8;
+      --accent: #1d4ed8;
+      --accent-soft: #e8f0ff;
+      --ok: #0f766e;
+      --warn: #a16207;
+      --danger: #b42318;
+      --code-bg: #111827;
+      --code-text: #e5e7eb;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Microsoft YaHei", "Segoe UI", Arial, sans-serif;
+      color: var(--text);
+      background: var(--bg);
+      line-height: 1.72;
+    }
+    .layout {
+      display: grid;
+      grid-template-columns: 280px minmax(0, 1fr);
+      min-height: 100vh;
+    }
+    nav {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow: auto;
+      padding: 24px 18px;
+      background: #172033;
+      color: #eef2ff;
+      border-right: 1px solid #0f172a;
+    }
+    nav h1 {
+      margin: 0 0 16px;
+      font-size: 20px;
+      line-height: 1.35;
+    }
+    nav .meta {
+      color: #bac6d8;
+      font-size: 13px;
+      margin-bottom: 18px;
+    }
+    nav a {
+      display: block;
+      color: #dbe7ff;
+      text-decoration: none;
+      padding: 7px 8px;
+      border-radius: 6px;
+      font-size: 14px;
+    }
+    nav a:hover { background: rgba(255,255,255,0.1); }
+    main {
+      max-width: 1080px;
+      width: 100%;
+      padding: 34px 42px 80px;
+    }
+    section {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 26px 30px;
+      margin-bottom: 20px;
+      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+    }
+    h2 {
+      margin: 0 0 16px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid var(--accent-soft);
+      color: #13213a;
+      font-size: 24px;
+    }
+    h3 {
+      margin: 24px 0 8px;
+      color: #18345d;
+      font-size: 18px;
+    }
+    p { margin: 9px 0; }
+    ul, ol { margin: 8px 0 8px 24px; padding: 0; }
+    li { margin: 4px 0; }
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      margin: 12px 0 18px;
+      background: #fff;
+    }
+    th, td {
+      border: 1px solid var(--border);
+      padding: 9px 10px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { background: #eef3fb; }
+    code {
+      font-family: Consolas, "Cascadia Mono", monospace;
+      background: #eef1f5;
+      border: 1px solid #d9dee8;
+      padding: 1px 5px;
+      border-radius: 4px;
+      font-size: 0.94em;
+    }
+    pre {
+      background: var(--code-bg);
+      color: var(--code-text);
+      padding: 14px 16px;
+      border-radius: 8px;
+      overflow: auto;
+      line-height: 1.5;
+      font-size: 14px;
+    }
+    pre code { background: transparent; border: 0; color: inherit; padding: 0; }
+    .note, .tip, .warn, .answer {
+      border-left: 5px solid var(--accent);
+      background: var(--accent-soft);
+      padding: 12px 14px;
+      border-radius: 6px;
+      margin: 12px 0;
+    }
+    .tip { border-left-color: var(--ok); background: #e8f7f4; }
+    .warn { border-left-color: var(--warn); background: #fff7e6; }
+    .answer { border-left-color: #6d5bd0; background: #f0edff; }
+    .danger { color: var(--danger); font-weight: 700; }
+    .flow {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 10px;
+      margin: 12px 0;
+    }
+    .box {
+      border: 1px solid var(--border);
+      background: #fafcff;
+      border-radius: 8px;
+      padding: 12px;
+      min-height: 64px;
+    }
+    .box strong { display: block; color: #17345c; margin-bottom: 4px; }
+    .qa h3 {
+      border-top: 1px solid var(--border);
+      padding-top: 16px;
+    }
+    .kbd {
+      display: inline-block;
+      border: 1px solid #b7c0cd;
+      background: #fff;
+      border-radius: 4px;
+      padding: 0 6px;
+      font-family: Consolas, monospace;
+      font-size: 0.9em;
+    }
+    @media (max-width: 900px) {
+      .layout { grid-template-columns: 1fr; }
+      nav { position: static; height: auto; }
+      main { padding: 20px 14px 60px; }
+      section { padding: 20px 16px; }
+    }
+  </style>
+</head>
+<body>
+<div class="layout">
+  <nav>
+    <h1>实验5 Cache设计与验收讲解</h1>
+    <div class="meta">面向初学者 / 明天验收复习版</div>
+    <a href="#goal">1. 实验要做什么</a>
+    <a href="#spec">2. 本次实现规格</a>
+    <a href="#address">3. 地址拆分</a>
+    <a href="#interface">4. 类SRAM握手</a>
+    <a href="#modules">5. 模块关系</a>
+    <a href="#icache">6. 指令Cache</a>
+    <a href="#dcache">7. 数据Cache</a>
+    <a href="#write">8. 字节写与dirty</a>
+    <a href="#saved">9. saved信号</a>
+    <a href="#top">10. 上板顶层</a>
+    <a href="#verify">11. 验证结果</a>
+    <a href="#speak">12. 口头讲解顺序</a>
+    <a href="#qa">13. 助教问答</a>
+    <a href="#summary">14. 一分钟总结</a>
+  </nav>
+
+  <main>
+    <section id="goal">
+      <h2>1. 实验要做什么</h2>
+      <p>这个实验的核心任务是：在实验包给好的 CPU / SoC 环境中，用 Verilog 实现 Cache 模块，让 CPU 的取指和数据访存请求先经过 Cache，再访问下一级存储。</p>
+      <div class="note">
+        <strong>一句话：</strong>Cache 位于 CPU 和内存之间，命中时直接返回数据，缺失时再去访问内存，从而减少慢速内存访问次数。
+      </div>
+      <p>实验包已经给好了 MIPS CPU、类 SRAM 到 AXI 的转换桥、RAM、外设和仿真环境。我们主要补全 Cache 部分。</p>
+      <pre><code>CPU / MIPS core
+   |-- cpu_inst_*  取指接口
+   |-- cpu_data_*  数据读写接口
+        |
+      cache.v
+        |-- i_cache.v  指令Cache
+        |-- d_cache.v  数据Cache
+        |
+   cache_inst_* / cache_data_* 访问下一级存储</code></pre>
+    </section>
+
+    <section id="spec">
+      <h2>2. 本次实现规格</h2>
+      <table>
+        <tr><th>项目</th><th>指令 Cache</th><th>数据 Cache</th></tr>
+        <tr><td>文件</td><td><code>i_cache.v</code></td><td><code>d_cache.v</code></td></tr>
+        <tr><td>结构</td><td>直接映射</td><td>直接映射</td></tr>
+        <tr><td>容量</td><td>4KB</td><td>4KB</td></tr>
+        <tr><td>Cache line 大小</td><td>1 word = 4字节</td><td>1 word = 4字节</td></tr>
+        <tr><td>行数</td><td>1024行</td><td>1024行</td></tr>
+        <tr><td>tag / index / offset</td><td>20 / 10 / 2 bit</td><td>20 / 10 / 2 bit</td></tr>
+        <tr><td>写策略</td><td>无写操作</td><td>写回 write-back</td></tr>
+        <tr><td>写缺失策略</td><td>无写操作</td><td>写分配 write-allocate</td></tr>
+      </table>
+      <div class="tip">
+        验收时先说“我做的是 4KB、直接映射、1 word 一行的 Cache”，助教基本就能知道你理解了设计规模。
+      </div>
+    </section>
+
+    <section id="address">
+      <h2>3. 地址如何拆分</h2>
+      <p>32位地址被拆成 <code>tag</code>、<code>index</code>、<code>offset</code> 三部分。</p>
+      <pre><code>31          12 11          2 1      0
++-------------+-------------+--------+
+|     tag     |    index    | offset |
++-------------+-------------+--------+
+    20 bit        10 bit      2 bit</code></pre>
+      <ul>
+        <li><code>offset</code>：一行是 1 个 word，4 字节，所以低 2 位表示字节偏移。</li>
+        <li><code>index</code>：4KB / 4B = 1024 行，所以需要 10 位。</li>
+        <li><code>tag</code>：32 位地址剩下 20 位。</li>
+      </ul>
+      <div class="answer">
+        <strong>直接映射怎么判断命中：</strong>先用 index 找到唯一一行，再看这一行 valid 是否为 1，并且 tag 是否等于请求地址的 tag。
+      </div>
+      <pre><code>hit = cache_valid[index] && (cache_tag[index] == tag)</code></pre>
+    </section>
+
+    <section id="interface">
+      <h2>4. 类 SRAM 握手接口</h2>
+      <p>CPU 侧和内存侧都使用类似 SRAM 的握手接口。以读请求为例：</p>
+      <table>
+        <tr><th>信号</th><th>方向</th><th>含义</th></tr>
+        <tr><td><code>req</code></td><td>请求方发出</td><td>请求有效</td></tr>
+        <tr><td><code>addr</code></td><td>请求方发出</td><td>访问地址</td></tr>
+        <tr><td><code>addr_ok</code></td><td>接收方返回</td><td>地址已经被接收</td></tr>
+        <tr><td><code>data_ok</code></td><td>接收方返回</td><td>读数据有效，或写操作完成</td></tr>
+        <tr><td><code>rdata</code></td><td>接收方返回</td><td>读出的数据</td></tr>
+      </table>
+      <div class="note">
+        <strong>验收说法：</strong>CPU 发 <code>req</code>，Cache 用 <code>addr_ok</code> 接收请求；如果命中，Cache 很快用 <code>data_ok</code> 返回；如果缺失，Cache 再向下一级存储发 <code>cache_*_req</code>，等下一级返回 <code>cache_*_data_ok</code> 后再返回 CPU。
+      </div>
+    </section>
+
+    <section id="modules">
+      <h2>5. 模块关系</h2>
+      <p><code>cache.v</code> 只是一个总包装，它内部实例化两个子模块：</p>
+      <pre><code>cache.v
+  |-- i_cache：处理 CPU 取指请求，只读
+  |-- d_cache：处理 CPU 数据访问，读写都有</code></pre>
+      <p>这样分开做的原因：</p>
+      <ul>
+        <li>CPU 本来就有独立的指令接口和数据接口。</li>
+        <li>指令 Cache 只读，不需要 dirty 和写回，逻辑简单。</li>
+        <li>数据 Cache 需要处理 load/store、字节写、写回和替换，单独写更清楚。</li>
+      </ul>
+    </section>
+
+    <section id="icache">
+      <h2>6. 指令 Cache 怎么做</h2>
+      <h3>内部保存什么</h3>
+      <pre><code>cache_valid[index]：这一行是否有效
+cache_tag[index]  ：这一行对应的 tag
+cache_block[index]：这一行保存的 32 位指令</code></pre>
+      <h3>状态机</h3>
+      <div class="flow">
+        <div class="box"><strong>S_IDLE</strong>等待 CPU 取指请求，判断是否命中。</div>
+        <div class="box"><strong>命中</strong>直接返回 <code>cache_block[index]</code>。</div>
+        <div class="box"><strong>缺失</strong>保存地址信息，进入 <code>S_REFILL</code>。</div>
+        <div class="box"><strong>S_REFILL</strong>向下一级存储读数据，返回 CPU 并填入 Cache。</div>
+      </div>
+      <p>指令 Cache 不需要 dirty 位，因为 CPU 不会通过取指接口修改指令 Cache 内容。</p>
+      <div class="answer">
+        <strong>口头回答：</strong>指令 Cache 是只读直接映射 Cache。命中时直接返回，缺失时从下一级存储取一个 word，返回 CPU 的同时写入 Cache，并更新 valid 和 tag。
+      </div>
+    </section>
+
+    <section id="dcache">
+      <h2>7. 数据 Cache 怎么做</h2>
+      <p>数据 Cache 要处理读和写，所以比指令 Cache 多了 <code>dirty</code> 位。</p>
+      <pre><code>cache_valid[index]：这一行是否有效
+cache_dirty[index]：这一行是否被 CPU 修改过但未写回
+cache_tag[index]  ：这一行对应的 tag
+cache_block[index]：这一行保存的数据</code></pre>
+      <h3>状态机</h3>
+      <div class="flow">
+        <div class="box"><strong>S_IDLE</strong>等待 CPU load/store，判断命中。</div>
+        <div class="box"><strong>S_WRITEBACK</strong>缺失且旧行 dirty 时，先把旧行写回内存。</div>
+        <div class="box"><strong>S_REFILL</strong>从内存读新数据，填入 Cache。</div>
+      </div>
+      <h3>四种情况</h3>
+      <table>
+        <tr><th>情况</th><th>处理</th></tr>
+        <tr><td>读命中</td><td>直接返回 <code>cache_block[index]</code>，不访问内存。</td></tr>
+        <tr><td>写命中</td><td>合并写数据到 Cache，<code>dirty = 1</code>，不马上写内存。</td></tr>
+        <tr><td>读缺失</td><td>如果旧行 dirty 先写回，再从内存读新数据并填入 Cache。</td></tr>
+        <tr><td>写缺失</td><td>写分配：先读入新块，再合并 CPU 写数据，填入 Cache，dirty 置 1。</td></tr>
+      </table>
+    </section>
+
+    <section id="write">
+      <h2>8. 字节写、半字写和 dirty</h2>
+      <h3>为什么需要 merge</h3>
+      <p>CPU 可能执行 <code>sb</code>、<code>sh</code>、<code>sw</code>，分别写 1 字节、2 字节、4 字节。但 Cache 中一行是 32 位 word。写 1 字节时，不能把整个 word 覆盖掉。</p>
+      <pre><code>旧数据：32'h11223344
+地址低两位：2'b01
+写 1 字节：8'hAA
+结果：32'h1122AA44</code></pre>
+      <p>所以代码中用 <code>merge_write_data</code> 根据 <code>size</code> 和 <code>addr[1:0]</code> 生成字节掩码，只改对应字节。</p>
+      <h3>dirty 位的意义</h3>
+      <p>本设计是写回策略。写命中时只修改 Cache，不立刻修改内存，所以 Cache 和内存暂时不一致，需要设置 dirty 位。以后这行被替换时，再写回内存。</p>
+      <div class="tip">
+        <strong>写回地址：</strong>被替换的旧行地址由 <code>{victim_tag, saved_index, 2'b00}</code> 拼出来。不能用新地址，因为要写回的是旧 Cache line。
+      </div>
+    </section>
+
+    <section id="saved">
+      <h2>9. saved 信号为什么重要</h2>
+      <p>Cache 缺失不是一个周期完成的。CPU 请求被接收后，请求信号可能撤掉，但后续 writeback/refill 还需要知道原请求的信息，所以必须保存。</p>
+      <table>
+        <tr><th>信号</th><th>作用</th></tr>
+        <tr><td><code>saved_wr</code></td><td>保存原请求是读还是写。</td></tr>
+        <tr><td><code>saved_size</code></td><td>保存写大小，支持字节/半字/字写。</td></tr>
+        <tr><td><code>saved_addr</code></td><td>保存原访问地址。</td></tr>
+        <tr><td><code>saved_wdata</code></td><td>保存 CPU 要写的数据。</td></tr>
+        <tr><td><code>saved_tag</code> / <code>saved_index</code></td><td>保存新数据填入 Cache 的位置。</td></tr>
+        <tr><td><code>victim_tag</code> / <code>victim_data</code></td><td>保存被替换的旧行，用于 dirty 写回。</td></tr>
+      </table>
+      <div class="answer">
+        <strong>验收回答：</strong>缺失处理要跨多个周期，如果不锁存请求信息，后续状态就不知道原来要访问哪个地址、写什么数据、写几个字节。
+      </div>
+    </section>
+
+    <section id="top">
+      <h2>10. 为什么要加板级顶层 cache_board_top</h2>
+      <p>之前直接把 <code>cache</code> 设为 Vivado 顶层时，Place 阶段报错 IO 超限：</p>
+      <pre><code>IO Placement failed due to overutilization.
+This design contains 373 I/O ports while the target device contains only 210 available user I/O.</code></pre>
+      <p>原因是：<code>cache</code> 是 SoC 内部模块，有 CPU 侧和内存侧大量内部接口。如果把它当 FPGA 顶层，Vivado 会以为这些接口都要接到真实引脚上。</p>
+      <p>解决方式是添加 <code>cache_board_top.v</code>：</p>
+      <ul>
+        <li>只暴露真实板级 IO：<code>clk</code>、<code>rst</code>、<code>led[15:0]</code>。</li>
+        <li>内部实例化 <code>cache</code>。</li>
+        <li>内部用一个小状态机模拟 CPU 请求和内存响应，对 Cache 做自测。</li>
+      </ul>
+      <table>
+        <tr><th>LED</th><th>含义</th></tr>
+        <tr><td>LED0</td><td>自测完成</td></tr>
+        <tr><td>LED1</td><td>自测通过</td></tr>
+        <tr><td>LED[7:2]</td><td>错误码低位</td></tr>
+        <tr><td>LED[15:8]</td><td>状态和错误码高位</td></tr>
+      </table>
+      <div class="warn">
+        板级 bitstream 验证的是 Cache 自测外壳，不是完整 SoC 上板。完整 SoC 正确性通过 trace 仿真验证。
+      </div>
+    </section>
+
+    <section id="verify">
+      <h2>11. 验证结果</h2>
+      <h3>Cache 单元测试</h3>
+      <p>测试文件：<code>D:\Vivado\project\project_5\sim\tb_cache_unit.v</code></p>
+      <ul>
+        <li>指令 Cache 第一次读缺失，会访问内存。</li>
+        <li>指令 Cache 第二次读同地址命中，不再访问内存。</li>
+        <li>数据 Cache 读缺失、写命中、dirty 命中、dirty 替换写回均被测试。</li>
+      </ul>
+      <pre><code>TB_PASS</code></pre>
+      <h3>SoC trace 仿真</h3>
+      <pre><code>shell1 test begin.
+dgemm PASS!
+----PASS!!!</code></pre>
+      <h3>Vivado bitstream</h3>
+      <table>
+        <tr><th>项目</th><th>结果</th></tr>
+        <tr><td>目标器件</td><td><code>xc7a100tcsg324-1</code></td></tr>
+        <tr><td>顶层</td><td><code>cache_board_top</code></td></tr>
+        <tr><td>bit 文件</td><td><code>D:\Vivado\project\project_5\bit\cache_board_top.bit</code></td></tr>
+        <tr><td>DRC</td><td>0 Errors</td></tr>
+        <tr><td>时序</td><td>All user specified timing constraints are met</td></tr>
+        <tr><td>WNS</td><td>4.299 ns</td></tr>
+      </table>
+    </section>
+
+    <section id="speak">
+      <h2>12. 验收时建议讲解顺序</h2>
+      <ol>
+        <li>实验要做 CPU 和内存之间的 Cache。</li>
+        <li>我把 Cache 分成 <code>i_cache</code> 和 <code>d_cache</code>。</li>
+        <li>两个 Cache 都是 4KB 直接映射，1 word 一行。</li>
+        <li>地址拆成 tag/index/offset，index 找行，tag 判断命中。</li>
+        <li>指令 Cache 只读，命中直接返回，缺失 refill。</li>
+        <li>数据 Cache 是写回策略，有 dirty 位。</li>
+        <li>命中写只改 Cache 并置 dirty；替换 dirty 行时先 writeback。</li>
+        <li>字节写通过 merge 函数只修改对应字节。</li>
+        <li>验证包括单元测试、SoC trace 仿真、Vivado bitstream。</li>
+        <li>之前 IO 超限是顶层选错，已用 <code>cache_board_top</code> 解决。</li>
+      </ol>
+    </section>
+
+    <section id="qa" class="qa">
+      <h2>13. 助教可能问的问题和回答</h2>
+      <h3>Q1：什么是直接映射 Cache？</h3>
+      <p>一个内存块只能映射到 Cache 中唯一一行，这一行由 index 决定。访问时用 index 找行，再比较 tag 判断是不是目标地址。</p>
+      <h3>Q2：为什么需要 tag？</h3>
+      <p>很多不同地址可能有相同 index，会映射到同一行。tag 用来区分这一行当前保存的是哪个内存块。</p>
+      <h3>Q3：为什么需要 valid 位？</h3>
+      <p>复位后 Cache 内容无效，即使 tag 碰巧相等也不能算命中。valid 表示这一行是否保存了合法数据。</p>
+      <h3>Q4：为什么数据 Cache 需要 dirty 位？</h3>
+      <p>因为采用写回策略。写命中只修改 Cache，不马上写内存，所以 dirty 用来标记“Cache 中数据比内存新”。替换前必须写回。</p>
+      <h3>Q5：写回和写直达有什么区别？</h3>
+      <p>写直达每次写 Cache 都同时写内存；写回只在 dirty 行被替换时写内存。写回减少内存写次数，但需要 dirty 位和写回状态。</p>
+      <h3>Q6：什么是写分配？</h3>
+      <p>写缺失时先把目标地址所在内存块读入 Cache，再在 Cache 中完成写操作。本设计的数据 Cache 使用写分配。</p>
+      <h3>Q7：指令 Cache 为什么没有 dirty 位？</h3>
+      <p>指令 Cache 只处理取指读请求，不处理写请求，所以不会出现 Cache 被 CPU 修改但内存没更新的情况。</p>
+      <h3>Q8：缺失时为什么要保存 saved_addr、saved_wdata？</h3>
+      <p>缺失处理要多个周期，CPU 请求信号不一定一直保持。保存后，状态机后续仍知道原来的地址、写数据和写大小。</p>
+      <h3>Q9：写回旧行时地址怎么生成？</h3>
+      <p>用旧 tag、当前 index 和 2 位 0 offset 拼出：<code>{victim_tag, saved_index, 2'b00}</code>。不能用新地址，因为写回的是被替换的旧行。</p>
+      <h3>Q10：addr_ok 和 data_ok 有什么区别？</h3>
+      <p><code>addr_ok</code> 表示请求地址被接收；<code>data_ok</code> 表示读数据有效或写操作完成。两者可能不是同一周期。</p>
+      <h3>Q11：命中时为什么可以马上 data_ok？</h3>
+      <p>命中时数据已经在 Cache 内部，不需要访问下一级存储，所以可以直接返回。</p>
+      <h3>Q12：字节写为什么不能直接覆盖整个 word？</h3>
+      <p>因为 <code>sb</code> 或 <code>sh</code> 只修改部分字节，其他字节必须保留。直接覆盖会破坏不该修改的数据。</p>
+      <h3>Q13：为什么 Vivado 之前 IO 超限？</h3>
+      <p>因为把内部模块 <code>cache</code> 当成 FPGA 顶层，Vivado 把它的 CPU 侧和内存侧接口全当外部引脚，超过芯片 IO 数量。改用 <code>cache_board_top</code> 后只暴露时钟、复位和 LED，就能实现。</p>
+      <h3>Q14：怎么证明 Cache 是正确的？</h3>
+      <p>单元测试验证命中、缺失、字节写、dirty 写回；SoC trace 仿真跑完测试程序并 PASS；Vivado 对板级顶层完成 bitstream，DRC 0 错误且时序满足。</p>
+      <h3>Q15：这个设计有什么局限？</h3>
+      <p>直接映射冲突缺失较多；一行只有 1 个 word，空间局部性利用少；没有实现组相联、LRU 或 AXI burst。这些可以作为后续优化方向。</p>
+    </section>
+
+    <section id="summary">
+      <h2>14. 一分钟口头总结</h2>
+      <div class="answer">
+        本实验实现了 CPU 和下一级存储之间的 Cache 模块。我的 <code>cache.v</code> 分成 <code>i_cache</code> 和 <code>d_cache</code>。两者都是 4KB 直接映射 Cache，一行 1 个 word，地址拆成 20 位 tag、10 位 index 和 2 位 offset。指令 Cache 只读，命中直接返回，缺失进入 refill 从内存取数并填入 Cache。数据 Cache 采用写回和写分配策略，命中读直接返回，命中写只修改 Cache 并置 dirty；缺失时如果旧行 dirty，先 writeback，再 refill。字节写通过 <code>merge_write_data</code> 按 size 和地址低两位只改对应字节。工程通过了 Cache 单元测试、SoC trace 仿真和 Vivado bitstream 生成。之前 IO 超限是因为把内部 <code>cache</code> 当顶层了，后来加了 <code>cache_board_top</code> 板级自测顶层，只暴露时钟、复位和 LED，所以可以在 <code>xc7a100tcsg324-1</code> 上生成 bitstream。
+      </div>
+    </section>
+  </main>
+</div>
+</body>
+</html>
