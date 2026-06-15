@@ -80,6 +80,8 @@ vish_stacktrace.vstf
 *.key
 *.pem
 .env
+.env.local
+
 
 # ========================
 # 大文件 (>50MB，GitHub 限制)
