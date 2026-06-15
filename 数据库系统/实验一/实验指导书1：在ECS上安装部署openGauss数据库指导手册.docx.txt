@@ -1,0 +1,770 @@
+﻿《数据库》
+在ECS上安装部署openGauss数据库指导手册
+华为技术有限公司
+目录
+前言2
+简介2
+内容描述2
+前置条件2
+实验环境说明3
+实验概览4
+1 openGauss数据库安装5
+1.1 实验介绍5
+1.1.1 关于本实验5
+1.1.2 实验目的5
+1.2 购买弹性云服务器ECS（openEuler ARM操作系统）5
+1.2.1 登录华为云5
+1.2.2 购买弹性云服务器ECS6
+1.3 修改操作系统配置11
+1.3.1 连接服务器11
+1.3.2 设置字符集参数12
+1.3.3 修改python版本并安装libaio包12
+1.4 安装openGauss数据库13
+1.4.1 下载数据库安装包13
+1.4.2 创建XML配置文件14
+1.4.3 初始化安装环境16
+1.4.4 执行安装19
+1.4.5 安装生成的目录20
+2 数据库使用22
+2.1 前提条件22
+2.2 操作步骤22
+附录一：Linux操作系统相关命令25
+附录二：openGauss数据库基本操作35
+前  言
+简介
+openGauss是关系型数据库，采用客户端/服务器，单进程多线程架构，支持单机和一主多备部署方式，备机可读，支持双机高可用和读扩展。
+本实验主要描述openGauss数据库在弹性云服务器（操作系统为openEuler）上单机安装部署。
+内容描述
+本实验主要内容为弹性云服务器（操作系统为openEuler）上单机安装部署openGauss数据库，并进行简单的数据库相关操作。
+前置条件
+由于本实验主要是在openEuler操作系统上进行openGauss数据库的部署，因此需要掌握Linux系统的基本操作和系统命令，详细请参见附录一。
+实验环境说明
+组网说明
+本实验环境为华为云环境，需要购买弹性云服务器。
+设备介绍
+为了满足openGauss安装部署实验需要，建议每套实验环境采用以下配置：
+配置明细表
+软件类型
+软件版本
+Linux操作系统
+openEuler 20.3 LTS
+Python
+Python 3.7.X
+实验概览
+本实验概览图
+openGauss数据库安装
+实验介绍
+关于本实验
+本实验主要描述openGauss数据库在openEuler弹性云服务器上单机安装部署。
+实验目的
+了解openGauss数据库部署方式；
+掌握openGauss数据库安装部署方法。
+购买弹性云服务器ECS（openEuler ARM操作系统）
+登录华为云
+进入华为云官网。
+华为云官网：https://www.huaweicloud.com/，进入华为云官网，单击登录。
+输入账号名和密码，单击登录。
+如果还没有注册，单击免费注册，按步骤注册后进行登录。
+购买弹性云服务器ECS
+在华为云主页（https://www.huaweicloud.com/）点击产品，选择＂精选推荐＂下的＂计算＂，再选择＂弹性云服务器ECS＂。
+③③②②
+③
+③
+②
+②
+进入弹性云服务器ECS购买界面。
+自定义购买进行基础配置。
+ECS基础配置
+配置选项
+配置值
+计费模式
+按需计费（一定要选按需计费，注意配置费用）
+区域
+华北-北京四（推荐，其他区域可能会导致无法选择openEuler公共镜像）
+CPU架构
+鲲鹏计算
+规格
+最新系列 2vCPUs|4GiB
+镜像
+公共镜像：
+openEuler
+openEuler 20.03 64bit with ARM(40GB)
+其余默认即可，单击＂下一步网络配置＂。
+自定义购买进行网路配置。
+ECS网络配置
+配置选项
+配置值
+网络
+vpc-default（192.168.0.0/16）（选现有默认网络即可）
+弹性公网IP
+现在购买
+公网带宽
+按流量计费
+带宽大小
+5
+其余默认即可，单击＂下一步高级配置＂。
+自定义购买进行高级配置。
+记住用户名为root，然后输入自定义密码和确认密码，其余默认即可，单击＂下一步确认设置＂。
+确认配置购买成功。
+确认设置信息，尤其是配置费用，然后勾选协议＂我已经阅读并同意《镜像免责声明》＂，点击立即购买。
+查看云服务器列表。
+状态列显示＂运行中＂，则表示购买成功！
+注意：本次购买鲲鹏服务器价格为公测价格，具体价格以华为云官网为准。
+修改操作系统配置
+连接服务器
+方式一：
+单击服务列表上的＂远程登录＂按钮进行登录，具体如下：
+单击＂CloudShell登录＂，等加载完成后，输入root用户密码后点击＂连接＂按钮即可登录。
+方式二：
+使用SSH工具（比如：PuTTY等）从本地电脑通过配置弹性云服务器的弹性公网IP地址（如：124.70.222.222）来连接ECS，并使用root用户来登录。
+设置字符集参数
+将各数据库节点的字符集设置为相同的字符集，可以在/etc/profile文件中添加＂export LANG=XXX＂（XXX为Unicode编码）。
+在/etc/profile文件中添加＂export LANG= en_US.UTF‐8＂。
+[root@ecs-c9bf ~]# cat >>/etc/profile<<EOF
+export LANG=en_US.UTF‐8
+EOF
+输入如下命令，使配置修改生效。
+[root@ecs-c9bf ~]# source /etc/profile
+修改python版本并安装libaio包
+之后安装过程中openGauss用户互信，openEuler服务器需要用到Python-3.7.x命令，但是默认Python版本为Python-2.7.x，所以需要切换Python版本。
+进入/usr/bin目录。
+[root@ecs-c9bf ~]# cd /usr/bin
+备份python文件。
+[root@ecs-c9bf bin] # mv python python.bak
+建立Python3软连接。
+[root@ecs-c9bf bin] # ln -s python3 /usr/bin/python
+验证Python版本。
+[root@ecs-c9bf bin] # python -V
+显示如下，即为Python版本切换成功：
+Python 3.7.4
+Python版本切换成功，后续安装需要libaio包，下载进行安装。
+[root@ecs-c9bf ~]# yum install libaio* -y
+安装openGauss数据库
+下载数据库安装包
+以root用户登录待安装openGauss的主机，并按规划创建存放安装包的目录。
+[root@ecs-c9bf bin]# mkdir -p /opt/software/openGauss[root@ecs-c9bf bin]# chmod 755 -R /opt/software
+注：
+不建议把安装包的存放目录规划到openGauss用户的home目录或其子目录下，可能导致权限问题。
+openGauss安装用户omm须具有/opt/software/openGauss目录的读写权限。
+下载数据库安装包到安装目录。
+切换到安装目录：
+[root@ecs-c9bf bin]# cd /opt/software/openGauss
+使用wget下载安装包：
+[root@ecs-c9bf openGauss]# wget  https://opengauss.obs.cn-south-1.myhuaweicloud.com/2.0.0/arm/openGauss-2.0.0-openEuler-64bit-all.tar.gz
+注：https://opengauss.obs.cn-south-1.myhuaweicloud.com/2.0.0/arm/openGauss-2.0.0-openEuler-64bit-all.tar.gz是数据库安装包下载网址，输入时不需要进行换行。
+下载成功显示如下：
+……
+2021-06-14 13:57:23 (9.33 MB/s) - ‘openGauss-2.0.0-openEuler-64bit-all.tar.gz’ saved [58468915/58468915]
+创建XML配置文件
+安装openGauss前需要创建XML文件。XML文件包含部署openGauss的服务器信息、安装路径、IP地址以及端口号等。用于告知openGauss如何部署。用户需根据不同场合配置对应的XML文件。
+以单节点配置的方案为例，说明如何创建XML配置文件。
+以root用户登录待安装openGauss的主机，切换到存放安装包的目录。
+[root@ecs-c9bf bin]# cd /opt/software/openGauss
+创建XML配置文件，用于数据库安装。
+[root@ecs-c9bf openGauss]# vi  clusterconfig.xml
+输入＂i＂进入INSERT模式，添加文本如下。
+红色加粗字体内容为示例，可自行替换，其中＂ecs-c9bf＂是弹性云服务器的名称，＂192.168.0.58＂为弹性云服务器的IP地址（私有），其他value值可以不进行修改。
+弹性云服务器名称及私有IP查看：
+<?xml version="1.0" encoding="UTF-8"?>
+<ROOT>
+<CLUSTER>
+<PARAM name="clusterName" value="dbCluster" />
+<PARAM name="nodeNames" value="ecs-c9bf" />
+<PARAM name="backIp1s" value="192.168.0.58"/>
+<PARAM name="gaussdbAppPath" value="/opt/gaussdb/app" />
+<PARAM name="gaussdbLogPath" value="/var/log/gaussdb" />
+<PARAM name="gaussdbToolPath" value="/opt/huawei/wisequery" />
+<PARAM name="corePath" value="/opt/opengauss/corefile"/>
+<PARAM name="clusterType" value="single-inst"/>
+</CLUSTER>
+<DEVICELIST>
+<DEVICE sn="1000001">
+<PARAM name="name" value="ecs-c9bf"/>
+<PARAM name="azName" value="AZ1"/>
+<PARAM name="azPriority" value="1"/>
+<PARAM name="backIp1" value="192.168.0.58"/>
+<PARAM name="sshIp1" value="192.168.0.58"/>
+<!--dbnode-->
+<PARAM name="dataNum" value="1"/>
+<PARAM name="dataPortBase" value="26000"/>
+<PARAM name="dataNode1" value="/gaussdb/data/db1"/>
+</DEVICE>
+</DEVICELIST>
+</ROOT>
+点击＂Esc＂退出INSERT模式，然后输入＂:wq＂后回车退出编辑并保存文本。
+配置文件参数附加说明
+参数
+说明
+clusterName
+openGauss名称。
+nodeNames
+openGauss中主机名称。
+backIp1s
+主机在后端存储网络中的IP地址（内网IP）。所有openGauss主机使用后端存储网络通讯。
+gaussdbAppPath
+openGauss程序安装目录。此目录应满足如下要求：
+•磁盘空间>1GB。
+•与数据库所需其它路径相互独立，没有包含关系。
+gaussdbLogPath
+openGauss运行日志和操作日志存储目录。此目录应满足如下要求：
+•磁盘空间建议根据主机上的数据库节点数规划。数据库节点预留1GB空间的基础上，再适当预留冗余空间。
+•与openGauss所需其它路径相互独立，没有包含关系。
+此路径可选。不指定的情况下，openGauss安装时会默认指定＂$GAUSSLOG/安装用户名＂作为日志目录。
+tmpdbPath
+数据库临时文件存放目录。
+若不配置tmpdbPath，默认存放在/opt/huawei/wisequery/perfadm_db目录下。
+gaussdbToolPath
+openGauss系统工具目录，主要用于存放互信工具等。此目录应满足如下要求：
+•磁盘空间>100MB。
+•固定目录，与数据库所需其它目录相互独立，没有包含关系。
+此目录为可选配置项。不指定的情况下，openGauss安装时会默认指定＂/opt/huawei/wisequery＂作为数据库系统工具目录。
+corePath
+openGauss core文件的指定目录。
+须知：
+＂/opt/huawei/newsql/tools＂存放互信等工具，避免权限问题，不要把实例数据目录放在此目录下。
+安装目录和数据目录须为空或者不存在，否则可能导致安装失败。
+在对数据库节点的实例进行具体配置时，需确保配置的目录之间不相互耦合。即各个配置目录不关联，删除其中任意一个目录，不会级联删除其它目录。如gaussdbAppPath为＂/opt/gaussdb/app＂，gaussdbLogPath为＂/opt/gaussdb/app/omm＂。当gaussdbAppPath目录被删除时，会级联删除gaussdbLogPath目录，从而引起其它问题。
+若需要安装脚本自动创建安装用户时，各配置的目录需保证不与系统创建的默认用户目录耦合关联。
+配置openGauss路径和实例路径时，路径中不能包含＂|＂,＂;＂,＂&＂,＂$＂,＂<＂,＂>＂,＂`＂,＂\\＂,＂'＂,＂\＂,＂{＂,＂}＂,＂(＂,＂)＂,＂[＂,＂]＂,＂~＂,＂*＂,＂?＂特殊字符。
+初始化安装环境
+为了保证openGauss的正确安装，请首先对主机环境进行配置。
+准备安装用户及环境
+创建完openGauss配置文件后，在执行安装前，为了后续能以最小权限进行安装及openGauss管理操作，保证系统安全性，需要运行安装前置脚本gs_preinstall，准备好安装用户及环境。
+前提条件
+已完成安装准备的所有任务。
+注意事项
+用户需要检查上层目录权限，保证安装用户对安装包和配置文件目录读写执行的权限；
+xml文件中主机的名称与IP映射配置正确；
+只能使用root用户执行gs_preinstall命令。
+操作步骤
+修改performance.sh文件。
+使用vi打开文件＂/etc/profile.d/performance.sh＂，具体如下：
+[root@ecs-c9bf openGauss]# vi /etc/profile.d/performance.sh
+输入＂i＂，进入INSERT模式。用#注释sysctl -w vm.min_free_kbytes=112640 &> /dev/null这行内容。
+CPUNO=`cat /proc/cpuinfo|grep processor|wc -l`
+export GOMP_CPU_AFFINITY=0-$[CPUNO - 1]
+#sysctl -w vm.min_free_kbytes=112640 &> /dev/null
+sysctl -w vm.dirty_ratio=60 &> /dev/null
+sysctl -w kernel.sched_autogroup_enabled=0 &> /dev/null
+按＂Esc＂键，退出INSERT模式，接着输入＂:wq＂后回车，保存退出。
+为确保openssl版本正确，执行预安装前加载安装包中lib库。
+执行命令如下，其中packagePath为用户安装包放置的路径，本示例中为/opt/software/openGauss。
+[root@ecs-c9bf openGauss]# vi /etc/profile
+输入i，进入INSERT模式，在文件的底部添加如下代码，加载安装包中lib库。按下＂Esc＂退出INSERT模式，输入＂:wq＂后回车，保存后退出。
+export packagePath=/opt/software/openGauss
+export LD_LIBRARY_PATH=$packagePath/script/gspylib/clib:$LD_LIBRARY_PATH
+配置完成后，使设置生效。
+[root@ecs-c9bf openGauss]# source /etc/profile
+在安装包所在的目录下，解压安装包。
+[root@ecs-c9bf openGauss]# cd /opt/software/openGauss
+解压openGauss-2.0.0-openEuler-64bit-all.tar.gz包。
+[root@ecs-c9bf openGauss]# tar -zxvf  openGauss-2.0.0-openEuler-64bit-all.tar.gz
+解压openGauss-2.0.0-openEuler-64bit-om.tar.gz包。
+[root@ecs-c9bf openGauss]# tar -zxvf  openGauss-2.0.0-openEuler-64bit-om.tar.gz
+解压后，执行ls命令查看内容如下：
+[root@ecs-c9bf openGauss]#ls
+clusterconfig.xml                           openGauss-Package-bak_392c0438.tar.gz
+lib                                         script
+openGauss-2.0.0-openEuler-64bit-all.tar.gz  simpleInstall
+openGauss-2.0.0-openEuler-64bit-om.sha256   upgrade_sql.sha256
+openGauss-2.0.0-openEuler-64bit-om.tar.gz   upgrade_sql.tar.gz
+openGauss-2.0.0-openEuler-64bit.sha256      version.cfg
+openGauss-2.0.0-openEuler-64bit.tar.bz2
+安装包解压后，会在/opt/software/openGauss路径下自动生成script子目录，并且在script目录下生成gs_preinstall等各种OM工具脚本。
+使用gs_preinstall准备好安装环境，切换到gs_preinstall命令所在目录。
+[root@ecs-c9bf openGauss]# cd /opt/software/openGauss/script/
+执行ls命令查看script中内容。
+[root@ecs-c9bf script]# ls
+gs_backup   gs_checkperf  gs_om             gspylib      gs_uninstall   __init__.py
+gs_check    gs_collector  gs_postuninstall  gs_ssh       gs_upgradectl  killall
+gs_checkos  gs_install    gs_preinstall    gs_sshexkey  impl           local
+采用交互模式执行，并在执行过程中会创建openGauss omm用户互信：
+[root@ecs-c9bf script]# python gs_preinstall -U omm -G dbgrp -X /opt/software/openGauss/clusterconfig.xml
+命令中的omm为操作系统用户（同时omm也是openGauss的数据库管理员账号，在下面的1.4.4环节中会创建），dbgrp为运行openGauss的操作系统用户的群组名称，/opt/software/openGauss/clusterconfig.xml为openGauss配置文件路径。
+在执行过程中，用户根据提示选择是否创建互信，填写 yes。
+此时会创建操作系统omm用户，并对omm创建trust互信，并要求设置密码，设置为Admin@123（建议用户自定义设置密码）。
+Are you sure you want to create the user[omm] and create trust for it (yes/no)? yes
+Please enter password for cluster user.
+Password: --说明：此处输入密码时，屏幕上不会有任何反馈，不用担心，这是LINUX操作系统对密码的保护.
+Please enter password for cluster user again.
+Password: --说明：此处输入密码时，屏幕上不会有任何反馈，不用担心，这是LINUX操作系统对密码的保护.
+Successfully created [omm] user on all nodes.
+成功后显示为：
+……
+Setting finish flag.
+Successfully set finish flag.
+Preinstallation succeeded.
+执行安装
+执行前置脚本准备好openGauss安装环境之后，按照启动安装过程部署openGauss。
+前提条件
+已成功执行前置脚本gs_preinstall；
+服务器操作系统和网络均正常运行。
+操作步骤
+修改文件权限。
+[root@ecs-c9bf script]# chmod -R 755 /opt/software/openGauss/script
+登录到openGauss的主机，并切换到omm用户。
+[root@ecs-c9bf script]# su - omm
+注：
+omm指的是前置脚本gs_preinstall中-U参数指定的用户。
+安装脚本gs_install必须以前置脚本中指定的omm执行，否则，脚本执行会报错。
+使用gs_install安装openGauss。
+执行以下命令进行安装
+gs_install -X /opt/software/openGauss/clusterconfig.xml --gsinit-parameter="--encoding=UTF8"  --dn-guc="max_process_memory=4GB"  --dn-guc="shared_buffers=256MB" --dn-guc="bulk_write_ring_size=256MB" --dn-guc="cstore_buffers=16MB"
+参数说明如下：
+Encoding：设置字符集；
+max_process_memory：设置一个数据库节点可用的最大物理内存；
+shared_buffers：设置openGauss使用的共享内存大小；
+bulk_write_ring_size：大批量数据写入触发时，该操作使用的环形缓冲区大小；
+cstore_buffers：设置列存所使用的共享缓冲区的大小。
+具体执行如下：
+[omm@ecs-c9bf ~]$ gs_install -X /opt/software/openGauss/clusterconfig.xml --gsinit-parameter="--encoding=UTF8"  --dn-guc="max_process_memory=4GB"  --dn-guc="shared_buffers=256MB" --dn-guc="bulk_write_ring_size=256MB" --dn-guc="cstore_buffers=16MB"
+/opt/software/ openGauss/clusterconfig.xml为openGauss配置文件的路径。在执行过程中，用户需根据提示输入数据库管理员omm用户的密码，密码具有一定的复杂度，为保证用户正常使用该数据库，请记住输入的数据库密码。
+按照设置密码要求，设置密码为GaussDB@123（建议用户自定义设置复杂密码）：
+encrypt cipher and rand files for database.
+Please enter password for database:    --说明：此处输入密码时，屏幕上不会有任何反馈
+Please repeat for database:--说明：此处输入密码时，屏幕上不会有任何反馈
+begin to create CA cert files
+设置的密码要符合复杂度要求：
+最少包含8个字符；
+不能和用户名和当前密码（ALTER）相同，或和当前密码反序；
+至少包含大写字母（A-Z），小写字母（a-z），数字，非字母数字字符（限定为~!@#$%^&*()-_=+\|[{}];:,<.>/?）四类字符中的三类字符。
+显示如下内容即为安装成功。
+……
+Successfully deleted instances from all nodes.
+Checking node configuration on all nodes.
+Initializing instances on all nodes.
+Updating instance configuration on all nodes.
+Check consistence of memCheck and coresCheck on database nodes.
+Configuring pg_hba on all nodes.
+Configuration is completed.
+Successfully started cluster.
+Successfully installed application.
+end deploy..
+安装生成的目录
+安装后的目录及各目录下的文件说明请参见下表。
+安装后的目录及各目录下的文件说明
+序号
+项目目录说明
+目录
+子目录
+说明
+1
+集群openGauss安装目录
+/opt/gaussdb/app
+etc
+cgroup工具配置文件。
+include
+存放数据库运行所需要的头文件。
+lib
+存放数据库的库文件的目录。
+share
+存放数据库运行所需要的公共文件，如配置文件模板。
+2
+集群openGauss数据目录
+/gaussdb/data
+data_dnxxx
+DBnode实例的数据目录，其中主实例的目录名为＂data_dnxxx＂，
+备实例的为data_dnSxxx。xxx代表DBnode编号。
+3
+集群openGauss日志目录
+/var/log/gaussdb/用户名
+bin
+二进制程序的日志目录。
+gs_profile
+数据库内核性能日志目录。
+om
+OM的日志目录。例如：
+部分local脚本产生的日志，增删数据库节点接口的日志，gs_om接口的日志，前置接口的日志，节点替换接口的日志等。
+pg_audit
+数据库审计日志目录。
+pg_log
+数据库节点实例的运行日志目录。
+4
+集群openGauss系统工具目录
+/opt/huawei/wisequery
+script
+用于openGauss用户进行openGauss管理的脚本文件。
+lib
+bin目录下的二进制文件依赖的库文件。
+数据库使用
+本节描述使用数据库的基本操作。通过此节您可以完成创建数据库、创建表及向表中插入数据和查询表中数据等操作。
+前提条件
+openGauss正常运行。
+由于本实验是对openGauss数据库的基本使用，需要掌握openGauss数据库的基本操作和SQL语法，openGauss数据库支持SQL2003标准语法，数据库基本操作参见附录二。
+操作步骤
+在数据库主节点服务器上，切换至omm操作系统用户环境。
+[root@ecs-c9bf script]# su - omm
+查看服务是否启动。
+[omm@ecs-9a68 ~]$ gs_om -t status
+-----------------------------------------------------------------------
+cluster_state   : Normal
+redistributing  : No
+-----------------------------------------------------------------------
+启动数据库服务（可选操作，如未启动，请按此步骤启动）。
+[omm@ecs-c9bf ~]$ gs_om -t start
+Starting cluster.
+=========================================
+=========================================
+Successfully started.
+连接数据库。
+[omm@ecs-c9bf ~]$ gsql -d postgres -p 26000 -r
+当结果显示为如下信息，则表示连接成功。
+gsql ((openGauss 2.0.0 build 290d125f) compiled at 2021-03-31 02:59:43 commit 2143 last mr 131 Non-SSL connection (SSL connection is recommended when requiring high-security) Type "help" for help. postgres=#
+postgres为openGauss安装完成后默认生成的数据库，初始可以连接到此数据库进行新数据库的创建，26000为数据库主节点的端口号，需根据openGauss的实际情况做替换。
+说明：
+使用数据库前，需先使用客户端程序或工具连接到数据库，然后就可以通过客户端程序或工具执行SQL来使用数据库了。
+gsql是openGauss数据库提供的命令行方式的数据库连接工具。
+（可选）修改数据库omm用户密码，新密码假设修改为Bigdata@123（建议用户自定义密码）。
+postgres=# alter role omm identified by 'Bigdata@123' replace 'GaussDB@123';
+注意：alter role omm identified by '新密码' replace '原密码';
+显示如下信息即为修改成功：
+ALTER ROLE
+创建数据库用户。
+默认只有openGauss安装时创建的管理员用户可以访问初始数据库，您还可以创建其他数据库用户帐号。
+postgres=# CREATE USER joe WITH PASSWORD "Bigdata@123";
+当结果显示为如下信息，则表示创建成功。
+CREATE ROLE
+如上创建了一个用户名为joe，密码为Bigdata@123的用户。
+创建数据库。
+postgres=# CREATE DATABASE db_tpcc OWNER joe;
+当结果显示为如下信息，则表示创建成功。
+CREATE DATABASE
+使用新用户连接到此数据库执行接下来的创建表等操作。当然，也可以选择继续在默认的postgres数据库下做后续的体验。
+退出postgres数据库。
+postgres=#  \q
+使用新用户连接到此数据库。
+[omm@ecs-c9bf ~]$gsql -d db_tpcc -p 26000 -U joe -W Bigdata@123  -r
+当结果显示为如下信息，则表示连接成功。
+gsql ((openGauss 2.0.0 build 290d125f) compiled at 2021-03-31 02:59:43 commit 2143 last mr 131 Non-SSL connection (SSL connection is recommended when requiring high-security) Type "help" for help. db_tpcc=>
+创建名为joe的SCHEMA，并设置joe为当前的schema。
+db_tpcc=> CREATE SCHEMA joe AUTHORIZATION joe;
+当结果显示为如下信息，则表示创建SCHEMA成功。
+CREATE SCHEMA
+将默认搜索路径设为joe。
+db_tpcc =>SET search_path TO joe;
+创建表。
+创建一个名称为mytable，只有一列的表，字段名为firstcol，字段类型为integer。
+db_tpcc=>  CREATE TABLE mytable (firstcol int);
+CREATE TABLE
+向表中插入数据。
+db_tpcc=> INSERT INTO mytable values (100);
+当结果显示为如下信息，则表示插入数据成功。
+INSERT 0 1
+0：表示OID，1：表示插入的条数。
+查看表中数据。
+db_tpcc=> SELECT * from mytable;  firstcol  ----------       100 (1 row)
+本实验结束。
+附录一：Linux操作系统相关命令
+Linux中的命令格式为：command [options] [arguments] 中括号表示可选的，即有些命令不需要选项也不需要参数，但有的命令在运行时需要多个选项或参数。
+options(选项)：选项是调整命令执行行为的开关，选项的不同决定了命令的显示结果不同。
+agruments(参数)：参数是指命令的作用对象。
+vi/vim
+文本编辑器，若文件存在则是编辑，若不存在则是创建并编辑文本。
+命令语法：
+vim  [参数]
+参数说明：可编辑的文件名。
+命令示例：
+编辑名为clusterconfig的xml文本。
+vim clusterconfig.xml
+注：
+vim编辑器有以下三种模式：
+正常模式：其它模式下按Esc或Ctrl+[进入，左下角显示文件名或为空。
+插入模式：正常模式下按i键进入，左下角显示--INSERT--。
+可视模式：正常模式下按v键进入，左下角显示--VISUAL--。
+退出命令（正常模式下）：
+:wq 保存并退出。
+:q! 强制退出并忽略所有更改。
+:e! 放弃所有修改，并打开原有文件。
+cd
+显示当前目录的名称，或切换当前的目录（打开指定目录）。
+命令语法：
+cd [参数]
+参数说明：
+无参数：切换用户当前目录。
+. ：表示当前目录。
+.. ：表示上一级目录。
+~ ：表示home目录。
+/ ：表示根目录。
+命令示例：
+切换到usr目录下的bin目录中。
+cd /usr/bin
+切换到用户home目录。
+cd
+切换到当前目录(cd后面接一个.)。
+cd .
+切换到当前目录上一级目录(cd后面接两个.)。
+cd ..
+切换到用户home目录。
+cd ~
+切换到根目录下。
+cd /
+注：切换目录需要理解绝对路径和相对路径这两个概念。
+绝对路径：在Linux中，绝对路径是从/（即根目录）开始的，例如 /opt/software、/etc/profile, 如果目录以 / 就是绝对目录。
+相对路径：是以 . 或 .. 开始的目录。 . 表示用户当前操作所在的位置，而 .. 表示上级目录。例如 ./gs_om 表示当前目录下的文件或者目录。
+mv
+文件或目录改名(move (rename) files)或将文件或目录移入其它位置，经常用来备份文件或者目录。
+命令语法：
+mv [选项] 参数1  参数2
+常用选项：
+-b：若需覆盖文件，则覆盖前先行备份。
+参数说明：
+参数1：源文件或目录。
+参数2：目标文件或目录。
+命令示例：
+将文件python重命名为python.bak。
+mv python python.bak
+将/physical/backup目录下的所有文件和目录移到/data/dbn1目录下。
+mv  /physical/backup/*  /data/dbn1
+curl
+在Linux中curl是一个利用URL规则在命令行下工作的文件传输工具。支持文件的上传和下载，是综合传输工具。
+命令语法：
+curl [选项] [URL]
+常用选项：
+-A/--user-agent <string>：设置用户代理发送给服务器；
+-C/--continue-at <offset>：断点续转；
+-D/--dump-header <file>：把header信息写入到该文件中；
+-e/--referer：来源网址；
+-o/--output：把输出写到该文件中；
+-O/--remote-name：把输出写到该文件中，保留远程文件的文件名；
+-s/--silent：静默模式。不输出任何东西；
+-T/--upload-file <file>：上传文件；
+-u/--user <user[:password]>：设置服务器的用户和密码；
+-x/--proxy <host[:port]>：在给定的端口上使用HTTP代理；
+-#/--progress-bar：进度条显示当前的传送状态。
+参数说明：
+URL：指定的文件传输URL地址。
+命令示例：
+将url(https://mirrors.huaweicloud.com/repository/conf/CentOS-7-anon.repo)的内容保存到/etc/yum.repos.d/CentOS-Base.repo文件中。
+curl -o /etc/yum.repos.d/CentOS-Base.repohttps://mirrors.huaweicloud.com/repository/conf/CentOS-7-anon.repo
+如果在传输过程中掉线，可以使用-C的方式进行续传。
+curl -C -O https://mirrors.huaweicloud.com/repository/conf/CentOS-7-anon.repo
+yum
+Shell 前端软件包管理器。基于 RPM 包管理，能够从指定的服务器自动下载 RPM 包并且安装，可以自动处理依赖性关系，并且一次安装所有依赖的软体包，无须繁琐地一次次下载和安装。
+命令语法：
+yum [options] [command] [package ...]
+常用选项：
+-h：查看帮助；
+-y：当安装过程提示选择全部为 "yes"；
+-q：不显示安装的过程。
+参数说明：
+command：要进行的操作；
+package：安装的包名。
+命令示例：
+列出所有可更新的软件清单命令。
+yum check-update
+更新所有软件命令。
+yum update
+列出所有可安装的软件清单命令。
+yum list
+安装指定的软件。
+yum install -y libaio-devel flex bison ncurses-devel glibc.devel patch lsb_release wget python3
+wget
+wget是Linux下下载文件的最常用命令。wget支持HTTP，HTTPS和FTP协议，支持自动下载,即可以在用户退出系统后在后台执行,直到下载结束。
+命令语法：
+wget [选项] [URL]
+常用选项:
+-c：接着下载没下载完的文件；
+-b：启动后转入后台执行；
+-P：指定下载目录；
+-O：变更下载文件名；
+--ftp-user --ftp-password：使用FTP用户认证下载。
+参数说明：
+指定的文件下载URL地址。
+命令示例：
+下载openGauss数据库安装文件到当前文件夹。
+wget https://opengauss.obs.cn-south-1.myhuaweicloud.com/1.1.0/x86/openGauss-1.1.0-CentOS-64bit.tar.gz
+使用wget断点续传。
+wget –c https://opengauss.obs.cn-south-1.myhuaweicloud.com/1.1.0/x86/openGauss-1.1.0-CentOS-64bit.tar.gz
+ln
+为某一个文件在另外一个位置建立一个同步的链接（软硬链接，不带选项为硬链接）。
+当需要在不同的目录，用到相同的文件时，就不需要在每一个需要的目录下都放一个必须相同的文件，我们只要在某个固定的目录，放上该文件，然后在其它的目录下用ln命令链接（link）它就可以，不必重复的占用磁盘空间。
+命令语法：
+ln [选项] 参数1 参数2
+常用选项：
+-b  --删除，覆盖以前建立的链接；
+-d  --允许超级用户制作目录的硬链接；
+-s  --软链接(符号链接)。
+参数说明：
+参数1：源文件或目录。
+参数2：被链接的文件或目录。
+命令示例：
+为python3文件创建软链接/usr/bin/python，如果python3丢失，/usr/bin/python将失效。
+ln -s python3 /usr/bin/python
+为python3创建硬链接/usr/bin/python，python3与/usr/bin/python的各项属性相同。
+ln python3 /usr/bin/python
+mkdir
+创建指定的名称的目录，要求创建目录的用户在当前目录中具有写权限，并且指定的目录名不能是当前目录中已有的目录。
+命令语法：
+mkdir [选项] [参数]
+常用选项：
+-p --可以是一个路径名称。此时若路径中的某些目录尚不存在,加上此选项后,系统将自动建立好那些尚不存在的目录,即一次可以建立多个目录（递归）；
+-v --每次创建新目录都显示信息；
+-m --设定权限<模式> (类似chmod)，而不是rwxrwxrwx减umask。
+参数说明：
+需要创建的目录。
+命令示例：
+创建一个空目录。
+mkdir test
+递归创建多个目录。
+mkdir -p /opt/software/openGauss
+创建权限为777的目录（目录的权限为rwxrwxrwx）：
+mkdir –m 777 test
+chmod
+更改文件权限。
+命令语法：
+chmod [选项] <mode> <file...>
+常用选项：
+-R, --以递归的方式对目前目录下的所有文件与子目录进行相同的权限变更。
+参数说明：
+mode：权限设定字串，详细格式如下 。
+[ugoa...][[+-=][rwxX]...][,...]，
+其中，[ugoa...]：u 表示该档案的拥有者，g 表示与该档案的拥有者属于同一个群体(group)者，o 表示其他以外的人，a 表示所有（包含上面三者）；[+-=]：+ 表示增加权限，- 表示取消权限，= 表示唯一设定权限；[rwxX]：r 表示可读取，w 表示可写入，x 表示可执行，X表示只有当该档案是个子目录或者该档案已经被设定过为可执行。
+file：文件列表（单个或者多个文件、文件夹）。
+命令示例：
+设置所有用户可读取文件 cluterconfig.xml。
+chmod ugo+r cluterconfig.xml
+或
+chmod a+r  cluterconfig.xml
+设置当前目录下的所有档案与子目录皆设为任何人可读写。
+chmod -R a+rw *
+数字权限使用格式：
+这种使用方式中，规定数字4、2和1表示读、写、执行权限，即r=4,w=2,x=1。
+例：rwx = 7（4+2+1）；rw = 6（4+2）；r-x = 5 （4+0+1）；r-- = 4（4+0+0）；--x = 1（0+0+1）；
+每个文件都可以针对三个粒度，设置不同的rwx(读写执行)权限。即我们可以用三个8进制数字分别表示 拥有者 、群组 、其它组( u、 g 、o)的权限详情，并用chmod直接加三个8进制数字的方式直接改变文件权限。语法格式为。
+chmod <abc> file...
+其中，a，b，c各为一个数字，分别代表User、Group、及Other的权限，相当于简化版的chmod u=权限,g=权限,o=权限 file...，而此处的权限将用8进制的数字来表示User、Group、及Other的读、写、执行权限。
+命令示例：
+赋予cluterconfig.xml文件可读可写可执行权限（所有权限）。
+chmod 777 cluterconfig.xml
+赋予/opt/software/openGauss目录下所有文件及其子目录 用户所有权限组可读可执行权限，其他用户可读可执行权限。
+chmod  R 755 /opt/software/openGauss
+chown
+利用 chown 将指定文件的拥有者改为指定的用户或组，用户可以是用户名或者用户ID；组可以是组名或者组ID；文件是以空格分开的要改变权限的文件列表，支持通配符。只有系统管理者(root)才有这样的权限。使用权限 :root。
+命令语法：
+chown [选项] user[:group] file...
+常用选项:
+-c : 显示更改的部分的信息；
+-f : 忽略错误信息；
+-R : 处理指定目录以及其子目录下的所有文件。
+参数说明
+user : 新的文件拥有者的使用者 ID。
+group : 新的文件拥有者的使用者组(group)。
+flie：文件。
+命令示例：
+将文件 file1.txt 的拥有者设为omm，群体的使用者dbgrp。
+chown omm:dbgrp /opt/software/openGauss/clusterconfig.xml
+将目前目录下的所有文件与子目录的拥有者皆设为omm，群体的使用者dbgrp。
+chown -R omm:dbgrp *
+ls
+列出文件和目录的内容。
+命令语法：
+ls [选项] [参数]
+常用选项：
+-l --以长格式显示，列出文件的详细信息，如创建者，创建时间，文件的读写权限列表等等；
+-a --列出文件下所有的文件，包括以"."和".."开头的隐藏文件 （Linux下文件隐藏文件是以 .开头的，如果存在 .. 代表存在着父目录）；
+-d --列出目录本身而非目录内的文件，通常要与-l一起使用；
+-R --同时列出所有子目录层，与-l相似，只是不显示出文件的所有者，相当于编程中的＂递归＂实现；
+-t --按照时间进行文件的排序，Time（时间）；
+-s --在每个文件的后面打印出文件的大小，size（大小）；
+-S --以文件的大小进行排序。
+参数说明：
+目录或文件。
+命令示例：
+以长格式列出当前目录中的文件及目录。
+ls -l
+cp
+复制文件或者目录。
+命令语法：
+cp [选项] 参数1 参数2
+常用选项：
+-f --如果目标文件无法打开则将其移除并重试(当 -n 选项存在时则不需再选此项)；
+-n --不要覆盖已存在的文件(使前面的 -i 选项失效)；
+-I --覆盖前询问(使前面的 -n 选项失效)；
+-p --保持指定的属性(默认：模式，所有权，时间戳)，如果可能保持附加属性：环境、链接、xattr 等；
+-R,-r --复制目录及目录内的所有项目。
+参数说明：
+参数1：源文件。
+参数2：目标文件。
+命令示例：
+将home目录中的abc文件复制到opt目录下。
+cp /home/abc /opt
+注：目标文件存在时，会询问是否覆盖。这是因为cp是cp -i的别名。目标文件存在时，即使加了-f标志，也还会询问是否覆盖。
+rm
+删除一个目录中的一个或多个文件或目录，它也可以将某个目录及其下的所有文件及子目录均删除。对于链接文件，只是删除了链接，原有文件均保持不变。
+rm是一个危险的命令，使用的时候要特别当心，否则整个系统就会毁在这个命令（比如在/（根目录）下执行rm * rf）。所以，我们在执行rm之前最好先确认一下在哪个目录，到底要删除什么东西，操作时保持高度清醒的头脑。
+命令语法：
+rm [选项] 文件
+常用选项：
+-f --忽略不存在的文件，从不给出提示；
+-r --指示rm将参数中列出的全部目录和子目录均递归地删除。
+参数说明：
+需要删除的文件或目录。
+命令示例：
+删除文件。
+rm qwe
+注：输入rm qwe命令后，系统会询问是否删除，输入y后就会删除文件，不想删除文件则输入n。
+强制删除某个文件。
+rm-rf clusterconfig.log
+cat
+连接文件并在标准输出上输出。这个命令常用来显示文件内容，或者将几个文件连接起来显示，或者从标准输入读取内容并显示，它常与重定向符号配合使用。
+命令语法：
+cat [选项] [参数]
+常用选项：
+-E --在每行结束显示$；
+-n –由1开始对给所有输出行编号；
+-b 或 --number-nonblank：和 -n 相似，只不过对于空白行不编号；
+-v --使用 ^ 和 M- 符号，除了 LFD 和 TAB 之外。
+参数说明：
+可操作的文件名。
+命令示例:
+显示testfile文件的内容。
+cat textfile
+把 textfile1 和 textfile2 的文档内容加上行号（空白行不加）之后将内容追加到 textfile3 文档里。
+cat -b textfile1 textfile2 >> textfile3
+向/etc/profile中追加内容（输入EOF表示结束追加）。
+cat >>/etc/profile<<EOF
+>export LD_LIBRARY_PATH=$packagePath/script/gspylib/clib:$LD_LIBRARY_PATH
+>EOF
+注：
+EOF是end of file的缩写，表示＂文字流＂（stream）的结尾。＂文字流＂可以是文件（file），也可以是标准输入（stdin）。在Linux系统之中，EOF是当系统读取到文件结尾，所返回的一个信号值（也就是-1）。
+附录二：openGauss数据库基本操作
+查看数据库对象
+查看帮助信息。
+postgres=# \?
+切换数据库。
+postgres=# \c dbname
+列举数据库。
+使用\l元命令查看数据库系统的数据库列表。
+postgres=# \l
+使用如下命令通过系统表pg_database查询数据库列表。
+postgres=# SELECT datname FROM pg_database;
+列举表。
+postgres=# \dt
+列举所有表、视图和索引。
+postgres=# \d+
+使用gsql的\d+命令查询表的属性。
+postgres=# \d+ tablename
+查看表结构。
+postgres=# \d tablename
+列举schema。
+postgres=# \dn
+查看索引。
+postgres=# \di
+查询表空间。
+使用gsql程序的元命令查询表空间。
+postgres=# \db
+检查pg_tablespace系统表。如下命令可查到系统和用户定义的全部表空间。
+postgres=# SELECT spcname FROM pg_tablespace;
+查看数据库用户列表。
+postgres=# SELECT * FROM pg_user;
+查看用户属性。
+postgres=# SELECT * FROM pg_authid;
+查看所有角色。
+postgres=# SELECT * FROM PG_ROLES;
+其他操作
+查看openGauss支持的所有SQL语句。
+postgres=#\h
+切换用户。
+postgres=# \c – username
+退出数据库。
+postgres=# \q

@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>企业员工管理系统</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: "Microsoft YaHei", "PingFang SC", sans-serif; background: #f0f2f5; color: #333; }
+    .header { background: linear-gradient(135deg, #1a73e8, #1557b0); color: #fff; padding: 16px 24px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 8px rgba(0,0,0,.15); }
+    .header h1 { font-size: 20px; }
+    .header .stats { display: flex; gap: 20px; font-size: 14px; }
+    .header .stats span { background: rgba(255,255,255,.15); padding: 4px 12px; border-radius: 12px; }
+
+    .nav { background: #fff; padding: 0 24px; display: flex; gap: 0; border-bottom: 1px solid #e0e0e0; }
+    .nav button { padding: 14px 24px; border: none; background: none; cursor: pointer; font-size: 14px; color: #666; border-bottom: 2px solid transparent; transition: all .2s; }
+    .nav button:hover { color: #1a73e8; }
+    .nav button.active { color: #1a73e8; border-bottom-color: #1a73e8; font-weight: bold; }
+
+    .main { max-width: 1200px; margin: 24px auto; padding: 0 24px; }
+    .panel { background: #fff; border-radius: 8px; box-shadow: 0 1px 4px rgba(0,0,0,.08); padding: 24px; }
+
+    .toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; gap: 12px; flex-wrap: wrap; }
+    .toolbar input, .toolbar select { padding: 8px 12px; border: 1px solid #d0d0d0; border-radius: 6px; font-size: 14px; }
+    .btn { padding: 8px 16px; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 500; transition: all .2s; }
+    .btn-primary { background: #1a73e8; color: #fff; }
+    .btn-primary:hover { background: #1557b0; }
+    .btn-success { background: #0d904f; color: #fff; }
+    .btn-success:hover { background: #0a7a42; }
+    .btn-danger { background: #d93025; color: #fff; }
+    .btn-danger:hover { background: #b3261e; }
+    .btn-warning { background: #f9ab00; color: #333; }
+    .btn-warning:hover { background: #e09500; }
+    .btn-sm { padding: 4px 10px; font-size: 12px; }
+
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 10px 12px; text-align: left; border-bottom: 1px solid #eee; font-size: 13px; }
+    th { background: #f8f9fa; font-weight: 600; color: #555; }
+    tr:hover { background: #f5f8ff; }
+    .actions { display: flex; gap: 6px; }
+
+    .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,.4); z-index: 1000; justify-content: center; align-items: center; }
+    .modal-overlay.show { display: flex; }
+    .modal { background: #fff; border-radius: 12px; padding: 24px; width: 90%; max-width: 520px; max-height: 80vh; overflow-y: auto; box-shadow: 0 8px 32px rgba(0,0,0,.2); }
+    .modal h3 { margin-bottom: 16px; font-size: 18px; }
+    .form-group { margin-bottom: 12px; }
+    .form-group label { display: block; font-size: 13px; color: #666; margin-bottom: 4px; font-weight: 500; }
+    .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 8px 12px; border: 1px solid #d0d0d0; border-radius: 6px; font-size: 14px; }
+    .form-group textarea { resize: vertical; min-height: 60px; }
+    .form-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 16px; }
+
+    .empty { text-align: center; padding: 40px; color: #999; }
+
+    .toast { position: fixed; top: 20px; right: 20px; background: #0d904f; color: #fff; padding: 12px 20px; border-radius: 8px; z-index: 2000; display: none; box-shadow: 0 4px 12px rgba(0,0,0,.2); }
+    .toast.error { background: #d93025; }
+    .toast.show { display: block; animation: fadeIn .3s; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+
+    .chart-bar { display: flex; align-items: end; gap: 2px; height: 200px; margin-top: 16px; }
+    .chart-bar .bar { flex: 1; background: linear-gradient(180deg, #1a73e8, #4285f4); border-radius: 4px 4px 0 0; position: relative; min-width: 40px; }
+    .chart-bar .bar span { position: absolute; bottom: -20px; left: 50%; transform: translateX(-50%); font-size: 10px; white-space: nowrap; }
+    .chart-bar .bar .val { position: absolute; top: -18px; left: 50%; transform: translateX(-50%); font-size: 12px; font-weight: bold; }
+  </style>
+</head>
+<body>
+<div class="header">
+  <h1>企业员工管理系统</h1>
+  <div class="stats" id="stats"></div>
+</div>
+
+<div class="nav">
+  <button class="active" data-tab="dashboard">仪表盘</button>
+  <button data-tab="employees">员工管理</button>
+  <button data-tab="departments">部门管理</button>
+  <button data-tab="positions">职位管理</button>
+  <button data-tab="attendances">考勤管理</button>
+  <button data-tab="salaries">薪资管理</button>
+</div>
+
+<div class="main" id="main"></div>
+
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal" id="modal"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const API = {
+  get: async (url) => (await fetch(url)).json(),
+  post: async (url, data) => (await fetch(url, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(data) })).json(),
+  put: async (url, data) => (await fetch(url, { method: 'PUT', headers: {'Content-Type':'application/json'}, body: JSON.stringify(data) })).json(),
+  del: async (url) => (await fetch(url, { method: 'DELETE' })).json(),
+};
+
+function toast(msg, err) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.className = 'toast ' + (err ? 'error' : '') + ' show';
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+function showModal(title, content, onSave) {
+  document.getElementById('modal').innerHTML = `<h3>${title}</h3>${content}`;
+  document.getElementById('modal-overlay').classList.add('show');
+  document.getElementById('modal').dataset.onsave = onSave ? '1' : '0';
+  if (onSave) {
+    document.querySelector('#modal .btn-primary')?.addEventListener('click', onSave);
+  }
+}
+function closeModal() {
+  document.getElementById('modal-overlay').classList.remove('show');
+}
+document.getElementById('modal-overlay').addEventListener('click', function(e) {
+  if (e.target === this) closeModal();
+});
+
+// Navigation
+document.querySelectorAll('.nav button').forEach(btn => {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('.nav button').forEach(b => b.classList.remove('active'));
+    this.classList.add('active');
+    loadTab(this.dataset.tab);
+  });
+});
+
+async function loadTab(tab) {
+  const main = document.getElementById('main');
+  switch(tab) {
+    case 'dashboard': await loadDashboard(main); break;
+    case 'employees': await loadEmployees(main); break;
+    case 'departments': await loadDepartments(main); break;
+    case 'positions': await loadPositions(main); break;
+    case 'attendances': await loadAttendances(main); break;
+    case 'salaries': await loadSalaries(main); break;
+  }
+}
+
+// Dashboard
+async function loadDashboard(main) {
+  const dash = await API.get('/api/dashboard');
+  const stats = await API.get('/api/statistics/dept-emp-count');
+  const maxCount = Math.max(...stats.map(s => s.emp_count), 1);
+  document.getElementById('stats').innerHTML = `
+    <span>员工: ${dash.empCount}</span>
+    <span>部门: ${dash.deptCount}</span>
+    <span>职位: ${dash.posCount}</span>
+    <span>今日考勤: ${dash.attToday}</span>
+  `;
+  main.innerHTML = `
+    <div class="panel">
+      <h3 style="margin-bottom:16px">系统概览</h3>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px">
+        <div style="background:#e8f0fe;padding:20px;border-radius:8px;text-align:center">
+          <div style="font-size:32px;font-weight:bold;color:#1a73e8">${dash.empCount}</div>
+          <div style="color:#666;margin-top:4px">员工总数</div>
+        </div>
+        <div style="background:#e6f4ea;padding:20px;border-radius:8px;text-align:center">
+          <div style="font-size:32px;font-weight:bold;color:#0d904f">${dash.deptCount}</div>
+          <div style="color:#666;margin-top:4px">部门数量</div>
+        </div>
+        <div style="background:#fef7e0;padding:20px;border-radius:8px;text-align:center">
+          <div style="font-size:32px;font-weight:bold;color:#f9ab00">${dash.posCount}</div>
+          <div style="color:#666;margin-top:4px">职位类型</div>
+        </div>
+        <div style="background:#fce8e6;padding:20px;border-radius:8px;text-align:center">
+          <div style="font-size:32px;font-weight:bold;color:#d93025">${dash.attToday}</div>
+          <div style="color:#666;margin-top:4px">今日考勤</div>
+        </div>
+      </div>
+      <h4 style="margin-bottom:12px">各部门员工分布</h4>
+      <div class="chart-bar">
+        ${stats.map(s => `<div class="bar" style="height:${(s.emp_count/maxCount)*180}px"><div class="val">${s.emp_count}</div><span>${s.dept_name}</span></div>`).join('')}
+      </div>
+    </div>
+  `;
+}
+
+// Employees
+async function loadEmployees(main) {
+  const [employees, depts, positions] = await Promise.all([
+    API.get('/api/employees'), API.get('/api/departments'), API.get('/api/positions')
+  ]);
+  main.innerHTML = `
+    <div class="panel">
+      <div class="toolbar">
+        <h3>员工管理</h3>
+        <div style="display:flex;gap:8px">
+          <input type="text" id="emp-search" placeholder="搜索姓名...">
+          <select id="emp-dept-filter"><option value="">全部部门</option>${depts.map(d => `<option value="${d.dept_id}">${d.dept_name}</option>`).join('')}</select>
+          <button class="btn btn-primary" onclick="openEmpModal()">添加员工</button>
+        </div>
+      </div>
+      <table>
+        <thead><tr><th>ID</th><th>姓名</th><th>性别</th><th>电话</th><th>邮箱</th><th>入职日期</th><th>部门</th><th>职位</th><th>状态</th><th>操作</th></tr></thead>
+        <tbody id="emp-tbody"></tbody>
+      </table>
+    </div>
+  `;
+  renderEmpTable(employees, depts, positions);
+  document.getElementById('emp-search').addEventListener('input', () => renderEmpTable(employees, depts, positions));
+  document.getElementById('emp-dept-filter').addEventListener('change', () => renderEmpTable(employees, depts, positions));
+}
+
+function renderEmpTable(employees, depts, positions) {
+  const search = (document.getElementById('emp-search')?.value || '').toLowerCase();
+  const deptFilter = document.getElementById('emp-dept-filter')?.value || '';
+  const filtered = employees.filter(e => {
+    return e.emp_name.toLowerCase().includes(search) && (!deptFilter || e.dept_id == deptFilter);
+  });
+  document.getElementById('emp-tbody').innerHTML = filtered.length ? filtered.map(e => `
+    <tr>
+      <td>${e.emp_id}</td><td>${e.emp_name}</td><td>${e.gender === 'M' ? '男' : '女'}</td>
+      <td>${e.phone || '-'}</td><td>${e.email || '-'}</td><td>${e.hire_date}</td>
+      <td>${e.dept_name || '-'}</td><td>${e.pos_name || '-'}</td>
+      <td><span class="status-badge" style="color:${e.status==='在职'?'#0d904f':'#d93025'}">${e.status}</span></td>
+      <td class="actions">
+        <button class="btn btn-warning btn-sm" onclick="openEmpModal(${e.emp_id})">编辑</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteEmp(${e.emp_id})">删除</button>
+      </td>
+    </tr>
+  `).join('') : '<tr><td colspan="10" class="empty">暂无数据</td></tr>';
+}
+
+async function openEmpModal(id) {
+  const [depts, positions] = await Promise.all([API.get('/api/departments'), API.get('/api/positions')]);
+  let emp = { emp_name:'', gender:'M', birth_date:'', phone:'', email:'', hire_date:'', dept_id:'', pos_id:'', status:'在职' };
+  if (id) emp = await API.get(`/api/employees/${id}`);
+  const title = id ? '编辑员工' : '添加员工';
+  const f = (n,v) => `<input name="${n}" value="${v || ''}" ${n==='hire_date'?'required':''}>`;
+  const s = (n, opts, val) => `<select name="${n}">${opts.map(o => `<option value="${o.dept_id||o.pos_id}" ${(o.dept_id||o.pos_id)==val?'selected':''}>${o.dept_name||o.pos_name}</option>`).join('')}</select>`;
+  showModal(title, `
+    <div class="form-group"><label>姓名 *</label>${f('emp_name', emp.emp_name)}</div>
+    <div class="form-group"><label>性别</label><select name="gender"><option value="M" ${emp.gender==='M'?'selected':''}>男</option><option value="F" ${emp.gender==='F'?'selected':''}>女</option></select></div>
+    <div class="form-group"><label>出生日期</label>${f('birth_date', emp.birth_date)}</div>
+    <div class="form-group"><label>电话</label>${f('phone', emp.phone)}</div>
+    <div class="form-group"><label>邮箱</label>${f('email', emp.email)}</div>
+    <div class="form-group"><label>入职日期 *</label>${f('hire_date', emp.hire_date)}</div>
+    <div class="form-group"><label>部门</label>${s('dept_id', depts, emp.dept_id)}</div>
+    <div class="form-group"><label>职位</label>${s('pos_id', positions, emp.pos_id)}</div>
+    <div class="form-group"><label>状态</label><select name="status"><option value="在职" ${emp.status==='在职'?'selected':''}>在职</option><option value="离职" ${emp.status==='离职'?'selected':''}>离职</option></select></div>
+    <div class="form-actions">
+      <button class="btn" onclick="closeModal()">取消</button>
+      <button class="btn btn-primary" id="save-emp-btn">保存</button>
+    </div>
+  `);
+  document.getElementById('save-emp-btn').addEventListener('click', async () => {
+    const data = {};
+    document.querySelectorAll('#modal input, #modal select').forEach(el => data[el.name] = el.value);
+    if (id) await API.put(`/api/employees/${id}`, data);
+    else await API.post('/api/employees', data);
+    toast(id ? '员工更新成功' : '员工添加成功');
+    closeModal();
+    loadEmployees(document.getElementById('main'));
+  });
+}
+
+async function deleteEmp(id) {
+  if (!confirm('确定删除该员工吗？相关考勤和薪资记录也将被删除。')) return;
+  await API.del(`/api/employees/${id}`);
+  toast('员工已删除');
+  loadEmployees(document.getElementById('main'));
+}
+
+// Departments
+async function loadDepartments(main) {
+  const depts = await API.get('/api/departments');
+  main.innerHTML = `
+    <div class="panel">
+      <div class="toolbar"><h3>部门管理</h3><button class="btn btn-primary" onclick="openDeptModal()">添加部门</button></div>
+      <table>
+        <thead><tr><th>ID</th><th>部门名称</th><th>负责人</th><th>位置</th><th>描述</th><th>操作</th></tr></thead>
+        <tbody>${depts.length ? depts.map(d => `
+          <tr>
+            <td>${d.dept_id}</td><td>${d.dept_name}</td><td>${d.manager_name || '-'}</td>
+            <td>${d.location || '-'}</td><td>${d.description || '-'}</td>
+            <td class="actions">
+              <button class="btn btn-warning btn-sm" onclick="openDeptModal(${d.dept_id})">编辑</button>
+              <button class="btn btn-danger btn-sm" onclick="deleteDept(${d.dept_id})">删除</button>
+            </td>
+          </tr>
+        `).join('') : '<tr><td colspan="6" class="empty">暂无数据</td></tr>'}</tbody>
+      </table>
+    </div>
+  `;
+}
+
+async function openDeptModal(id) {
+  const employees = await API.get('/api/employees');
+  let dept = { dept_name:'', manager_id:'', location:'', description:'' };
+  if (id) {
+    const depts = await API.get('/api/departments');
+    dept = depts.find(d => d.dept_id == id) || dept;
+  }
+  const title = id ? '编辑部门' : '添加部门';
+  showModal(title, `
+    <div class="form-group"><label>部门名称 *</label><input name="dept_name" value="${dept.dept_name}" required></div>
+    <div class="form-group"><label>负责人</label><select name="manager_id"><option value="">无</option>${employees.map(e => `<option value="${e.emp_id}" ${e.emp_id==dept.manager_id?'selected':''}>${e.emp_name}</option>`).join('')}</select></div>
+    <div class="form-group"><label>位置</label><input name="location" value="${dept.location || ''}"></div>
+    <div class="form-group"><label>描述</label><textarea name="description">${dept.description || ''}</textarea></div>
+    <div class="form-actions">
+      <button class="btn" onclick="closeModal()">取消</button>
+      <button class="btn btn-primary" id="save-dept-btn">保存</button>
+    </div>
+  `);
+  document.getElementById('save-dept-btn').addEventListener('click', async () => {
+    const data = {};
+    document.querySelectorAll('#modal input, #modal select, #modal textarea').forEach(el => data[el.name] = el.value);
+    if (id) await API.put(`/api/departments/${id}`, data);
+    else await API.post('/api/departments', data);
+    toast(id ? '部门更新成功' : '部门添加成功');
+    closeModal();
+    loadDepartments(document.getElementById('main'));
+  });
+}
+
+async function deleteDept(id) {
+  if (!confirm('确定删除该部门吗？')) return;
+  await API.del(`/api/departments/${id}`);
+  toast('部门已删除');
+  loadDepartments(document.getElementById('main'));
+}
+
+// Positions
+async function loadPositions(main) {
+  const positions = await API.get('/api/positions');
+  main.innerHTML = `
+    <div class="panel">
+      <div class="toolbar"><h3>职位管理</h3><button class="btn btn-primary" onclick="openPosModal()">添加职位</button></div>
+      <table>
+        <thead><tr><th>ID</th><th>职位名称</th><th>描述</th><th>最低薪资</th><th>最高薪资</th><th>操作</th></tr></thead>
+        <tbody>${positions.length ? positions.map(p => `
+          <tr>
+            <td>${p.pos_id}</td><td>${p.pos_name}</td><td>${p.pos_description || '-'}</td>
+            <td>¥${p.salary_min?.toLocaleString() || '-'}</td><td>¥${p.salary_max?.toLocaleString() || '-'}</td>
+            <td class="actions">
+              <button class="btn btn-warning btn-sm" onclick="openPosModal(${p.pos_id})">编辑</button>
+              <button class="btn btn-danger btn-sm" onclick="deletePos(${p.pos_id})">删除</button>
+            </td>
+          </tr>
+        `).join('') : '<tr><td colspan="6" class="empty">暂无数据</td></tr>'}</tbody>
+      </table>
+    </div>
+  `;
+}
+
+async function openPosModal(id) {
+  let pos = { pos_name:'', pos_description:'', salary_min:'', salary_max:'' };
+  if (id) {
+    const positions = await API.get('/api/positions');
+    pos = positions.find(p => p.pos_id == id) || pos;
+  }
+  const title = id ? '编辑职位' : '添加职位';
+  showModal(title, `
+    <div class="form-group"><label>职位名称 *</label><input name="pos_name" value="${pos.pos_name}" required></div>
+    <div class="form-group"><label>描述</label><textarea name="pos_description">${pos.pos_description || ''}</textarea></div>
+    <div class="form-group"><label>最低薪资</label><input name="salary_min" type="number" step="0.01" value="${pos.salary_min || ''}"></div>
+    <div class="form-group"><label>最高薪资</label><input name="salary_max" type="number" step="0.01" value="${pos.salary_max || ''}"></div>
+    <div class="form-actions">
+      <button class="btn" onclick="closeModal()">取消</button>
+      <button class="btn btn-primary" id="save-pos-btn">保存</button>
+    </div>
+  `);
+  document.getElementById('save-pos-btn').addEventListener('click', async () => {
+    const data = {};
+    document.querySelectorAll('#modal input, #modal textarea').forEach(el => data[el.name] = el.value);
+    if (id) await API.put(`/api/positions/${id}`, data);
+    else await API.post('/api/positions', data);
+    toast(id ? '职位更新成功' : '职位添加成功');
+    closeModal();
+    loadPositions(document.getElementById('main'));
+  });
+}
+
+async function deletePos(id) {
+  if (!confirm('确定删除该职位吗？')) return;
+  await API.del(`/api/positions/${id}`);
+  toast('职位已删除');
+  loadPositions(document.getElementById('main'));
+}
+
+// Attendances
+async function loadAttendances(main) {
+  const [attendances, employees] = await Promise.all([API.get('/api/attendances'), API.get('/api/employees')]);
+  main.innerHTML = `
+    <div class="panel">
+      <div class="toolbar"><h3>考勤管理</h3><button class="btn btn-primary" onclick="openAttModal()">添加考勤记录</button></div>
+      <table>
+        <thead><tr><th>ID</th><th>员工</th><th>日期</th><th>签到时间</th><th>签退时间</th><th>状态</th><th>备注</th><th>操作</th></tr></thead>
+        <tbody>${attendances.length ? attendances.map(a => `
+          <tr>
+            <td>${a.att_id}</td><td>${a.emp_name} (${a.dept_name || '-'})</td><td>${a.att_date}</td>
+            <td>${a.check_in_time || '-'}</td><td>${a.check_out_time || '-'}</td>
+            <td style="color:${a.status==='正常'?'#0d904f':a.status==='迟到'?'#f9ab00':'#d93025'}">${a.status}</td>
+            <td>${a.remark || '-'}</td>
+            <td class="actions">
+              <button class="btn btn-warning btn-sm" onclick="openAttModal(${a.att_id})">编辑</button>
+              <button class="btn btn-danger btn-sm" onclick="deleteAtt(${a.att_id})">删除</button>
+            </td>
+          </tr>
+        `).join('') : '<tr><td colspan="8" class="empty">暂无数据</td></tr>'}</tbody>
+      </table>
+    </div>
+  `;
+}
+
+async function openAttModal(id) {
+  const employees = await API.get('/api/employees');
+  let att = { emp_id:'', att_date:'', check_in_time:'', check_out_time:'', status:'正常', remark:'' };
+  if (id) {
+    const atts = await API.get('/api/attendances');
+    att = atts.find(a => a.att_id == id) || att;
+  }
+  const title = id ? '编辑考勤记录' : '添加考勤记录';
+  showModal(title, `
+    <div class="form-group"><label>员工 *</label><select name="emp_id">${employees.map(e => `<option value="${e.emp_id}" ${e.emp_id==att.emp_id?'selected':''}>${e.emp_name}</option>`).join('')}</select></div>
+    <div class="form-group"><label>日期 *</label><input name="att_date" type="date" value="${att.att_date}" required></div>
+    <div class="form-group"><label>签到时间</label><input name="check_in_time" type="time" value="${att.check_in_time || ''}"></div>
+    <div class="form-group"><label>签退时间</label><input name="check_out_time" type="time" value="${att.check_out_time || ''}"></div>
+    <div class="form-group"><label>状态</label><select name="status"><option value="正常" ${att.status==='正常'?'selected':''}>正常</option><option value="迟到" ${att.status==='迟到'?'selected':''}>迟到</option><option value="早退" ${att.status==='早退'?'selected':''}>早退</option><option value="缺勤" ${att.status==='缺勤'?'selected':''}>缺勤</option><option value="请假" ${att.status==='请假'?'selected':''}>请假</option></select></div>
+    <div class="form-group"><label>备注</label><input name="remark" value="${att.remark || ''}"></div>
+    <div class="form-actions">
+      <button class="btn" onclick="closeModal()">取消</button>
+      <button class="btn btn-primary" id="save-att-btn">保存</button>
+    </div>
+  `);
+  document.getElementById('save-att-btn').addEventListener('click', async () => {
+    const data = {};
+    document.querySelectorAll('#modal input, #modal select').forEach(el => data[el.name] = el.value);
+    if (id) await API.put(`/api/attendances/${id}`, data);
+    else await API.post('/api/attendances', data);
+    toast(id ? '考勤更新成功' : '考勤添加成功');
+    closeModal();
+    loadAttendances(document.getElementById('main'));
+  });
+}
+
+async function deleteAtt(id) {
+  if (!confirm('确定删除该考勤记录吗？')) return;
+  await API.del(`/api/attendances/${id}`);
+  toast('考勤记录已删除');
+  loadAttendances(document.getElementById('main'));
+}
+
+// Salaries
+async function loadSalaries(main) {
+  const [salaries, employees] = await Promise.all([API.get('/api/salaries'), API.get('/api/employees')]);
+  main.innerHTML = `
+    <div class="panel">
+      <div class="toolbar"><h3>薪资管理</h3><button class="btn btn-primary" onclick="openSalModal()">添加薪资记录</button></div>
+      <table>
+        <thead><tr><th>ID</th><th>员工</th><th>部门</th><th>基本工资</th><th>奖金</th><th>扣除</th><th>实发工资</th><th>发放日期</th><th>操作</th></tr></thead>
+        <tbody>${salaries.length ? salaries.map(s => `
+          <tr>
+            <td>${s.salary_id}</td><td>${s.emp_name}</td><td>${s.dept_name || '-'}</td>
+            <td>¥${s.base_salary?.toLocaleString()}</td><td>¥${s.bonus?.toLocaleString()}</td>
+            <td>¥${s.deduction?.toLocaleString()}</td><td style="font-weight:bold;color:#0d904f">¥${s.total_salary?.toLocaleString()}</td>
+            <td>${s.pay_date}</td>
+            <td class="actions">
+              <button class="btn btn-warning btn-sm" onclick="openSalModal(${s.salary_id})">编辑</button>
+              <button class="btn btn-danger btn-sm" onclick="deleteSal(${s.salary_id})">删除</button>
+            </td>
+          </tr>
+        `).join('') : '<tr><td colspan="9" class="empty">暂无数据</td></tr>'}</tbody>
+      </table>
+    </div>
+  `;
+}
+
+async function openSalModal(id) {
+  const employees = await API.get('/api/employees');
+  let sal = { emp_id:'', base_salary:'', bonus:'0', deduction:'0', pay_date:'' };
+  if (id) {
+    const sals = await API.get('/api/salaries');
+    sal = sals.find(s => s.salary_id == id) || sal;
+  }
+  const title = id ? '编辑薪资记录' : '添加薪资记录';
+  showModal(title, `
+    <div class="form-group"><label>员工 *</label><select name="emp_id">${employees.map(e => `<option value="${e.emp_id}" ${e.emp_id==sal.emp_id?'selected':''}>${e.emp_name}</option>`).join('')}</select></div>
+    <div class="form-group"><label>基本工资 *</label><input name="base_salary" type="number" step="0.01" value="${sal.base_salary}" required></div>
+    <div class="form-group"><label>奖金</label><input name="bonus" type="number" step="0.01" value="${sal.bonus || 0}"></div>
+    <div class="form-group"><label>扣除</label><input name="deduction" type="number" step="0.01" value="${sal.deduction || 0}"></div>
+    <div class="form-group"><label>发放日期 *</label><input name="pay_date" type="date" value="${sal.pay_date}" required></div>
+    <div class="form-actions">
+      <button class="btn" onclick="closeModal()">取消</button>
+      <button class="btn btn-primary" id="save-sal-btn">保存</button>
+    </div>
+  `);
+  document.getElementById('save-sal-btn').addEventListener('click', async () => {
+    const data = {};
+    document.querySelectorAll('#modal input, #modal select').forEach(el => data[el.name] = el.value);
+    if (id) await API.put(`/api/salaries/${id}`, data);
+    else await API.post('/api/salaries', data);
+    toast(id ? '薪资更新成功' : '薪资添加成功');
+    closeModal();
+    loadSalaries(document.getElementById('main'));
+  });
+}
+
+async function deleteSal(id) {
+  if (!confirm('确定删除该薪资记录吗？')) return;
+  await API.del(`/api/salaries/${id}`);
+  toast('薪资记录已删除');
+  loadSalaries(document.getElementById('main'));
+}
+
+// Init
+loadTab('dashboard');
+</script>
+</body>
+</html>
