@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block title %}部门管理{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="bi bi-building"></i> 部门管理</h2>
+    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addDeptModal">
+        <i class="bi bi-plus-circle"></i> 添加部门
+    </button>
+</div>
+<div class="card">
+    <div class="card-body">
+        <table class="table table-hover">
+            <thead>
+                <tr><th>编号</th><th>部门名称</th><th>描述</th><th>负责人</th><th>人数</th><th>操作</th></tr>
+            </thead>
+            <tbody>
+                {% for dept in departments %}
+                <tr>
+                    <td>{{ dept.dept_id }}</td>
+                    <td><strong>{{ dept.dept_name }}</strong></td>
+                    <td>{{ dept.description }}</td>
+                    <td>{{ dept.manager }}</td>
+                    <td><span class="badge bg-info">{{ dept.emp_count }}人</span></td>
+                    <td>
+                        <form method="POST" action="/department/{{ dept.dept_id }}/delete" class="d-inline"
+                              onsubmit="return confirm('确定删除该部门？')">
+                            <button class="btn btn-sm btn-danger"><i class="bi bi-trash"></i></button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+<div class="modal fade" id="addDeptModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">添加部门</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST" action="/department/add">
+                <div class="modal-body">
+                    <div class="mb-3"><label class="form-label">部门名称 *</label><input type="text" class="form-control" name="dept_name" required></div>
+                    <div class="mb-3"><label class="form-label">描述</label><textarea class="form-control" name="description" rows="3"></textarea></div>
+                    <div class="mb-3"><label class="form-label">负责人</label><input type="text" class="form-control" name="manager"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="submit" class="btn btn-primary">添加</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

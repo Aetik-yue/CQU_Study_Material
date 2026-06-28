@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block title %}薪资管理{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="bi bi-cash-stack"></i> 薪资管理</h2>
+    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addSalaryModal">
+        <i class="bi bi-plus-circle"></i> 录入薪资
+    </button>
+</div>
+<div class="card">
+    <div class="card-body">
+        <table class="table table-hover">
+            <thead>
+                <tr><th>记录 ID</th><th>员工</th><th>基本工资</th><th>绩效</th><th>奖金</th><th>总计</th><th>月份</th></tr>
+            </thead>
+            <tbody>
+                {% for s in salaries %}
+                <tr>
+                    <td>{{ s.salary_id }}</td>
+                    <td><strong>{{ s.emp_name }}</strong></td>
+                    <td>¥{{ "%.2f"|format(s.base_salary) }}</td>
+                    <td>¥{{ "%.2f"|format(s.perf_bonus) }}</td>
+                    <td>¥{{ "%.2f"|format(s.bonus) }}</td>
+                    <td><strong class="text-success">¥{{ "%.2f"|format(s.base_salary + s.perf_bonus + s.bonus) }}</strong></td>
+                    <td><span class="badge bg-info">{{ s.pay_month }}</span></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+<div class="modal fade" id="addSalaryModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">录入薪资</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST" action="/salary/add">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">员工 *</label>
+                        <select class="form-select" name="emp_id" required>
+                            <option value="">请选择员工</option>
+                            {% for s in salaries %}
+                            <option value="{{ s.emp_id }}">{{ s.emp_name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3"><label class="form-label">基本工资 *</label><input type="number" step="0.01" class="form-control" name="base_salary" required></div>
+                    <div class="mb-3"><label class="form-label">绩效工资</label><input type="number" step="0.01" class="form-control" name="perf_bonus" value="0"></div>
+                    <div class="mb-3"><label class="form-label">奖金</label><input type="number" step="0.01" class="form-control" name="bonus" value="0"></div>
+                    <div class="mb-3"><label class="form-label">发放月份 *</label><input type="month" class="form-control" name="pay_month" required></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="submit" class="btn btn-primary">录入</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

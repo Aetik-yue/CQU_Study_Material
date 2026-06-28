@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}搜索员工{% endblock %}
+{% block content %}
+<h2 class="mb-4"><i class="bi bi-search"></i> 搜索员工</h2>
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="GET" action="/search" class="row g-3">
+            <div class="col-md-10">
+                <input type="text" class="form-control form-control-lg" name="q"
+                       placeholder="输入姓名、邮箱或电话进行搜索..." value="{{ query }}">
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-primary btn-lg w-100">
+                    <i class="bi bi-search"></i> 搜索
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% if query %}
+<div class="card">
+    <div class="card-header">
+        <h5 class="mb-0">搜索结果：{{ results|length }} 条记录</h5>
+    </div>
+    <div class="card-body">
+        {% if results %}
+        <table class="table table-hover">
+            <thead>
+                <tr><th>工号</th><th>姓名</th><th>电话</th><th>邮箱</th><th>部门</th><th>岗位</th></tr>
+            </thead>
+            <tbody>
+                {% for emp in results %}
+                <tr>
+                    <td>{{ emp.emp_id }}</td>
+                    <td><strong>{{ emp.emp_name }}</strong></td>
+                    <td>{{ emp.phone }}</td>
+                    <td>{{ emp.email }}</td>
+                    <td><span class="badge bg-info">{{ emp.dept_name or '-' }}</span></td>
+                    <td><span class="badge bg-secondary">{{ emp.pos_name or '-' }}</span></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="text-center py-5">
+            <i class="bi bi-inbox" style="font-size: 3rem; color: #ccc;"></i>
+            <p class="text-muted mt-3">未找到匹配的员工</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endif %}
+{% endblock %}

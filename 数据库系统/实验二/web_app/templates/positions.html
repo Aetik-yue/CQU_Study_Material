@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %}岗位管理{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="bi bi-briefcase"></i> 岗位管理</h2>
+    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addPosModal">
+        <i class="bi bi-plus-circle"></i> 添加岗位
+    </button>
+</div>
+<div class="card">
+    <div class="card-body">
+        <table class="table table-hover">
+            <thead>
+                <tr><th>编号</th><th>岗位名称</th><th>描述</th><th>薪资等级</th><th>操作</th></tr>
+            </thead>
+            <tbody>
+                {% for pos in positions %}
+                <tr>
+                    <td>{{ pos.pos_id }}</td>
+                    <td><strong>{{ pos.pos_name }}</strong></td>
+                    <td>{{ pos.description }}</td>
+                    <td><span class="badge bg-warning">{{ pos.salary_level }}级</span></td>
+                    <td>-</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+<div class="modal fade" id="addPosModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">添加岗位</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST" action="/position/add">
+                <div class="modal-body">
+                    <div class="mb-3"><label class="form-label">岗位名称 *</label><input type="text" class="form-control" name="pos_name" required></div>
+                    <div class="mb-3"><label class="form-label">描述</label><textarea class="form-control" name="description" rows="3"></textarea></div>
+                    <div class="mb-3"><label class="form-label">薪资等级</label><input type="number" class="form-control" name="salary_level" min="1" max="10"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="submit" class="btn btn-primary">添加</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

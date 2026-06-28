@@ -1,0 +1,199 @@
+{% extends "base.html" %}
+
+{% block title %}员工管理 - 企业员工管理系统{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="bi bi-people"></i> 员工管理</h2>
+    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addEmployeeModal">
+        <i class="bi bi-plus-circle"></i> 添加员工
+    </button>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>工号</th>
+                        <th>姓名</th>
+                        <th>性别</th>
+                        <th>出生日期</th>
+                        <th>电话</th>
+                        <th>邮箱</th>
+                        <th>入职日期</th>
+                        <th>部门</th>
+                        <th>岗位</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for emp in employees %}
+                    <tr>
+                        <td>{{ emp.emp_id }}</td>
+                        <td><strong>{{ emp.emp_name }}</strong></td>
+                        <td>{{ '男' if emp.gender == 'M' else '女' }}</td>
+                        <td>{{ emp.birth_date }}</td>
+                        <td>{{ emp.phone }}</td>
+                        <td>{{ emp.email }}</td>
+                        <td>{{ emp.hire_date }}</td>
+                        <td><span class="badge bg-info">{{ emp.dept_name or '-' }}</span></td>
+                        <td><span class="badge bg-secondary">{{ emp.pos_name or '-' }}</span></td>
+                        <td>
+                            <button class="btn btn-sm btn-warning" data-bs-toggle="modal"
+                                    data-bs-target="#editModal{{ emp.emp_id }}">
+                                <i class="bi bi-pencil"></i>
+                            </button>
+                            <form method="POST" action="/employee/{{ emp.emp_id }}/delete" class="d-inline"
+                                  onsubmit="return confirm('确定要删除该员工吗？')">
+                                <button type="submit" class="btn btn-sm btn-danger">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+
+                    <!-- 编辑模态框 -->
+                    <div class="modal fade" id="editModal{{ emp.emp_id }}" tabindex="-1">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title">编辑员工 - {{ emp.emp_name }}</h5>
+                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                                </div>
+                                <form method="POST" action="/employee/{{ emp.emp_id }}/edit">
+                                    <div class="modal-body">
+                                        <div class="mb-3">
+                                            <label class="form-label">姓名</label>
+                                            <input type="text" class="form-control" name="emp_name"
+                                                   value="{{ emp.emp_name }}" required>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">性别</label>
+                                            <select class="form-select" name="gender" required>
+                                                <option value="M" {{ 'selected' if emp.gender == 'M' }}>男</option>
+                                                <option value="F" {{ 'selected' if emp.gender == 'F' }}>女</option>
+                                            </select>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">出生日期</label>
+                                            <input type="date" class="form-control" name="birth_date"
+                                                   value="{{ emp.birth_date }}">
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">电话</label>
+                                            <input type="text" class="form-control" name="phone"
+                                                   value="{{ emp.phone }}">
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">邮箱</label>
+                                            <input type="email" class="form-control" name="email"
+                                                   value="{{ emp.email }}">
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">入职日期</label>
+                                            <input type="date" class="form-control" name="hire_date"
+                                                   value="{{ emp.hire_date }}" required>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">部门</label>
+                                            <select class="form-select" name="dept_id">
+                                                <option value="">请选择部门</option>
+                                                <option value="1" {{ 'selected' if emp.dept_id == 1 }}>技术部</option>
+                                                <option value="2" {{ 'selected' if emp.dept_id == 2 }}>市场部</option>
+                                                <option value="3" {{ 'selected' if emp.dept_id == 3 }}>人力资源部</option>
+                                            </select>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">岗位</label>
+                                            <select class="form-select" name="pos_id">
+                                                <option value="">请选择岗位</option>
+                                                <option value="1" {{ 'selected' if emp.pos_id == 1 }}>高级工程师</option>
+                                                <option value="2" {{ 'selected' if emp.pos_id == 2 }}>中级工程师</option>
+                                                <option value="3" {{ 'selected' if emp.pos_id == 3 }}>市场专员</option>
+                                                <option value="4" {{ 'selected' if emp.pos_id == 4 }}>人事专员</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                                        <button type="submit" class="btn btn-primary">保存修改</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- 添加员工模态框 -->
+<div class="modal fade" id="addEmployeeModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">添加新员工</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST" action="/employee/add">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">姓名 *</label>
+                        <input type="text" class="form-control" name="emp_name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">性别 *</label>
+                        <select class="form-select" name="gender" required>
+                            <option value="M">男</option>
+                            <option value="F">女</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">出生日期</label>
+                        <input type="date" class="form-control" name="birth_date">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">电话</label>
+                        <input type="text" class="form-control" name="phone" placeholder="13800000000">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">邮箱</label>
+                        <input type="email" class="form-control" name="email" placeholder="example@company.com">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">入职日期 *</label>
+                        <input type="date" class="form-control" name="hire_date" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">部门 *</label>
+                        <select class="form-select" name="dept_id" required>
+                            <option value="">请选择部门</option>
+                            <option value="1">技术部</option>
+                            <option value="2">市场部</option>
+                            <option value="3">人力资源部</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">岗位 *</label>
+                        <select class="form-select" name="pos_id" required>
+                            <option value="">请选择岗位</option>
+                            <option value="1">高级工程师</option>
+                            <option value="2">中级工程师</option>
+                            <option value="3">市场专员</option>
+                            <option value="4">人事专员</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="submit" class="btn btn-primary">添加员工</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

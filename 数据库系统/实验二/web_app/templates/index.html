@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+
+{% block title %}仪表盘 - 企业员工管理系统{% endblock %}
+
+{% block content %}
+<h2 class="mb-4"><i class="bi bi-speedometer2"></i> 系统概览</h2>
+
+<!-- 统计卡片 -->
+<div class="row mb-4">
+    <div class="col-md-4">
+        <div class="stat-card">
+            <i class="bi bi-people-fill" style="font-size: 2rem;"></i>
+            <div class="number">{{ emp_count }}</div>
+            <div class="label">员工总数</div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="stat-card" style="background: linear-gradient(135deg, #2e75b6, #4a9fd5);">
+            <i class="bi bi-building" style="font-size: 2rem;"></i>
+            <div class="number">{{ dept_count }}</div>
+            <div class="label">部门数量</div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="stat-card" style="background: linear-gradient(135deg, #70ad47, #8bc34a);">
+            <i class="bi bi-briefcase-fill" style="font-size: 2rem;"></i>
+            <div class="number">{{ pos_count }}</div>
+            <div class="label">岗位数量</div>
+        </div>
+    </div>
+</div>
+
+<!-- 部门统计图表 -->
+<div class="card">
+    <div class="card-header bg-white">
+        <h5 class="mb-0"><i class="bi bi-bar-chart"></i> 各部门人员分布</h5>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>部门名称</th>
+                        <th>员工数量</th>
+                        <th>占比</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for stat in dept_stats %}
+                    <tr>
+                        <td><strong>{{ stat.dept_name }}</strong></td>
+                        <td>{{ stat.count }} 人</td>
+                        <td>
+                            <div class="progress" style="height: 20px;">
+                                <div class="progress-bar bg-success" role="progressbar"
+                                     style="width: {{ (stat.count / emp_count * 100) if emp_count > 0 else 0 }}%">
+                                    {{ "%.1f"|format((stat.count / emp_count * 100) if emp_count > 0 else 0) }}%
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- 快捷操作 -->
+<div class="row mt-4">
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <i class="bi bi-person-plus-fill text-primary" style="font-size: 2rem;"></i>
+                <h6 class="mt-2">添加员工</h6>
+                <a href="/employees" class="btn btn-sm btn-primary">前往</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <i class="bi bi-building-add text-success" style="font-size: 2rem;"></i>
+                <h6 class="mt-2">添加部门</h6>
+                <a href="/departments" class="btn btn-sm btn-success">前往</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <i class="bi bi-cash-coin text-warning" style="font-size: 2rem;"></i>
+                <h6 class="mt-2">薪资录入</h6>
+                <a href="/salaries" class="btn btn-sm btn-warning">前往</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <i class="bi bi-calendar-check text-info" style="font-size: 2rem;"></i>
+                <h6 class="mt-2">考勤登记</h6>
+                <a href="/attendances" class="btn btn-sm btn-info">前往</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
