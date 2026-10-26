@@ -1,0 +1,58 @@
+================ ATM 冒烟测试 ================
+[PASS] 认证：密码错误返回 WRONG_PIN
+[PASS] 认证：第二次错误后剩余 1 次机会
+[PASS] 认证：第三次错误触发吞卡
+[PASS] 认证：正确密码重置计数并成功
+[PASS] 银行卡：初始状态正常
+[PASS] 银行卡：吞卡后状态为 RETAINED
+[PASS] 查询余额：成功
+[PASS] 查询余额：可用余额不变
+[PASS] 查询余额：总余额不变
+[PASS] 查询余额：打印凭条 1 张
+[PASS] 查询余额：流水记录 1 条
+[PASS] 查询余额：屏幕显示可用余额
+[PASS] 取款-余额不足：返回 INSUFFICIENT_BALANCE
+[PASS] 取款-余额不足：余额未被扣减
+[PASS] 取款-余额不足：钞箱未吐钞
+[PASS] 取款-余额不足：不打印凭条
+[PASS] 取款-成功：返回 SUCCESS
+[PASS] 取款-成功：可用余额 1000-500=500
+[PASS] 取款-成功：总余额 1200-500=700
+[PASS] 取款-成功：钞箱减少 5 张
+[PASS] 取款-成功：今日已取累计 500
+[PASS] 取款-成功：打印凭条 1 张
+[PASS] 取款-成功：流水记录 1 条
+[PASS] 取款-超限：返回 LIMIT_EXCEEDED
+[PASS] 取款-超限：余额未被扣减
+[PASS] 取款-超限：提示含“当日累计取款限额”
+[PASS] 取款-钞箱不足：返回 INSUFFICIENT_CASH
+[PASS] 取款-钞箱不足：余额未被扣减
+[PASS] 取款-钞箱不足：钞箱数字不变
+[PASS] 取款-金额非法：返回 INVALID_AMOUNT
+[PASS] 取款-取消：返回 CANCELLED
+[PASS] 取款-取消：余额不变
+[PASS] 存款-未收到信封：返回 ENVELOPE_NOT_RECEIVED
+[PASS] 存款-未收到信封：余额不变
+[PASS] 存款-未收到信封：不打印凭条
+[PASS] 存款-成功：返回 SUCCESS
+[PASS] 存款-成功：可用余额 1000+1000=2000
+[PASS] 存款-成功：总余额 1200+1000=2200
+[PASS] 存款-成功：打印凭条 1 张
+[PASS] 存款-取消：返回 CANCELLED
+[PASS] 转账-成功：返回 SUCCESS
+[PASS] 转账-成功：转出方余额 1000-200=800
+[PASS] 转账-成功：转入方余额 8000+200=8200
+[PASS] 转账-成功：两个账户各记一条流水
+[PASS] 转账-成功：打印凭条 1 张
+[PASS] 转账-目标不存在：返回 TARGET_ACCOUNT_INVALID
+[PASS] 转账-本账户：返回 TARGET_ACCOUNT_INVALID
+[PASS] 转账-余额不足：返回 INSUFFICIENT_BALANCE
+[PASS] 转账-取消：返回 CANCELLED
+[PASS] 流水查询：成功
+[PASS] 流水查询：显示取款记录
+[PASS] 流水查询：显示转账-转出记录
+[PASS] 流水查询：显示最近 2 条
+[PASS] 菜单：越界输入后重试并返回正确选项
+[PASS] 菜单：提示了输入无效
+==============================================
+通过 55 项，失败 0 项。

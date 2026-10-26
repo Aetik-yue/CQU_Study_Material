@@ -1,0 +1,730 @@
+\documentclass[UTF8,12pt,a4paper]{ctexart}
+
+% 页面设置
+\usepackage{geometry}
+\geometry{left=2.5cm,right=2.5cm,top=2.5cm,bottom=2.5cm,headheight=14pt}
+
+% 颜色
+\usepackage{xcolor}
+\usepackage{colortbl}
+\definecolor{mainblue}{RGB}{0,102,204}
+\definecolor{lightblue}{RGB}{230,242,255}
+\definecolor{warnorange}{RGB}{255,140,0}
+\definecolor{lightorange}{RGB}{255,240,220}
+\definecolor{successgreen}{RGB}{34,139,34}
+\definecolor{lightgray}{RGB}{245,245,245}
+
+% 表格
+\usepackage{longtable}
+\usepackage{tabularx}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{multirow}
+\newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
+\newcolumntype{C}[1]{>{\centering\arraybackslash}p{#1}}
+
+% 盒子与美化
+\usepackage{tcolorbox}
+\tcbuselibrary{skins,breakable}
+
+% 列表
+\usepackage{enumitem}
+\setlist{nosep,leftmargin=2em}
+
+% 链接与目录
+\usepackage{hyperref}
+\hypersetup{colorlinks=true,linkcolor=mainblue,urlcolor=mainblue}
+
+% 图标化段落
+\usepackage{fontawesome5}
+
+% 页眉页脚
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\color{gray}重庆大学 2026 小学期实训}
+\fancyhead[R]{\small\color{gray}智慧烟感预警系统}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+% 标题格式
+\ctexset{
+  section = {
+    format = \Large\bfseries\color{mainblue},
+    beforeskip = 1em,
+    afterskip = 0.5em
+  },
+  subsection = {
+    format = \large\bfseries\color{mainblue!80!black},
+    beforeskip = 0.8em,
+    afterskip = 0.4em
+  }
+}
+
+\begin{document}
+
+% ===================== 封面 =====================
+\begin{titlepage}
+\centering
+\vspace*{2cm}
+{\Huge\bfseries\color{mainblue} 智慧烟感预警系统}\\[0.6cm]
+{\LARGE 15 天实训项目计划书}\\[1.5cm]
+
+\begin{tcolorbox}[colback=lightblue,colframe=mainblue,width=0.8\textwidth,arc=3mm,boxrule=1pt]
+\centering\large
+\textbf{所属实训}：中软国际 × 华为 HCIA-PM 实训\\[0.3em]
+\textbf{团队}：智慧烟感项目组\\[0.3em]
+\textbf{周期}：15 天（按敏捷开发迭代）
+\end{tcolorbox}
+
+\vspace{2cm}
+
+\begin{tabular}{rl}
+\textbf{文档版本}： & v1.0 \\
+\textbf{编制日期}： & 2026 年 6 月 29 日 \\
+\textbf{编制人}：   & 项目团队 \\
+\end{tabular}
+
+\vfill
+{\large 重庆大学}
+\end{titlepage}
+
+% ===================== 目录 =====================
+\tableofcontents
+\newpage
+
+% ===================== 第一章 项目概述 =====================
+\section{项目概述}
+
+\subsection{项目背景}
+
+本次实训基于中软国际 \textbf{5R 体系}打造，专为重庆大学学生量身定制。智慧烟感预警系统作为五大实训场景之一，面向家庭与公共场所安全保障，通过烟雾、温度、CO、火焰等多维传感器实时监测环境安全状态，结合 AI 分析与多级告警联动，实现秒级预警响应。
+
+\subsection{技术栈}
+
+\begin{tcolorbox}[colback=lightgray,colframe=gray!50,arc=2mm,boxrule=0.5pt,title={\textbf{技术栈概览}}]
+\begin{itemize}
+  \item \textbf{端侧}：鸿蒙开发板（HarmonyOS/OpenHarmony）、GPIO 传感器驱动、MQTT 客户端
+  \item \textbf{边缘层}：边缘网关协议解析、断网续传、本地阈值判断
+  \item \textbf{云端}：华为云 / 本地服务器、Spring Boot / Node.js、MySQL / Redis
+  \item \textbf{AI 能力}：SmartJavaAI、异常检测模型、误报识别规则引擎
+  \item \textbf{前端}：Web 管理后台（Vue / React）、移动端 APP / 微信小程序
+  \item \textbf{可视化}：ECharts 数据趋势图、高德/百度 GIS 地图
+\end{itemize}
+\end{tcolorbox}
+
+% ===================== 第二章 团队分工 =====================
+\section{团队分工}
+
+团队共 \textbf{6 人}，角色与职责如下：
+
+\begin{longtable}{C{2.2cm}C{1.8cm}L{8.5cm}}
+\toprule
+\textbf{角色} & \textbf{人数} & \textbf{核心职责} \\
+\midrule
+\endfirsthead
+\toprule
+\textbf{角色} & \textbf{人数} & \textbf{核心职责} \\
+\midrule
+\endhead
+\bottomrule
+\endfoot
+
+PM（项目组长） & 1 & 计划制定、进度跟踪、站会主持、风险管理、文档审核、HCIA-PM 学习统筹；向上级汇报项目进展和成果 \\
+\midrule
+前端开发 & 2 & 管理后台 Web（PC 大屏）、移动端 APP/小程序、可视化界面、告警弹窗、地图可视化 \\
+\midrule
+后端/云端 & 2 & 云服务器搭建、数据库设计、API 开发、告警规则引擎、设备管理、MQTT 接入、日志审计；其中 1 人兼顾边缘网关协议解析与断网续传 \\
+\midrule
+端侧/硬件 & 1 & 鸿蒙开发板环境搭建、传感器驱动（烟雾/温度/CO/火焰/湿度）、数据采集与上报、本地阈值判断、硬件联动（声光报警器/排风/应急照明继电器控制） \\
+\bottomrule
+\end{longtable}
+
+\begin{tcolorbox}[colback=lightorange,colframe=warnorange,arc=2mm,boxrule=0.8pt,title={\faExclamationTriangle\ 注意事项}]
+端侧开发人员同时负责 \textbf{本地阈值判断} 与 \textbf{执行器驱动}；后端 2 人中需有 1 人熟悉 MQTT 协议与边缘网关逻辑，确保端云链路畅通。
+\end{tcolorbox}
+
+% ===================== 第三章 项目目标 =====================
+\section{项目目标}
+
+\subsection{MVP 底线目标（必须完成）}
+
+若时间紧张，优先保底以下功能，确保答辩可完整演示：
+
+\begin{longtable}{L{3.5cm}L{9.5cm}}
+\toprule
+\textbf{模块} & \textbf{MVP 功能} \\
+\midrule
+\endfirsthead
+\toprule
+\textbf{模块} & \textbf{MVP 功能} \\
+\midrule
+\endhead
+\bottomrule
+\endfoot
+
+传感器采集 & 烟雾浓度 + 温度两类传感器在鸿蒙开发板上跑通，数据能正确读取 \\
+\midrule
+数据上报 & 通过 MQTT/Wi-Fi 将数据上报到后端服务器并入库存储 \\
+\midrule
+阈值告警 & 后端设定阈值（烟雾 > 0.10 mg/m\textsuperscript{3} 或温度 > 60°C），超阈值触发告警记录 \\
+\midrule
+通知推送 & 告警通过 APP / 小程序 / Web 弹窗推送（至少实现一种渠道） \\
+\midrule
+基础可视化 & Web 管理后台能查看实时数据、告警列表、设备状态 \\
+\midrule
+本地声光 & 鸿蒙端超阈值时驱动蜂鸣器 / LED 实现本地报警 \\
+\bottomrule
+\end{longtable}
+
+\subsection{完整版目标（力争完成）}
+
+\begin{longtable}{L{3.5cm}L{9.5cm}}
+\toprule
+\textbf{模块} & \textbf{完整版功能} \\
+\midrule
+\endfirsthead
+\toprule
+\textbf{模块} & \textbf{完整版功能} \\
+\midrule
+\endhead
+\bottomrule
+\endfoot
+
+全传感器接入 & 烟雾 + 温度 + CO + 火焰 + 湿度 + 设备状态 6 类全部接入 \\
+\midrule
+多级告警 & 预警（黄）$\rightarrow$ 告警（橙）$\rightarrow$ 紧急（红）三级策略 \\
+\midrule
+边缘智能 & 本地阈值判断 + 边缘网关协议解析 + \textbf{断网续传} \\
+\midrule
+AI 辅助 & 基于历史数据的 \textbf{误报识别}（区分真实火灾与烟雾干扰） \\
+\midrule
+多渠道通知 & APP 推送 + 短信 + 邮件 + 语音通话（至少模拟演示） \\
+\midrule
+硬件联动 & 声光报警器 + 排风设备 + 应急照明（继电器控制演示） \\
+\midrule
+地图可视化 & 告警设备在 GIS 地图定位展示 \\
+\midrule
+数据统计 & 历史告警曲线、安全评估报告、设备运行报表 \\
+\bottomrule
+\end{longtable}
+
+% ===================== 第四章 阶段计划 =====================
+\section{15 天阶段计划}
+
+\subsection{第一阶段：项目启动与团队组建（第 1 天）}
+
+\begin{longtable}{C{2cm}L{6.5cm}L{4.5cm}C{2cm}}
+\toprule
+\textbf{时间} & \textbf{任务} & \textbf{交付物} & \textbf{负责人} \\
+\midrule
+\endfirsthead
+\toprule
+\textbf{时间} & \textbf{任务} & \textbf{交付物} & \textbf{负责人} \\
+\midrule
+\endhead
+\bottomrule
+\endfoot
+
+上午 & 参加实训启动会，领取开发板、传感器套件，清点设备 & 设备清单确认表 & PM \\
+\midrule
+下午 & 团队分组、角色确认；创建 Git 仓库；搭建项目看板（Trello / 飞书） & 项目看板 + Git 仓库 & PM \\
+\midrule
+晚上 & 敏捷开发流程培训、需求分析方法学习 & 学习笔记 & 全员 \\
+\bottomrule
+\end{longtable}
+
+\textbf{阶段目标}：团队熟悉 5R 体系，建立协作规范，环境准备就绪。
+
+\subsection{第二阶段：需求分析与系统设计（第 2--3 天）}
+
+\subsubsection{第 2 天：需求冻结}
+
+\begin{longtable}{L{6cm}L{4.5cm}C{2.5cm}}
+\toprule
+\textbf{任务} & \textbf{交付物} & \textbf{负责人} \\
+\midrule
+\endfirsthead
+\toprule
+\textbf{任务} & \textbf{交付物} & \textbf{负责人} \\
+\midrule
+\endhead
+\bottomrule
+\endfoot
+
+业务场景分析：家庭 / 商铺 / 学校 / 工厂多场景烟感需求 & 场景用例文档 & PM \\
+\midrule
+用户故事编写（管理员 / 住户 / 维保人员视角） & 用户故事清单 & PM \\
+\midrule
+功能清单梳理（MVP vs 完整版） & PRD 初稿 & PM + 全员 \\
+\midrule
+传感器 datasheet 研读，确认 GPIO 接口 & 硬件接口对照表 & 端侧 \\
+\midrule
+HCIA-PM 第 1--2 章学习 & 学习报告 & 全员 \\
+\bottomrule
+\end{longtable}
+
+\subsubsection{第 3 天：技术设计}
+
+\begin{longtable}{L{6cm}L{4.5cm}C{2.5cm}}
+\toprule
+\textbf{任务} & \textbf{交付物} & \textbf{负责人} \\
+\midrule
+\endfirsthead
+\toprule
+\textbf{任务} & \textbf{交付物} & \textbf{负责人} \\
+\midrule
+\endhead
+\bottomrule
+\endfoot
+
+系统架构设计（感知层 $\rightarrow$ 网络层 $\rightarrow$ 应用层） & 架构设计图 & PM \\
+\midrule
+数据库设计（设备 / 传感器数据 / 告警 / 用户表） & ER 图 + SQL & 后端 \\
+\midrule
+API 接口设计（RESTful / MQTT 主题规划） & API 文档 & 后端 \\
+\midrule
+前端页面原型设计（管理后台 + APP） & 原型图 / Figma & 前端 \\
+\midrule
+Sprint Planning：拆解任务到看板，估算工时 & 看板任务卡 & PM \\
+\bottomrule
+\end{longtable}
+
+\textbf{阶段目标}：完成 PRD 与系统设计，全员对齐 MVP 范围和迭代目标。
+
+\subsection{第三阶段：迭代开发（一）——端侧与数据采集（第 4--5 天）}
+
+\subsubsection{第 4 天：鸿蒙环境 + 传感器驱动}
+
+\begin{longtable}{L{6cm}L{4.5cm}C{2.5cm}}
+\toprule
+\textbf{任务} & \textbf{交付物} & \textbf{负责人} \\
+\midrule
+\endfirsthead
+\toprule
+\textbf{任务} & \textbf{交付物} & \textbf{负责人} \\
+\midrule
+\endhead
+\bottomrule
+\endfoot
+
+鸿蒙 DevEco 环境搭建，开发板烧录 Hello World & 环境可用确认 & 端侧 \\
+\midrule
+烟雾传感器驱动开发，读取模拟量 & 驱动代码 + 测试数据 & 端侧 \\
+\midrule
+温度传感器驱动开发（DHT11 / DS18B20） & 驱动代码 + 测试数据 & 端侧 \\
+\midrule
+后端服务器环境搭建（Spring Boot / Node.js / Flask） & 服务运行确认 & 后端 \\
+\midrule
+MQTT Broker 搭建（EMQX / Mosquitto） & Broker 可用确认 & 后端 \\
+\bottomrule
+\end{longtable}
+
+\subsubsection{第 5 天：数据上报 + 本地阈值}
+
+\begin{longtable}{L{6cm}L{4.5cm}C{2.5cm}}
+\toprule
+\textbf{任务} & \textbf{交付物} & \textbf{负责人} \\
+\midrule
+\endfirsthead
+\toprule
+\textbf{任务} & \textbf{交付物} & \textbf{负责人} \\
+\midrule
+\endhead
+\bottomrule
+\endfoot
+
+本地阈值判断逻辑（烟雾 > 0.10 触发 LED / 蜂鸣器） & 本地报警 demo & 端侧 \\
+\midrule
+传感器数据打包（JSON）通过 MQTT 上报 & 上报代码 & 端侧 \\
+\midrule
+后端 MQTT 订阅服务，数据入库 & 数据接收服务 & 后端 \\
+\midrule
+数据库建表 + 基础 CRUD API & API 可用 & 后端 \\
+\midrule
+Web 后台基础框架（登录 + 设备列表页） & 前端框架 & 前端 \\
+\bottomrule
+\end{longtable}
+
+\begin{tcolorbox}[colback=lightblue,colframe=mainblue,arc=2mm,boxrule=0.8pt,title={\faCheckCircle\ 检查点 D5 晚}]
+PM 验收：开发板烟雾传感器吹一口模拟烟雾（注意安全），观察 Web 后台是否出现数据。若未通过，立即启动降级方案（mock 数据）。
+\end{tcolorbox}
+
+\textbf{阶段目标}：烟雾 + 温度传感器能采数、本地报警能触发、数据能上报云端、Web 后台能访问。
+
+\subsection{第四阶段：迭代开发（二）——告警引擎与前端可视化（第 6--7 天）}
+
+\subsubsection{第 6 天：告警规则引擎}
+
+\begin{longtable}{L{6cm}L{4.5cm}C{2.5cm}}
+\toprule
+\textbf{任务} & \textbf{交付物} & \textbf{负责人} \\
+\midrule
+\endfirsthead
+\toprule
+\textbf{任务} & \textbf{交付物} & \textbf{负责人} \\
+\midrule
+\endhead
+\bottomrule
+\endfoot
+
+后端告警规则引擎（三级阈值：预警 / 告警 / 紧急） & 规则引擎代码 & 后端 \\
+\midrule
+告警记录表设计（级别、时间、处理状态） & 数据库更新 & 后端 \\
+\midrule
+告警处理 API（确认 / 解除 / 历史查询） & API 文档更新 & 后端 \\
+\midrule
+前端告警列表 + 告警详情页 & 前端页面 & 前端 \\
+\midrule
+APP / 小程序告警推送接口对接（模拟） & 推送 demo & 前端 \\
+\bottomrule
+\end{longtable}
+
+\subsubsection{第 7 天：可视化 + 成果演示}
+
+\begin{longtable}{L{6cm}L{4.5cm}C{2.5cm}}
+\toprule
+\textbf{任务} & \textbf{交付物} & \textbf{负责人} \\
+\midrule
+\endfirsthead
+\toprule
+\textbf{任务} & \textbf{交付物} & \textbf{负责人} \\
+\midrule
+\endhead
+\bottomrule
+\endfoot
+
+Web 实时数据仪表盘（烟雾 / 温度实时值、状态指示灯） & 仪表盘页面 & 前端 \\
+\midrule
+数据趋势图（ECharts / Chart.js 历史曲线） & 图表组件 & 前端 \\
+\midrule
+设备状态管理页（在线 / 离线 / 电量 / 信号） & 设备管理页 & 前端 \\
+\midrule
+后端数据统计 API（今日告警数、设备在线率） & 统计接口 & 后端 \\
+\midrule
+\textbf{内部 demo 演示}：完整走通 采数$\rightarrow$上报$\rightarrow$告警$\rightarrow$展示 & Demo 视频 / 截图 & PM 组织 \\
+\bottomrule
+\end{longtable}
+
+\begin{tcolorbox}[colback=lightblue,colframe=mainblue,arc=2mm,boxrule=0.8pt,title={\faCheckCircle\ 检查点 D7 晚}]
+全员走通一次端到端：用烟雾源触发传感器 $\rightarrow$ 本地报警 $\rightarrow$ 数据上云 $\rightarrow$ Web 后台显示告警。若链路不通，第 8 天优先修复，不得进入新功能开发。
+\end{tcolorbox}
+
+\textbf{阶段目标}：告警规则引擎跑通，Web 后台能看到实时数据、告警列表、趋势图，MVP 核心链路完成 80\%。
+
+\subsection{第五阶段：智能应用与可视化深化（第 8--9 天）}
+
+\subsubsection{第 8 天：多端通知 + 联动控制}
+
+\begin{longtable}{L{6cm}L{4.5cm}C{2.5cm}}
+\toprule
+\textbf{任务} & \textbf{交付物} & \textbf{负责人} \\
+\midrule
+\endfirsthead
+\toprule
+\textbf{任务} & \textbf{交付物} & \textbf{负责人} \\
+\midrule
+\endhead
+\bottomrule
+\endfoot
+
+APP / 小程序推送接入（极光推送 / 个推 / 微信订阅消息） & 推送服务可用 & 前端 \\
+\midrule
+短信 / 邮件通知模拟（调用第三方 API 或 mock） & 通知接口 & 后端 \\
+\midrule
+声光报警器继电器控制（GPIO 控制继电器模块） & 联动 demo & 端侧 \\
+\midrule
+排风设备 / 应急照明继电器控制（演示用） & 联动 demo & 端侧 \\
+\midrule
+传感器扩展：CO 传感器接入 & CO 驱动代码 & 端侧 \\
+\bottomrule
+\end{longtable}
+
+\subsubsection{第 9 天：地图可视化 + 代码评审}
+
+\begin{longtable}{L{6cm}L{4.5cm}C{2.5cm}}
+\toprule
+\textbf{任务} & \textbf{交付物} & \textbf{负责人} \\
+\midrule
+\endfirsthead
+\toprule
+\textbf{任务} & \textbf{交付物} & \textbf{负责人} \\
+\midrule
+\endhead
+\bottomrule
+\endfoot
+
+GIS 地图接入（高德 / 百度地图 API），设备点位标注 & 地图页面 & 前端 \\
+\midrule
+告警地图弹窗（红点闪烁 + 信息窗口） & 地图交互 & 前端 \\
+\midrule
+安全评估报告页面（统计报表导出） & 报表页面 & 前端 \\
+\midrule
+\textbf{代码评审}：API 规范、组件复用、端侧代码质量 & 评审记录 & PM 组织 \\
+\midrule
+HCIA-PM 第 3--4 章学习 & 学习报告 & 全员 \\
+\bottomrule
+\end{longtable}
+
+\textbf{阶段目标}：告警多渠道通知可用，硬件联动能演示，GIS 地图可视化完成。
+
+\subsection{第六阶段：系统集成与测试优化（第 10--12 天）}
+
+\subsubsection{第 10 天：全传感器接入 + 联调}
+
+\begin{longtable}{L{6cm}L{4.5cm}C{2.5cm}}
+\toprule
+\textbf{任务} & \textbf{交付物} & \textbf{负责人} \\
+\midrule
+\endfirsthead
+\toprule
+\textbf{任务} & \textbf{交付物} & \textbf{负责人} \\
+\midrule
+\endhead
+\bottomrule
+\endfoot
+
+火焰传感器、湿度传感器、设备状态监测接入 & 全传感器驱动 & 端侧 \\
+\midrule
+边缘网关协议解析层（统一数据格式转换） & 网关解析模块 & 后端 \\
+\midrule
+\textbf{断网续传} 逻辑实现（本地缓存 + 网络恢复后批量上传） & 续传模块 & 端侧 + 后端 \\
+\midrule
+前后端联调：全链路数据打通 & 联调记录 & 全员 \\
+\bottomrule
+\end{longtable}
+
+\subsubsection{第 11 天：测试 + 缺陷修复}
+
+\begin{longtable}{L{6cm}L{4.5cm}C{2.5cm}}
+\toprule
+\textbf{任务} & \textbf{交付物} & \textbf{负责人} \\
+\midrule
+\endfirsthead
+\toprule
+\textbf{任务} & \textbf{交付物} & \textbf{负责人} \\
+\midrule
+\endhead
+\bottomrule
+\endfoot
+
+功能测试：传感器精度、阈值触发准确性、告警延迟 & 测试报告 & PM \\
+\midrule
+异常测试：断网、设备离线、数据异常值处理 & 异常测试记录 & 后端 \\
+\midrule
+性能测试：并发设备上报、数据库查询性能 & 性能记录 & 后端 \\
+\midrule
+Bug 修复 sprint & Bug 清单 + 修复记录 & 全员 \\
+\bottomrule
+\end{longtable}
+
+\subsubsection{第 12 天：AI 能力集成 + 优化}
+
+\begin{longtable}{L{6cm}L{4.5cm}C{2.5cm}}
+\toprule
+\textbf{任务} & \textbf{交付物} & \textbf{负责人} \\
+\midrule
+\endfirsthead
+\toprule
+\textbf{任务} & \textbf{交付物} & \textbf{负责人} \\
+\midrule
+\endhead
+\bottomrule
+\endfoot
+
+AI 误报识别（规则引擎 + 统计模型：短时间多次触发判定为干扰） & 误报过滤逻辑 & 后端 \\
+\midrule
+告警响应时间优化（目标：触发到通知 < 3 秒） & 优化记录 & 后端 \\
+\midrule
+前端 UI 优化（加载速度、移动端适配） & 优化后的页面 & 前端 \\
+\midrule
+代码重构 + 注释完善 + Git 提交记录整理 & 重构后的代码 & 全员 \\
+\bottomrule
+\end{longtable}
+
+\begin{tcolorbox}[colback=lightblue,colframe=mainblue,arc=2mm,boxrule=0.8pt,title={\faCheckCircle\ 检查点 D12 晚}]
+模拟断网 5 分钟期间制造烟雾触发，网络恢复后验证断网期间的数据是否补录成功。
+\end{tcolorbox}
+
+\textbf{阶段目标}：6 类传感器全部接入并跑通，断网续传功能可用，系统经过测试修复，AI 误报过滤上线。
+
+\subsection{第七阶段：成果整理与答辩展示（第 13--15 天）}
+
+\subsubsection{第 13 天：功能完善与文档}
+
+\begin{longtable}{L{6cm}L{4.5cm}C{2.5cm}}
+\toprule
+\textbf{任务} & \textbf{交付物} & \textbf{负责人} \\
+\midrule
+\endfirsthead
+\toprule
+\textbf{任务} & \textbf{交付物} & \textbf{负责人} \\
+\midrule
+\endhead
+\bottomrule
+\endfoot
+
+功能完善：补齐未完成项，优先保 MVP & 功能清单核对 & 全员 \\
+\midrule
+技术文档：系统架构文档、API 文档、部署说明 & 技术文档 & 后端 \\
+\midrule
+用户手册：设备接入指南、操作手册 & 用户手册 & PM \\
+\midrule
+代码仓库整理：README、分支清理、目录规范 & 代码仓 & PM \\
+\bottomrule
+\end{longtable}
+
+\subsubsection{第 14 天：演示准备}
+
+\begin{longtable}{L{6cm}L{4.5cm}C{2.5cm}}
+\toprule
+\textbf{任务} & \textbf{交付物} & \textbf{负责人} \\
+\midrule
+\endfirsthead
+\toprule
+\textbf{任务} & \textbf{交付物} & \textbf{负责人} \\
+\midrule
+\endhead
+\bottomrule
+\endfoot
+
+演示 PPT 制作（背景、架构、功能、分工、总结） & PPT & PM + 前端 \\
+\midrule
+演示脚本编写（3--5 分钟完整流程） & 演示脚本 & PM \\
+\midrule
+演示环境搭建（备用设备、备用网络、烟雾源准备） & 环境确认 & 端侧 \\
+\midrule
+预演 2--3 次，控制时间 & 预演记录 & 全员 \\
+\bottomrule
+\end{longtable}
+
+\subsubsection{第 15 天：答辩与总结}
+
+\begin{longtable}{L{6cm}L{4.5cm}C{2.5cm}}
+\toprule
+\textbf{任务} & \textbf{交付物} & \textbf{负责人} \\
+\midrule
+\endfirsthead
+\toprule
+\textbf{任务} & \textbf{交付物} & \textbf{负责人} \\
+\midrule
+\endhead
+\bottomrule
+\endfoot
+
+成果汇报与答辩（PPT 讲解 + 系统演示） & 答辩表现 & 全员 \\
+\midrule
+评委问答准备（技术难点、团队协作、收获总结） & Q\&A 准备 & 全员 \\
+\midrule
+实训总结与个人收获撰写 & 总结报告 & 全员 \\
+\midrule
+评优材料提交 & 评优材料 & PM \\
+\bottomrule
+\end{longtable}
+
+\textbf{阶段目标}：完成答辩展示，输出完整文档和代码资产，团队完成从学员到准工程师的角色转变。
+
+% ===================== 第五章 敏捷实践 =====================
+\section{敏捷实践}
+
+\subsection{每日站会}
+
+\textbf{时间}：每天上午 9:00，\textbf{时长}：15 分钟
+
+\textbf{议程}：PM 主持，每人回答三个问题：
+\begin{enumerate}
+  \item \textbf{昨天做了什么？}（具体完成的任务，对应看板卡片）
+  \item \textbf{今天计划做什么？}（明确的交付目标）
+  \item \textbf{遇到什么阻塞？}（需要团队支持的问题）
+\end{enumerate}
+
+\subsection{看板列设置}
+
+\begin{center}
+\begin{tabular}{|C{2.5cm}|C{2.5cm}|C{2.5cm}|C{2.5cm}|}
+\hline
+\cellcolor{lightgray}\textbf{待办} & \cellcolor{lightorange}\textbf{进行中} & \cellcolor{lightblue}\textbf{待评审} & \cellcolor{successgreen!20}\textbf{已完成} \\
+\hline
+\end{tabular}
+\end{center}
+
+% ===================== 第六章 风险预案 =====================
+\section{风险与应急预案}
+
+\begin{longtable}{L{3cm}C{1.5cm}L{8.5cm}}
+\toprule
+\textbf{风险} & \textbf{影响} & \textbf{应急预案} \\
+\midrule
+\endfirsthead
+\toprule
+\textbf{风险} & \textbf{影响} & \textbf{应急预案} \\
+\midrule
+\endhead
+\bottomrule
+\endfoot
+
+开发板 / 传感器故障 & 高 & 向导师申请备用设备；端侧先在后端 mock 数据，不阻塞前端开发 \\
+\midrule
+华为云 / 网络不稳定 & 中 & 本地部署 MQTT Broker 和数据库，不依赖外网；Demo 时用本地环境 \\
+\midrule
+传感器驱动调试超时 & 高 & 第 5 天晚上若烟雾传感器还没跑通，立即降级——用随机数模拟传感器数据，保证链路跑通 \\
+\midrule
+断网续传做不完 & 中 & 降级为“本地缓存 + 提示断网”，不强制做自动续传 \\
+\midrule
+AI 误报识别做不完 & 低 & 降级为基于规则的判断（如“10 秒内连续 3 次触发才告警”） \\
+\midrule
+APP 推送做不完 & 中 & 降级为 Web 后台弹窗 + 短信模拟，保证有通知渠道 \\
+\midrule
+答辩演示设备故障 & 高 & 准备录屏视频作为备用；准备 2 套演示环境 \\
+\bottomrule
+\end{longtable}
+
+% ===================== 第七章 考核自评 =====================
+\section{考核自评清单}
+
+\begin{longtable}{L{3.5cm}C{1.5cm}L{9cm}}
+\toprule
+\textbf{考核项} & \textbf{权重} & \textbf{自查标准} \\
+\midrule
+\endfirsthead
+\toprule
+\textbf{考核项} & \textbf{权重} & \textbf{自查标准} \\
+\midrule
+\endhead
+\bottomrule
+\endfoot
+
+项目功能完成度 & 30\% & MVP 必须 100\% 完成；完整版每多完成一项加分 \\
+\midrule
+代码质量 & 15\% & Git 提交规范、代码注释、目录结构清晰 \\
+\midrule
+AI 能力集成 & 15\% & 至少实现阈值告警；误报识别为加分项 \\
+\midrule
+团队协作 & 10\% & 看板更新及时、站会全员参与、无角色甩锅 \\
+\midrule
+答辩展示 & 15\% & 演示流畅、时间控制、问答应对 \\
+\midrule
+HCIA-PM 学习 & 10\% & 学习报告提交、课堂测试通过 \\
+\midrule
+文档沉淀 & 5\% & PRD、API 文档、部署说明、用户手册齐全 \\
+\bottomrule
+\end{longtable}
+
+% ===================== 结语 =====================
+\section*{核心建议}
+\addcontentsline{toc}{section}{核心建议}
+
+\begin{enumerate}
+  \item \textbf{第 5 天是生死线}：若烟雾传感器还没在开发板上跑通并上报数据，\textbf{立刻启动降级方案}（mock 数据或换传感器），不要硬刚硬件。
+  \item \textbf{前端并行开发}：第 4 天开始，前端不要等后端 API 写完——用 Mock.js 或本地 JSON 先写页面，后端 API 好了直接替换。
+  \item \textbf{每天留 1 小时给 HCIA-PM}：建议晚上 9--10 点统一学习，避免白天打断开发节奏。
+  \item \textbf{PM 每天盯看板}：确保没有卡片在“进行中”超过 2 天不动，超期立即介入协调。
+  \item \textbf{D7 的 internal demo 很关键}：这是第一次完整走通链路，如果 D7 走不通，后面很难补救。
+\end{enumerate}
+
+\vspace{1cm}
+\begin{center}
+\textcolor{mainblue}{\Large\bfseries 祝项目顺利，答辩出彩！}
+\end{center}
+
+\end{document}

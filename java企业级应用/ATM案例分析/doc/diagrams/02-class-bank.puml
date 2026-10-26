@@ -1,0 +1,92 @@
+@startuml
+!include style.puml
+
+
+top to bottom direction
+
+package "bank —— 银行数据层" #EAF2FF {
+  class BankDatabase <<单例>> {
+    {static} - INSTANCE
+    - cards / accounts : Map
+    - transactionLog : TransactionLog
+    + findCard() / findAccount()
+    + authenticate() : AuthResult
+    + getAvailableBalance() / getTotalBalance()
+    + debit / credit / registerWithdrawal()
+    + transfer(from, to, amount)
+    + getTransactionLog()
+  }
+
+  class Account {
+    - accountNumber : int
+    - ownerName / pin : String
+    - availableBalance / totalBalance
+    - withdrawnToday
+    + debit / credit(amount)
+    + addWithdrawnToday(amount)
+    + checkPin(pin)
+  }
+
+  class BankCard {
+    - cardNumber : int
+    - accountNumber : int
+    - status : CardStatus
+    + retain()
+    + isRetained()
+  }
+
+  class TransactionLog {
+    + append(record)
+    + recentOf(accountNumber, limit)
+  }
+
+  class TransactionRecord <<record>> {
+    time / accountNumber
+    type / amount
+    balanceAfter / statusText
+  }
+
+  enum CardStatus {
+    NORMAL / RETAINED
+  }
+
+  enum AuthResult {
+    SUCCESS / WRONG_PIN
+    CARD_RETAINED
+  }
+}
+
+package "policy —— 取款限额策略" #EFFAEF {
+  interface WithdrawalLimitPolicy {
+    + validate(amount, withdrawnToday)
+  }
+
+  abstract class AbstractLimitPolicy {
+    + validate() 通用两级校验
+  }
+
+  class StandardLimitPolicy {
+    单笔￥2500/日￥5000
+  }
+
+  class VipLimitPolicy {
+    单笔￥2万/日￥5万
+  }
+}
+
+BankDatabase *-down- TransactionLog : 持有
+BankDatabase o-down- "0..*" Account : 管理
+BankDatabase o-down- "0..*" BankCard : 关联
+TransactionLog o-down- "0..*" TransactionRecord : 保存
+Account -down-> "1" WithdrawalLimitPolicy : 采用（策略）
+WithdrawalLimitPolicy <|.. AbstractLimitPolicy
+AbstractLimitPolicy <|-- StandardLimitPolicy
+AbstractLimitPolicy <|-- VipLimitPolicy
+
+note right of Account
+  属性全部 private，
+  余额只能经 debit / credit 修改；
+  认证与吞卡计数由 BankDatabase 统一管理。
+end note
+
+@enduml

@@ -1,0 +1,37 @@
+@startuml
+!include style.puml
+
+
+left to right direction
+
+actor "用户（持卡人）" as User
+
+rectangle "ATM 系统边界" {
+  usecase "认证登录\n（插卡 + 密码）" as UC1
+  usecase "查询余额" as UC2
+  usecase "查询交易流水" as UC3
+  usecase "取款" as UC4
+  usecase "存款" as UC5
+  usecase "转账" as UC6
+}
+
+User --> UC1
+User --> UC2
+User --> UC3
+User --> UC4
+User --> UC5
+User --> UC6
+
+UC2 ..> UC1 : <<include>>
+UC3 ..> UC1 : <<include>>
+UC4 ..> UC1 : <<include>>
+UC5 ..> UC1 : <<include>>
+UC6 ..> UC1 : <<include>>
+
+note bottom of UC1
+  对比教材版：教材只列出三个用例；
+  本设计新增“交易流水”（自身能力）
+  和“转账”（多账户协作）两个用例。
+end note
+
+@enduml

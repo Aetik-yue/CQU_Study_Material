@@ -1,0 +1,46 @@
+@startuml
+!include style.puml
+
+
+autonumber
+actor "用户" as User
+participant "reader : CardReader" as Reader
+participant "atm : ATM" as ATM
+participant "pad : Keypad" as Pad
+participant "db : BankDatabase" as DB
+participant "card : BankCard" as Card
+
+User -> Reader : 插入银行卡
+Reader -> DB : findCard(卡号)
+alt 卡号无效或卡已被吞
+  DB --> Reader : null / 已吞卡的卡
+  Reader --> User : 提示重新插卡
+else 卡有效
+  DB --> Reader : BankCard
+  Reader --> ATM : 返回银行卡
+  loop 最多 3 次
+    ATM -> Pad : readLine("请输入密码")
+    Pad --> ATM : 密码
+    ATM -> DB : authenticate(账号, 密码)
+    alt 密码正确
+      DB --> ATM : SUCCESS（错误计数清零）
+      ATM --> User : 进入主菜单
+    else 密码错误且未满 3 次
+      DB --> ATM : WRONG_PIN
+      ATM --> User : 提示剩余输入机会
+    else 第 3 次错误
+      DB --> ATM : CARD_RETAINED
+      ATM -> Card : retain()  状态改为“已吞卡”
+      ATM -> Reader : retainCard()  硬件吞卡动作
+      ATM --> User : 提示联系银行网点
+    end
+  end
+end
+
+note over ATM, DB
+  吞卡状态记录在 BankCard 上，
+  属于银行数据而不是会话数据：
+  之后同一张卡再插入本机也会被拒绝。
+end note
+
+@enduml

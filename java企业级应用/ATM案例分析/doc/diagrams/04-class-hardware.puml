@@ -1,0 +1,100 @@
+@startuml
+!include style.puml
+
+
+top to bottom direction
+
+package "会话层" #E8F8F0 {
+  class AtmApplication <<组合根 main>> {
+    装配依赖并启动
+  }
+
+  class ATM {
+    - mainMenu : Menu<MainMenuChoice>
+    - transactionFactory
+    + run()
+    - authenticate(card)
+    - performTransactions(card)
+  }
+}
+
+package "ui —— 界面组件" #F7F0FF {
+  class "Menu<T>" as Menu <<泛型>> {
+    + add(label, value)
+    + select() : T
+  }
+  class "Menu.Item<T>" as MenuItem <<record>> {
+    label / value
+  }
+  enum MainMenuChoice {
+    六项菜单选项
+  }
+}
+
+package "hardware —— 硬件抽象（接口）" #F2F2F2 {
+  interface Display {
+    showMessageLine()
+    showAmountLine()
+  }
+  interface Keypad {
+    readInt()
+    readAmount()
+  }
+  interface CardReader {
+    readCard()
+    eject / retain
+  }
+  interface CashDispenser {
+    isSufficient()
+    dispenseCash()
+  }
+  interface DepositSlot {
+    isEnvelopeReceived()
+  }
+  interface ReceiptPrinter {
+    printReceipt()
+  }
+}
+
+package "hardware.console —— 控制台实现" #FFF0F0 {
+  class ConsoleDisplay
+  class ConsoleKeypad
+  class ConsoleCardReader
+  class ConsoleCashDispenser
+  class ConsoleDepositSlot
+  class ConsoleReceiptPrinter
+}
+
+' 会话层：组合优于继承
+ATM *-down- Menu : 组合
+ATM -down-> Display
+ATM -down-> Keypad
+ATM -down-> CardReader
+ATM -down-> CashDispenser
+ATM -down-> DepositSlot
+ATM -down-> ReceiptPrinter
+Menu *-down- MenuItem : 组成
+Menu --> MainMenuChoice : 选项值
+
+' 硬件接口的实现
+Display <|.. ConsoleDisplay
+Keypad <|.. ConsoleKeypad
+CardReader <|.. ConsoleCardReader
+CashDispenser <|.. ConsoleCashDispenser
+DepositSlot <|.. ConsoleDepositSlot
+ReceiptPrinter <|.. ConsoleReceiptPrinter
+
+note right of AtmApplication
+  入口只做一件事：new 出六个
+  控制台实现并注入 ATM（依赖注入）。
+  换图形界面版只改这一处装配。
+end note
+
+note bottom of ConsoleReceiptPrinter
+  ConsoleCardReader 的查卡动作以
+  IntFunction<BankCard> 注入
+  （bankDatabase::findCard），
+  硬件层不直接依赖银行层。
+end note
+
+@enduml

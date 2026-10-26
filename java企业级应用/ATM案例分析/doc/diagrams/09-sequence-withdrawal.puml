@@ -1,0 +1,48 @@
+@startuml
+!include style.puml
+
+
+autonumber
+actor "用户" as User
+participant "atm : ATM" as ATM
+participant "factory : TransactionFactory" as Factory
+participant "tx : Withdrawal" as Tx
+participant "pad : Keypad" as Pad
+participant "db : BankDatabase" as DB
+participant "cash : CashDispenser" as Cash
+participant "log : TransactionLog" as Log
+participant "prn : ReceiptPrinter" as Prn
+
+User -> ATM : 选择“取款”
+ATM -> Factory : create(取款, 账号)
+Factory -> Tx : new Withdrawal(...)
+Factory --> ATM : Transaction 父类引用
+ATM -> Tx : execute()  ← 多态调用
+activate Tx
+
+Tx -> Tx : perform()（子类规则）
+Tx -> Pad : readInt(金额档位)
+Pad --> Tx : ￥500
+Tx -> DB : getAvailableBalance()
+DB --> Tx : 可用余额
+Tx -> Tx : 限额策略.validate()
+Tx -> Cash : isSufficientCashAvailable()
+Cash --> Tx : 现金够吗
+Tx -> DB : debit() ①先记账
+Tx -> Cash : dispenseCash() ②后吐钞
+Cash --> User : 吐出真实现金
+Tx -> Log : append(流水)
+Tx -> Prn : printReceipt(凭条)
+Tx --> ATM : TransactionResult(成功)
+deactivate Tx
+ATM --> User : 显示“取款成功”，回主菜单
+
+note over Tx, DB
+  任一判断未通过（余额不足/超限/
+  现金不足/金额非法）：
+  perform() 立即返回失败结果，
+  不记账、不吐钞，ATM 显示原因后
+  回到主菜单等待重新选择。
+end note
+
+@enduml

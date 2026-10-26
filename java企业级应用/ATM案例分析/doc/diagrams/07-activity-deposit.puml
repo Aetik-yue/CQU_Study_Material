@@ -1,0 +1,32 @@
+@startuml
+!include style.puml
+
+
+start
+:输入存款金额（输入 0 取消）;
+note right
+  与取款顺序恰好相反：
+  取款“先记账、后吐钞”；
+  存款“先收信封、后记账”。
+  顺序由现实物理动作决定：
+  信封没投进来就入账=银行亏钱。
+end note
+if (输入 0？) then (是)
+  :返回主菜单;
+  stop
+endif
+if (金额大于 0？) then (否)
+  :提示金额非法，返回主菜单;
+  stop
+endif
+:等待存款槽投入信封;
+if (收到信封？) then (否)
+  :提示未收到信封，未入账;
+  stop
+endif
+:数据库入账（credit）;
+:打印凭条;
+:返回主菜单;
+stop
+
+@enduml

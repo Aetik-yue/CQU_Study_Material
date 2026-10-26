@@ -1,0 +1,21 @@
+admin
+admin123
+2
+2
+表达式测试角色
+EXPR_ROLE
+
+演示表达式与树形授权
+1
+6
+2
+user:* role:list -10
+y
+3
+0
+6
+4
+y
+b
+0
+0

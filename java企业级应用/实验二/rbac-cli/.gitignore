@@ -1,0 +1,24 @@
+# ---- 构建产物 ----
+target/
+*.class
+*.jar
+!/*/lib/*.jar
+
+# ---- 运行日志 ----
+logs/*.log
+logs/*.log.*
+
+# ---- IDE ----
+.idea/
+*.iml
+*.ipr
+*.iws
+.vscode/
+
+# ---- 临时/测试输出 ----
+test/*_out.txt
+test/reg_*.txt
+test/_*.txt
+test/_*.log
+_*.log
+_smoke_out.txt

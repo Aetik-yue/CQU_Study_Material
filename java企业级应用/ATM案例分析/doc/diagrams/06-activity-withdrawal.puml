@@ -1,0 +1,40 @@
+@startuml
+!include style.puml
+
+
+start
+:选择取款金额（档位/其他/取消）;
+note right
+  判断顺序即风控顺序：
+  金额、余额（与用户相关）→
+  限额策略 → 机器硬件（钞箱）。
+  失败一律返回主菜单——循环在
+  会话层 ATM.performTransactions。
+end note
+if (取消或输入 0？) then (是)
+  :返回主菜单;
+  stop
+endif
+if (金额为 100 的整数倍？) then (否)
+  :提示金额非法，返回主菜单;
+  stop
+endif
+if (余额足够？) then (否)
+  :提示余额不足，返回主菜单;
+  stop
+endif
+if (未超限额策略？) then (否)
+  :提示超限原因，返回主菜单;
+  stop
+endif
+if (钞箱现金足够？) then (否)
+  :提示现金不足，返回主菜单;
+  stop
+endif
+:数据库扣款（先记账）;
+:出钞机吐钞（后吐钞）;
+:打印凭条;
+:返回主菜单;
+stop
+
+@enduml

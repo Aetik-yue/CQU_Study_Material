@@ -1,0 +1,46 @@
+@startuml
+!include style.puml
+
+
+autonumber
+actor "用户" as User
+participant "atm : ATM" as ATM
+participant "tx : Transfer" as Tx
+participant "pad : Keypad" as Pad
+participant "db : BankDatabase" as DB
+participant "log : TransactionLog" as Log
+
+User -> ATM : 在主菜单选择“转账”
+ATM -> Tx : execute()
+activate Tx
+Tx -> Tx : perform()
+Tx -> Pad : readInt("请输入转入账号")
+Pad --> Tx : 1002
+Tx -> DB : findAccount(1002)
+alt 目标账号无效（不存在 / 等于本账号）
+  DB --> Tx : null 或本账户
+  Tx --> ATM : TransactionResult(目标账号无效)
+else 目标账号有效
+  DB --> Tx : 目标 Account
+  Tx -> Pad : readAmount("请输入转账金额")
+  Pad --> Tx : 300
+  Tx -> DB : getAvailableBalance(本账号)
+  DB --> Tx : 可用余额
+  alt 余额不足
+    Tx --> ATM : TransactionResult(余额不足)
+  else 余额充足
+    Tx -> DB : transfer(本账号, 1002, 300)
+    activate DB
+    DB -> DB : 本方 debit(300)
+    DB -> DB : 对方 credit(300)
+    deactivate DB
+    Tx -> Tx : buildRecords() 覆写钩子：生成两条流水
+    Tx -> Log : append(转账-转出)
+    Tx -> Log : append(转账-转入)
+    Tx --> ATM : TransactionResult(成功)
+  end
+end
+deactivate Tx
+ATM --> User : 显示“转账成功”，回到主菜单
+
+@enduml

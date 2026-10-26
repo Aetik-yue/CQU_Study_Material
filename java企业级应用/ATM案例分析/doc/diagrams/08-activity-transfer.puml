@@ -1,0 +1,35 @@
+@startuml
+!include style.puml
+
+
+start
+:输入转入账号（输入 0 取消）;
+note right
+  转账是新增交易的样板：
+  新增子类 + 工厂分支，
+  会话层调用 execute() 一行不改。
+end note
+if (输入 0？) then (是)
+  :返回主菜单;
+  stop
+endif
+if (目标账号有效？) then (否)
+  :提示目标账号无效;
+  stop
+endif
+:输入转账金额（输入 0 取消）;
+if (输入 0？) then (是)
+  :返回主菜单;
+  stop
+endif
+if (余额足够？) then (否)
+  :提示余额不足;
+  stop
+endif
+:一次记账：本方 debit + 对方 credit;
+:两个账户各记一条流水;
+:打印凭条（仅发起账户）;
+:返回主菜单;
+stop
+
+@enduml

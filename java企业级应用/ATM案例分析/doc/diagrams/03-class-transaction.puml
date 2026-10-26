@@ -1,0 +1,77 @@
+@startuml
+!include style.puml
+
+
+top to bottom direction
+
+package "transaction —— 交易层" #FFF6E5 {
+  class TransactionFactory {
+    + create(choice, accountNumber)
+  }
+
+  abstract class Transaction <<sealed>> {
+    # accountNumber : int
+    # bankDatabase : BankDatabase
+    # display : Display
+    # receiptPrinter : ReceiptPrinter
+    + execute() <<final 模板方法>>
+    # perform() <<abstract>>
+    + getTypeName() <<abstract>>
+    # buildRecords() <<钩子>>
+  }
+
+  class BalanceInquiry <<final>> {
+    只读查询
+  }
+
+  class HistoryInquiry <<final>> {
+    最近十条
+  }
+
+  class Withdrawal <<final>> {
+    四重判断
+  }
+
+  class Deposit <<final>> {
+    先收信封
+  }
+
+  class Transfer <<final>> {
+    两账户记账
+  }
+
+  class TransactionResult <<record>> {
+    status / message
+    amount / balanceAfter
+  }
+}
+
+class BankDatabase <<bank 层>> {
+  + debit / credit / transfer
+  + getTransactionLog()
+}
+
+class WithdrawalLimitPolicy <<policy 层>> {
+  + validate(金额, 今日已取)
+}
+
+TransactionFactory -down-> Transaction : 创建
+Transaction <|-- BalanceInquiry
+Transaction <|-- HistoryInquiry
+Transaction <|-- Withdrawal
+Transaction <|-- Deposit
+Transaction <|-- Transfer
+Transaction -down-> TransactionResult : 返回
+Transaction ..> BankDatabase : 读写数据
+Transaction ..> WithdrawalLimitPolicy : 取款校验
+
+note right of Transaction
+  execute() 是 final 模板方法：
+  固定“执行→显示→记流水→打凭条”骨架；
+  perform() 是子类唯一必答项；
+  sealed 使交易家族封闭可控。
+  新增交易只加子类＋工厂分支，
+  会话层调用 execute() 不改一行。
+end note
+
+@enduml

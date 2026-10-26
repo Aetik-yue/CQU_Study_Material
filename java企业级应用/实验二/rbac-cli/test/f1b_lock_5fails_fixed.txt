@@ -1,0 +1,10 @@
+user1
+badpass1
+user1
+badpass2
+user1
+badpass3
+user1
+badpass4
+user1
+badpass5

@@ -1,0 +1,41 @@
+' 公共样式：所有图共用
+skinparam defaultFontName "Microsoft YaHei"
+skinparam defaultFontSize 13
+skinparam shadowing false
+skinparam dpi 150
+skinparam roundcorner 8
+skinparam classAttributeIconSize 0
+skinparam class {
+    BackgroundColor #FFFFFF
+    BorderColor #4A6FA5
+    ArrowColor #4A6FA5
+}
+skinparam sequence {
+    ArrowColor #4A6FA5
+    LifeLineBorderColor #999999
+    ParticipantBorderColor #4A6FA5
+    ParticipantBackgroundColor #EEF4FF
+    ParticipantFontStyle bold
+}
+skinparam activity {
+    BackgroundColor #FFF9E6
+    BorderColor #B8860B
+    ArrowColor #8A6D3B
+    DiamondBackgroundColor #FFF3D6
+    DiamondBorderColor #B8860B
+}
+skinparam state {
+    BackgroundColor #FFF9E6
+    BorderColor #B8860B
+    ArrowColor #8A6D3B
+}
+skinparam usecase {
+    BackgroundColor #EEF4FF
+    BorderColor #4A6FA5
+    ArrowColor #4A6FA5
+}
+skinparam actor {
+    BackgroundColor #FFF3E0
+    BorderColor #B8860B
+}
+skinparam maxMessageSize 140

@@ -1,0 +1,31 @@
+@startuml
+!include style.puml
+
+
+start
+:显示欢迎界面;
+note right
+  教材版：认证不通过无限重输；
+  本设计：三次错误即吞卡，
+  更接近真实 ATM 的行为。
+end note
+while (还有客户使用？) is (是)
+  :插卡，读卡器读取卡号;
+  if (本行卡且未吞卡？) then (否)
+    :提示重新插卡;
+  else (是)
+    :提示输入密码;
+    while (密码错误未满三次？) is (是)
+      :提示剩余机会;
+    endwhile (否)
+    if (三次错误？) then (是)
+      :吞卡，提示联系银行;
+    else (否)
+      :登录成功，进入主菜单;
+    endif
+  endif
+endwhile (否)
+:显示“感谢使用，再见”;
+stop
+
+@enduml
